@@ -7,5 +7,7 @@ public:
   bool Initialize();
   void Finalize();
 private:
-  HANDLE iocpHandle = NULL;
+  void _Run();
+private:
+  HANDLE iocpHandle = nullptr;
 };
