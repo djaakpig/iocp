@@ -1,43 +1,57 @@
 #include "IoService.h"
+#include "IoCallback.h"
+#include "IIoObject.h"
 
 bool IoService::Associate(HANDLE h)
 {
-  auto result=CreateIoCompletionPort(h,iocpHandle,0,0);
+  const auto result=CreateIoCompletionPort(h, iocpHandle, 0, 0);
   return iocpHandle!=result;
 }
 
-bool IoService::Initialize(DWORD numWorkers)
+bool IoService::Start(DWORD numWorkers)
 {
-  iocpHandle=CreateIoCompletionPort(INVALID_HANDLE_VALUE,nullptr,0,numWorkers);
-  if(NULL==iocpHandle)
+ iocpHandle=CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, numWorkers);
+  if(nullptr==iocpHandle)
     return false;
-  for(DWORD workerIndex=0;numWorkers>workerIndex;++workerIndex)
+
+  for(DWORD workerId=0; numWorkers>workerId; ++workerId)
     workers.push_back(thread(bind(&IoService::_Run,this)));
+
   return true;
 }
 
-bool IoService::Finalize()
+bool IoService::Stop()
 {
-  for(auto ii=0;workers.size ()>ii;++ii)
-    PostQueuedCompletionStatus(iocpHandle,0,0,nullptr);
+  for(size_t workerId=0; workers.size()>workerId; ++workerId)
+    PostQueuedCompletionStatus(iocpHandle, 0, 0, nullptr);
+
   workers.clear();
 
   if(nullptr!=iocpHandle)
   {
     CloseHandle(iocpHandle);
-    iocHandle=nullptr;
+    iocpHandle=nullptr;
   }
 }
 
 void IoService::_Run()
 {
+  DWORD numBytes=0;
+  ULONGPTR cmpl=0;
+  POVERLAPPED pOvl=nullptr;
+
   while(true)
   {
-    const auto r=GetQueuedCompletionStatus(iocpHandle,&numBytes,&cmpl,&ovl,INFINITE);
-    if(!r||0==cmpl||nullptr==ovl)
+    const auto r=GetQueuedCompletionStatus(iocpHandle,
+                                           &numBytes,
+                                           &cmpl,
+                                           &pOvl,
+                                           INFINITE);
+    if(!r || 0==cmpl || nullptr==pOvl)
       break;
-    auto pOvl=reinterpret_cast<IoOvl*>(ovl);
-    auto pOwn=reinterpret_cast<IoOwn*>(cmpl);
-    pOvl->OnComplete(pOwn);
+
+    const auto pCallback=reinterpret_cast<IoCallback*>(pOvl);
+    const auto pObj=reinterpret_cast<IIoObject*>(cmpl);
+    pCallback->OnComplete(pObj, numBytes);
   }
 }
