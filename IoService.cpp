@@ -4,14 +4,14 @@
 
 bool IoService::Associate(HANDLE h)
 {
-  const auto result=CreateIoCompletionPort(h, iocpHandle, 0, 0);
-  return iocpHandle!=result;
+  const auto result=CreateIoCompletionPort(h, _iocpHandle, 0, 0);
+  return _iocpHandle!=result;
 }
 
 bool IoService::Start(DWORD numWorkers)
 {
- iocpHandle=CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, numWorkers);
-  if(nullptr==iocpHandle)
+ _iocpHandle=CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, numWorkers);
+  if(nullptr==_iocpHandle)
     return false;
 
   for(DWORD workerId=0; numWorkers>workerId; ++workerId)
@@ -23,14 +23,14 @@ bool IoService::Start(DWORD numWorkers)
 bool IoService::Stop()
 {
   for(size_t workerId=0; workers.size()>workerId; ++workerId)
-    PostQueuedCompletionStatus(iocpHandle, 0, 0, nullptr);
+    PostQueuedCompletionStatus(_iocpHandle, 0, 0, nullptr);
 
   workers.clear();
 
-  if(nullptr!=iocpHandle)
+  if(nullptr!=_iocpHandle)
   {
-    CloseHandle(iocpHandle);
-    iocpHandle=nullptr;
+    CloseHandle(_iocpHandle);
+    _iocpHandle=nullptr;
   }
 }
 
@@ -42,7 +42,7 @@ void IoService::_Run()
 
   while(true)
   {
-    const auto r=GetQueuedCompletionStatus(iocpHandle,
+    const auto r=GetQueuedCompletionStatus(_iocpHandle,
                                            &numBytes,
                                            &cmpl,
                                            &pOvl,
