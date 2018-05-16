@@ -1,16 +1,16 @@
 #pragma once
-#include <windows.h>
+#include <Windows.h>
 
 class IoService final
 {
 public:
-  bool Associate(HANDLE h);
-  bool Start(const DWORD numWorkers);
-  void Stop();
+	bool Associate(HANDLE h);
+	bool Start(const DWORD numWorkers);
+	void Stop();
 
 private:
-  void _Run();
+	void _Run();
 
 private:
-  HANDLE _iocpHandle=nullptr;
+	HANDLE _iocpHandle = nullptr;
 };

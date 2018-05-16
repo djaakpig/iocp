@@ -1,7 +1,7 @@
 #pragma once
-#include <windows.h>
+#include <Windows.h>
 
 __interface IIoObject
 {
-  HANDLE GetHandle() const;
+	HANDLE GetHandle() const;
 };

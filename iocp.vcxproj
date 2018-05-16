@@ -81,7 +81,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExtensionTable.cpp" />
     <ClCompile Include="iocp.cpp" />
+    <ClCompile Include="IoService.cpp" />
+    <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="TcpListener.cpp" />
+    <ClCompile Include="TcpSession.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ExtensionTable.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="IIoObject.h" />
+    <ClInclude Include="IoCallback.h" />
+    <ClInclude Include="IoService.h" />
+    <ClInclude Include="Socket.h" />
+    <ClInclude Include="TcpListener.h" />
+    <ClInclude Include="TcpSession.h" />
+    <ClInclude Include="WinsockStarter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,23 +1,31 @@
 #pragma once
-#include <windows.h>
-#include <winsock2.h>
-#include <function>
+#include <Windows.h>
+#include <WinSock2.h>
+#include <functional>
+using namespace std;
 
 class IIoObject;
 class IoCallback final : public OVERLAPPED
 {
-  using Fn=function<bool(IIoObject*, const DWORD)>;
+public:
+	using Fn = function<bool(const int, IIoObject* const, const DWORD)>;
 
 public:
-  IoCallback(const Fn&& fn) : _fn(fn)
-  {
-  }
+	IoCallback() = default;
+	explicit IoCallback(const Fn&& fn) : _fn(fn)
+	{
+	}
 
-  bool OnComplete(IIoObject* pObj, const DWORD numBytes) const
-  {
-    return _fn ? _fn(pObj, numBytes) : false;
-  }
+	inline operator =(const Fn&& fn)
+	{
+		_fn = fn;
+	}
+
+	inline bool Invoke(const int e, IIoObject* const pObj, const DWORD numBytes) const
+	{
+		return _fn ? _fn(e, pObj, numBytes) : false;
+	}
 
 private:
-  const Fn _fn;
+	Fn _fn = nullptr;
 };
