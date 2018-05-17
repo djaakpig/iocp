@@ -1,13 +1,8 @@
 #pragma once
 #include "IoCallback.h"
 
-struct IoCallbackReuse : IoCallback
+class IoCallbackReuse final : public IoCallback
 {
-  using Fn = function<bool(const int, shared_ptr<TcpSession>)>;
-
-  bool OnComplete(onst int e, cconst DWORD numBytes) override;
-  void Reset() override;
-
-  shared_ptr<TcpSession> sessionPtr;
-  Fn fn;
+public:
+	bool OnComplete(const int e, const DWORD numBytes) override;
 };

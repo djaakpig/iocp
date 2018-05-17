@@ -2,36 +2,36 @@
 #include "IIoObject.h"
 #include "IoCallbackAccept.h"
 #include "IoCallbackConnect.h"
-#include "IoCallbackDisconnect.h"
 #include "IoCallbackRecv.h"
+#include "IoCallbackReuse.h"
 #include "IoCallbackSend.h"
 
 class Socket;
 class TcpListener;
-class TcpSession final : public IIoObject
+class TcpSession final : public IIoObject, public enable_shared_from_this<TcpSession>
 {
 public:
-    TcpSession();
+	TcpSession();
 	~TcpSession();
 
 	//	{{GET}}
 	HANDLE GetHandle() const override;
 	inline Socket* GetSocket() const
 	{
-		return _socket;
+		return _pSocket;
 	}
 	//	{{GET}}
 
-    bool Accept();
-	bool Accept(shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn);
+	bool Accept();
+	bool Accept(shared_ptr<TcpListener> listenerPtr, const IoCallback::Fn&& fn);
 	void Close();
 	bool Create();
-	bool Recv(const IoCallbackRecv::Fn&& fn);
-	bool Reuse(const IoCallbackReuse::Fn&& fn);
-	bool Send(const IoCallbackSend::Fn&& fn);
+	bool Recv(const IoCallback::Fn&& fn);
+	bool Reuse(const IoCallback::Fn&& fn);
+	bool Send(const IoCallback::Fn&& fn);
 
 private:
-    bool _Accept();
+	bool _Accept();
 
 private:
 	Socket* _pSocket = nullptr;

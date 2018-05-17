@@ -1,6 +1,6 @@
 #pragma once
-#include <Windows.h>
 #include <Winsock2.h>
+#include <utility>
 
 class Socket final
 {
@@ -18,8 +18,23 @@ public:
 
 	bool Create(const int type, const int protocol);
 	void Close();
-	LPVOID GetExtension(const GUID&& id) const;
-	bool SetOptionInt(const int level, const int name, int val);
+	template<class T>
+	inline T GetExtension(GUID&& id) const
+	{
+		return static_cast<T>(_GetExtension(std::move(id)));
+	}
+	inline bool SetOptionInt(const int level, const int name, int val) const
+	{
+		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(&val), sizeof(val));
+	}
+	template<class T>
+	inline bool SetOptionPtr(const int level, const int name, T* const pVal) const
+	{
+		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(pVal), sizeof(T));
+	}
+
+private:
+	LPVOID _GetExtension(GUID&& id) const;
 
 private:
 	SOCKET _socket = INVALID_SOCKET;

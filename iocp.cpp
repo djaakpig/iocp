@@ -5,6 +5,6 @@
 
 int main()
 {
-	WinsockStarter wsockStarter;
+	WinsockStarter wsockStarter(2, 2);
     return 0;
 }

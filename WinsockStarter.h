@@ -4,8 +4,9 @@
 class WinsockStarter final
 {
 public:
-	explicit WinsockStarter(const WORD versionRequired)
+	explicit WinsockStarter(const BYTE highVersion, const BYTE lowVersion)
 	{
+		const auto versionRequired = MAKEWORD(highVersion, lowVersion);
 		if(0 == WSAStartup(versionRequired, &_wsaData))
 		{
 			_available = _wsaData.wVersion == versionRequired;

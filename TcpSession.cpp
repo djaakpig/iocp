@@ -2,6 +2,7 @@
 #include "Socket.h"
 #include "Global.h"
 #include "TcpListener.h"
+#include <MSWSock.h>
 
 TcpSession::TcpSession()
 {
@@ -15,46 +16,21 @@ TcpSession::~TcpSession()
 
 bool TcpSession::Accept()
 {
-    return _Accept();
+	return _Accept();
 }
 
-bool TcpSession::Accept(shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn)
+bool TcpSession::Accept(shared_ptr<TcpListener> listenerPtr, const IoCallback::Fn&& fn)
 {
-    if(!listenerPtr)
-        return false;
+	if(!listenerPtr) return false;
 
-	//	TODO: 3 초 하드코딩 지우자!
+	//	TODO: 3 �� �ϵ��ڵ� ����.
 	if(!_pSocket->SetOptionInt(SOL_SOCKET, SO_CONNECT_TIME, 3))
 		return false;
 
-    _acceptCallback.listenerPtr = listenerPtr;
-    _acceptCallback.sessionPtr = shared_from_this();
-	_acceptCallback.fn = fn;
+	_acceptCallback.Bind(shared_from_this(), move(fn));
+	_acceptCallback.SetListener(listenerPtr);
 
-    return _Accept();
-}
-
-bool TcpSession::_Accept()
-{
-    _recvBuf.Reset();
-
-	const auto r = AcceptEx(_acceptCallback.listenerPtr->GetSocket()->GetSocketHandle(),
-							_pSocket->GetSocketHandle(),
-							_recvBuf.GetPointer(),
-							0,
-                            LocalSockaddrLen,
-                            RemoteSockaddrLen,
-							nullptr,
-							&_acceptCallback);
-
-	if(SOCKET_ERROR == r)
-	{
-		const auto lastError = WSAGetLastError();
-		if(WSA_IO_PENDING != lastError)
-			return false;
-	}
-
-	return true;
+	return _Accept();
 }
 
 void TcpSession::Close()
@@ -64,7 +40,10 @@ void TcpSession::Close()
 
 bool TcpSession::Create()
 {
-	return _pSocket->Create(SOCK_STREAM, IPPROTO_TCP);
+	if(!_pSocket->Create(SOCK_STREAM, IPPROTO_TCP))
+		return false;
+
+	return true;
 }
 
 HANDLE TcpSession::GetHandle() const
@@ -72,12 +51,12 @@ HANDLE TcpSession::GetHandle() const
 	return _pSocket->GetHandle();
 }
 
-bool TcpSession::Recv(const IoCallbackRecv::Fn&& fn)
+bool TcpSession::Recv(const IoCallback::Fn&& fn)
 {
-	_recvCallback = fn;
+	_recvCallback.Bind(shared_from_this(), move(fn));
 
 	DWORD flags = 0;
-	const auto r = WSARecv(_socket, nullptr, 0, nullptr, &flags, &_recvCallback, nullptr);
+	const auto r = WSARecv(_pSocket->GetSocketHandle(), nullptr, 0, nullptr, &flags, &_recvCallback, nullptr);
 	if(FALSE == r)
 	{
 		const auto lastError = WSAGetLastError();
@@ -88,12 +67,12 @@ bool TcpSession::Recv(const IoCallbackRecv::Fn&& fn)
 	return true;
 }
 
-bool TcpSession::Reuse(const IoCallbackReuse::Fn&& fn)
+bool TcpSession::Reuse(const IoCallback::Fn&& fn)
 {
-	_disconnectCallback = fn;
+	_reuseCallback.Bind(shared_from_this(), move(fn));
 
 	const DWORD flags = TF_DISCONNECT | TF_REUSE_SOCKET;
-	const auto r = TransmitFile(_socket, nullptr, 0, 0, &_disconnectCallback, nullptr, flags);
+	const auto r = TransmitFile(_pSocket->GetSocketHandle(), nullptr, 0, 0, &_reuseCallback, nullptr, flags);
 	if(FALSE == r)
 	{
 		const auto lastError = WSAGetLastError();
@@ -104,12 +83,12 @@ bool TcpSession::Reuse(const IoCallbackReuse::Fn&& fn)
 	return true;
 }
 
-bool TcpSession::Send(const IoCallbackSend::Fn&& fn)
+bool TcpSession::Send(const IoCallback::Fn&& fn)
 {
-	_sendCallback = fn;
+	_sendCallback.Bind(shared_from_this(), move(fn));
 
-	DWORD flags = 0;
-	const auto r = WSASend(_socket, nullptr, 0, nullptr, &flags, &_sendCallback, nullptr);
+	const DWORD flags = 0;
+	const auto r = WSASend(_pSocket->GetSocketHandle(), nullptr, 0, nullptr, flags, &_sendCallback, nullptr);
 	if(FALSE == r)
 	{
 		const auto lastError = WSAGetLastError();
@@ -122,14 +101,15 @@ bool TcpSession::Send(const IoCallbackSend::Fn&& fn)
 
 bool TcpSession::_Accept()
 {
-    _recvBuf.Reset();
+	_recvBuf.Reset();
 
-	const auto r = AcceptEx(_listenerPtr->GEtSocket()->GetSocketHandle(),
+	const auto pListenSocket = _acceptCallback.GetListenerSocket();
+	const auto r = AcceptEx(pListenSocket->GetSocketHandle(),
 							_pSocket->GetSocketHandle(),
 							_recvBuf.GetPointer(),
 							0,
-                            LocalSockaddrLen,
-                            RemoteSockaddrLen,
+							LocalSockaddrLen,
+							RemoteSockaddrLen,
 							nullptr,
 							&_acceptCallback);
 

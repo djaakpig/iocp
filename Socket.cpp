@@ -2,12 +2,7 @@
 
 bool Socket::Create(const int type, const int protocol)
 {
-	_socket = WSASocket(AF_INET,
-						type,
-						protocol,
-						nullptr,
-						0,
-						WSA_FLAG_OVERLAPPED);
+	_socket = WSASocket(AF_INET, type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
 	return INVALID_SOCKET != _socket;
 }
 
@@ -20,28 +15,18 @@ void Socket::Close()
 	}
 }
 
-LPVOID Socket::GetExtension(const GUID&& id) const
+LPVOID Socket::_GetExtension(GUID&& id) const
 {
 	LPVOID ptr = nullptr;
 	DWORD bytesReturned = 0;
-  
-    const auto r = WSAIoctl(_socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
-			 &id, sizeof(id),
-			 &ptr, sizeof(ptr),
-			 &bytesReturned,
-			 nullptr
-            ,nullptr);
-    if(SOCKET_ERROR == r)
-        return nullptr;
+	const auto r = WSAIoctl(_socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
+							reinterpret_cast<LPVOID>(&id), sizeof(id),
+							static_cast<LPVOID>(&ptr), sizeof(ptr),
+							&bytesReturned,
+							nullptr,
+							nullptr);
+	if(SOCKET_ERROR == r)
+		return nullptr;
 
 	return ptr;
-}
-
-bool Socket::SetOptionInt(const int level, const int name, int val)
-{
-	return SOCKET_ERROR != setsockopt(_socket,
-									  level,
-									  name,
-									  reinterpret_cast<char*>(&val),
-									  sizeof(val));
 }

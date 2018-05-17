@@ -1,15 +1,11 @@
 #pragma once
 #include "IoCallback.h"
 
-struct IoCallbackSend : IoCallback
+class IoCallbackSend final : public IoCallback
 {
-  using Fn = function<bool(const int, shared_ptr<TcpSession>, const DWORD)>;
-
-  bool OnComplete(const DWORD numBytes) override;
-  void Reset() override;
-
-  Fn fn;
+public:
+	bool OnComplete(const int e, const DWORD numBytes) override;
 
 private:
-  char _buf[1024];
+	char _buf[1024];
 };

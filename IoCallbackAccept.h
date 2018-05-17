@@ -4,19 +4,23 @@
 const DWORD LocalSockaddrLen = sizeof(SOCKADDR_IN) + 16;
 const DWORD RemoteSockaddrLen = sizeof(SOCKADDR_IN) + 16;
 
+class Socket;
 class TcpListener;
-class TcpSession;
-struct IoCallbackAccept : IoCallback
+class IoCallbackAccept final : public IoCallback
 {
-  using Fn = function<bool(const int, shared_ptr<TcpSession>)>;
+public:
+	//	{{SET}}
+	inline void SetListener(shared_ptr<TcpListener> listenerPtr)
+	{
+		_listenerPtr = listenerPtr;
+	}
+	//	{{SET}}
 
-  bool OnComplete(const int e, const DWORD numBytes) override;
-  void Reset() override;
-
-  shared_ptr<TcpListener> listenerPtr;
-  shared_ptr<TcpSession> sessionPtr;
-  Fn fn;
+	void Clear() override;
+	const Socket* GetListenerSocket() const;
+	bool OnComplete(const int e, const DWORD numBytes) override;
 
 private:
-  char _buf[LocalSockaddrLen + RemoteSockaddrLen];
+	shared_ptr<TcpListener> _listenerPtr;
+	char _buf[LocalSockaddrLen + RemoteSockaddrLen];
 };

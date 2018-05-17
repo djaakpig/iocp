@@ -1,25 +1,51 @@
 #pragma once
-#include <Windows.h>
 #include <WinSock2.h>
 #include <memory>
-#incluse <funcrional>
+#include <functional>
+#include <atomic>
+#include "NonCopyable.h"
 using namespace std;
 
-struct IoCallback : OVERLAPPED
+class TcpSession;
+class IoCallback abstract : public OVERLAPPED, private NonCopyable
 {
-    IoCallback()
-    {
-        _Reset();
-    }
-    virtual ~IoCallback() = default;
+public:
+	using Fn = function<bool(const int, shared_ptr<TcpSession>, const DWORD)>;
 
-    virtual bool OnComplete(const int e, const DWORD numBytes) = 0;
-    virtual void Reset() = 0;
+public:
+	IoCallback();
+	virtual ~IoCallback() = default;
+
+	//	{{GET}}
+	inline bool IsInProgress() const
+	{
+		return _inProgress;
+	}
+	//	{{GET}}
+
+	//	{{SET}}
+	inline void ResetInProgress()
+	{
+		_inProgress = false;
+	}
+	inline void SetInProgress()
+	{
+		_inProgress = true;
+	}
+	//	{{SET}}
+
+	void Bind(shared_ptr<TcpSession> sessionPtr, const Fn&& fn);
+	virtual void Clear();
+	virtual bool OnComplete(const int e, const DWORD numBytes) = 0;
+	void Reset();
 
 protected:
-    void _Reset()
-    {
-      const auto pOvl = static_cast<LPOVERLAPPED>(this);
-      SecureZeroMemory(pOvl, sizeof(OVERLAPPED));
-    }
+	bool _Invoke(const int e, const DWORD numBytes) const;
+
+protected:
+	shared_ptr<TcpSession> _sessionPtr;
+
+private:
+	Fn _fn;
+	atomic_bool _inProgress = false;
 };

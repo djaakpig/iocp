@@ -2,16 +2,9 @@
 
 bool IoCallbackSend::OnComplete(const int e, const DWORD numBytes)
 {
-  if(e)
-    return fn(e, numBytes);
+	if(e) return _Invoke(e, numBytes);
 
-  //TODO: send n bytes.
+	//TODO: send n bytes.
 
-  return fn(ERROR_SUCCESS, numBytes);
-}
-
-void IoCallbackSend::Reset()
-{
-  _Reset();
-  sessionPtr = nullptr;
+	return _Invoke(ERROR_SUCCESS, numBytes);
 }

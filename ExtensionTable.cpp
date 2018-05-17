@@ -3,20 +3,20 @@
 
 bool ExtensionTable::Load(const Socket* const pSocket)
 {
-	TransmitFile = static_cast<LPFN_TRANSMITFILE>(pSocket->GetExtension(WSAID_TRANSMITFILE));
-	if(!TransmitFile) return false;
+	transmitFile = pSocket->GetExtension<LPFN_TRANSMITFILE>(WSAID_TRANSMITFILE);
+	if(!transmitFile) return false;
 
-	AcceptEx = static_cast<LPFN_ACCEPTEX>(pSocket->GetExtension(WSAID_ACCEPTEX));
-	if(!AcceptEx) return false;
+	acceptEx = pSocket->GetExtension<LPFN_ACCEPTEX>(WSAID_ACCEPTEX);
+	if(!acceptEx) return false;
 
-	GetAcceptExSockaddrs = static_cast<LPFN_GETACCEPTEXSOCKADDRS>(pSocket->GetExtension(WSAID_GETACCEPTEXSOCKADDRS));
-	if(!GetAcceptExSockaddrs) return false;
+	getAcceptExSockaddrs = pSocket->GetExtension<LPFN_GETACCEPTEXSOCKADDRS>(WSAID_GETACCEPTEXSOCKADDRS);
+	if(!getAcceptExSockaddrs) return false;
 
-	ConnectEx = static_cast<LPFN_CONNECTEX>(pSocket->GetExtension(WSAID_CONNECTEX));
-	if(!ConnectEx) return false;
+	connectEx = pSocket->GetExtension<LPFN_CONNECTEX>(WSAID_CONNECTEX);
+	if(!connectEx) return false;
 
-	DisconnectEx = static_cast<LPFN_DISCONNECTEX>(pSocket->GetExtension(WSAID_DISCONNECTEX));
-	if(!DisconnectEx) return false;
+	disconnectEx = pSocket->GetExtension<LPFN_DISCONNECTEX>(WSAID_DISCONNECTEX);
+	if(!disconnectEx) return false;
 
 	return true;
 }
