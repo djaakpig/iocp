@@ -1,31 +1,25 @@
 #pragma once
 #include <Windows.h>
 #include <WinSock2.h>
-#include <functional>
+#include <memory>
+#incluse <funcrional>
 using namespace std;
 
-class IIoObject;
-class IoCallback final : public OVERLAPPED
+struct IoCallback : OVERLAPPED
 {
-public:
-	using Fn = function<bool(const int, IIoObject* const, const DWORD)>;
+    IoCallback()
+    {
+        _Reset();
+    }
+    virtual ~IoCallback() = default;
 
-public:
-	IoCallback() = default;
-	explicit IoCallback(const Fn&& fn) : _fn(fn)
-	{
-	}
+    virtual bool OnComplete(const int e, const DWORD numBytes) = 0;
+    virtual void Reset() = 0;
 
-	inline operator =(const Fn&& fn)
-	{
-		_fn = fn;
-	}
-
-	inline bool Invoke(const int e, IIoObject* const pObj, const DWORD numBytes) const
-	{
-		return _fn ? _fn(e, pObj, numBytes) : false;
-	}
-
-private:
-	Fn _fn = nullptr;
+protected:
+    void _Reset()
+    {
+      const auto pOvl = static_cast<LPOVERLAPPED>(this);
+      SecureZeroMemory(pOvl, sizeof(OVERLAPPED));
+    }
 };

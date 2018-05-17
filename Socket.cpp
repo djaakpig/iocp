@@ -24,12 +24,15 @@ LPVOID Socket::GetExtension(const GUID&& id) const
 {
 	LPVOID ptr = nullptr;
 	DWORD bytesReturned = 0;
-
-	WSAIoctl(_socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
+  
+    const auto r = WSAIoctl(_socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
 			 &id, sizeof(id),
 			 &ptr, sizeof(ptr),
 			 &bytesReturned,
-			 nullptr);
+			 nullptr
+            ,nullptr);
+    if(SOCKET_ERROR == r)
+        return nullptr;
 
 	return ptr;
 }

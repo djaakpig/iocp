@@ -11,11 +11,7 @@ TcpListener::TcpListener()
 
 TcpListener::~TcpListener()
 {
-	if(nullptr != _pSocket)
-	{
-		delete _pSocket;
-		_pSocket = nullptr;
-	}
+    SafeDelete(_pSocket);
 }
 
 HANDLE TcpListener::GetHandle() const
@@ -23,7 +19,19 @@ HANDLE TcpListener::GetHandle() const
 	return _pSocket->GetHandle();
 }
 
-bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved)
+bool TcpListener::ImbueContextTo(Socket* const pSocket) const
+{
+  auto listenSocket = _pSocket->GetSocketHandle();
+  cont auto r = setsockopt(pSocket->GetSocketHandle(),
+                            SOL_SOCKET,
+                          SO_UPDATE_ACCEPT_CONTEXT,
+    static_cast<char*>(&listenSocket),
+    sizeof(SOCKET));
+
+  return SOCKET_ERROR != r;
+}
+
+bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved, const IoCallbackAccept::Fn&& fn)
 {
 	if(!_pSocket->Create(SOCK_STREAM, IPPROTO_TCP))
 		return false;
@@ -42,12 +50,13 @@ bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserve
 	if(SOCKET_ERROR == listen(_pSocket->GetSocketHandle(), SOMAXCONN))
 		return false;
 
-	for(int sessionId = 0; numInitialSessions > sessionId; ++sessionId)
+    auto thisPtr = shared_from_this();
+	for(WORD sessionId = 0; numReserved > sessionId; ++sessionId)
 	{
-		const auto pSession = new TcpSession();
-		//	TODO: pSession, Create(), Accept() 예외처리 하자!
-		pSession->Create();
-		pSession->GetSocket()->Accept(_pSocket->GetSocketHandle());
+		const auto sessionPtr = make_shared <TcpSession>();
+		//	TODO: sessionPtr, Create(), Accept() 예외처리 하자!
+		sessionPtr->Create();
+		sessionPtr->Accept(thisPtr, fn);
 	}
 
 	return true;

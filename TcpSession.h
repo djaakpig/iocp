@@ -1,12 +1,17 @@
 #pragma once
-#include "IoCallback.h"
 #include "IIoObject.h"
+#include "IoCallbackAccept.h"
+#include "IoCallbackConnect.h"
+#include "IoCallbackDisconnect.h"
+#include "IoCallbackRecv.h"
+#include "IoCallbackSend.h"
 
 class Socket;
+class TcpListener;
 class TcpSession final : public IIoObject
 {
 public:
-	TcpSession();
+    TcpSession();
 	~TcpSession();
 
 	//	{{GET}}
@@ -17,18 +22,22 @@ public:
 	}
 	//	{{GET}}
 
-	bool Accept(Socket* const pListen, const IoCallback::Fn&& fn);
+    bool Accept();
+	bool Accept(shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn);
 	void Close();
 	bool Create();
-	bool Recv(const IoCallback::Fn&& fn);
-	bool Reuse(const IoCallback::Fn&& fn);
-	bool Send(const IoCallback::Fn&& fn);
+	bool Recv(const IoCallbackRecv::Fn&& fn);
+	bool Reuse(const IoCallbackReuse::Fn&& fn);
+	bool Send(const IoCallbackSend::Fn&& fn);
+
+private:
+    bool _Accept();
 
 private:
 	Socket* _pSocket = nullptr;
-	IoCallback _acceptCallback;
-	IoCallback _connectCallback;
-	IoCallback _disconnectCallback;
-	IoCallback _recvCallback;
-	IoCallback _sendCallback;
+	IoCallbackAccept _acceptCallback;
+	IoCallbackConnect _connectCallback;
+	IoCallbackRecv _recvCallback;
+	IoCallbackReuse _reuseCallback;
+	IoCallbackSend _sendCallback;
 };

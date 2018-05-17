@@ -9,7 +9,7 @@ struct ExtensionTable final
 
 	LPFN_TRANSMITFILE TransmitFile = nullptr;
 	LPFN_ACCEPTEX AcceptEx = nullptr;
-	LPFN_GETACCEPTEXSOCKADDRS GetAcceptExSockAddrs = nullptr;
+	LPFN_GETACCEPTEXSOCKADDRS GetAcceptExSockaddrs = nullptr;
 	LPFN_CONNECTEX ConnectEx = nullptr;
 	LPFN_DISCONNECTEX DisconnectEx = nullptr;
 };
