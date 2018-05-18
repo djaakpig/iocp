@@ -1,11 +1,5 @@
 #pragma once
 
-#define NON_COPYABLE(ClassName)\
-	ClassName(const ClassName&) = delete;\
-	ClassName(const ClassName&&) = delete;\
-	const ClassName& operator =(const ClassName&) = delete;\
-	const ClassName& operator =(const ClassName&&) = delete;
-
 template<typename T>
 inline void SafeDelete(T*& pSingle)
 {
