@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="ExtensionTable.cpp" />
     <ClCompile Include="IoCallback.cpp" />
     <ClCompile Include="IoCallbackAccept.cpp" />
@@ -88,13 +89,14 @@
     <ClCompile Include="IoCallbackRecv.cpp" />
     <ClCompile Include="IoCallbackReuse.cpp" />
     <ClCompile Include="IoCallbackSend.cpp" />
-    <ClCompile Include="iocp.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="IoService.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="TcpListener.cpp" />
     <ClCompile Include="TcpSession.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="ExtensionTable.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="IIoObject.h" />
@@ -110,6 +112,9 @@
     <ClInclude Include="TcpListener.h" />
     <ClInclude Include="TcpSession.h" />
     <ClInclude Include="WinsockStarter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -26,10 +26,17 @@ bool IoCallbackAccept::OnComplete(const int e, const DWORD numBytes)
 
 	PSOCKADDR pLocalSockaddr = nullptr, pRemoteSockaddr = nullptr;
 	int localSockaddrLen = 0, remoteSockaddrLen = 0;
+
 	GetAcceptExSockaddrs(_buf, 0,
 						 LocalSockaddrLen, RemoteSockaddrLen,
 						 &pLocalSockaddr, &localSockaddrLen,
 						 &pRemoteSockaddr, &remoteSockaddrLen);
 
-	return _Invoke(ERROR_SUCCESS, numBytes);
+	_sessionPtr->SetLocalSockaddr( *pLocalSockaddr );
+	_sessionPtr->SetRemoteSockaddr( *pRemoteSockaddr );
+
+	if( !_Invoke( ERROR_SUCCESS, numBytes ) )
+		return false;
+
+	return true;
 }

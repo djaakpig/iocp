@@ -4,7 +4,7 @@
 
 bool IoService::Associate(const IIoObject* const pObj)
 {
-	if(nullptr == _iocpHandle) return false;
+	if(!_iocpHandle) return false;
 
 	const auto cmpl = reinterpret_cast<ULONG_PTR>(pObj);
 	const auto r = CreateIoCompletionPort(pObj->GetHandle(), _iocpHandle, cmpl, 0);
@@ -15,7 +15,7 @@ bool IoService::Associate(const IIoObject* const pObj)
 bool IoService::Start(DWORD numWorkers)
 {
 	_iocpHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, numWorkers);
-	if(nullptr == _iocpHandle) return false;
+	if(!_iocpHandle) return false;
 
 	for(DWORD workerId = 0; numWorkers > workerId; ++workerId)
 		_workers.push_back(thread(bind(&IoService::_Run, this)));
@@ -35,7 +35,7 @@ void IoService::Stop()
 	}
 	_workers.clear();
 
-	if(nullptr != _iocpHandle)
+	if(_iocpHandle)
 	{
 		CloseHandle(_iocpHandle);
 		_iocpHandle = nullptr;
@@ -51,9 +51,9 @@ void IoService::_Run()
 	while(true)
 	{
 		const auto r = GetQueuedCompletionStatus(_iocpHandle, &numBytes, &cmpl, &pOvl, INFINITE);
-		if(FALSE == r || nullptr == pOvl) break;
+		if(!r || !pOvl) break;
 
-		const auto pCallback = reinterpret_cast<IoCallback*>(pOvl);
+		const auto pCallback = static_cast<IoCallback*>(pOvl);
 		pCallback->OnComplete(ERROR_SUCCESS, numBytes);
 	}
 }

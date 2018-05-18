@@ -25,5 +25,5 @@ void IoCallback::Reset()
 
 bool IoCallback::_Invoke(const int e, const DWORD numBytes) const
 {
-	return _fn ? _fn(e, _sessionPtr, numBytes) : false;
+	return _fn ? _fn(e, _sessionPtr, numBytes) : true;
 }

@@ -15,6 +15,22 @@ TcpListener::~TcpListener()
 	SafeDelete(_pSocket);
 }
 
+void TcpListener::Close()
+{
+	_pSocket->Close();
+}
+
+bool TcpListener::Create()
+{
+	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
+		return false;
+
+	if( !_pSocket->SetOptionInt( SOL_SOCKET, SO_REUSEADDR, TRUE ) )
+		return false;
+
+	return true;
+}
+
 HANDLE TcpListener::GetHandle() const
 {
 	return _pSocket->GetHandle();
@@ -28,12 +44,6 @@ bool TcpListener::ImbueContextTo(const Socket* const pChild) const
 
 bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved, const IoCallback::Fn&& fn)
 {
-	if(!_pSocket->Create(SOCK_STREAM, IPPROTO_TCP))
-		return false;
-
-	if(!_pSocket->SetOptionInt(SOL_SOCKET, SO_REUSEADDR, TRUE))
-		return false;
-
 	SOCKADDR_IN listenAddr;
 	listenAddr.sin_family = AF_INET;
 	listenAddr.sin_port = htons(port);
@@ -55,9 +65,4 @@ bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserve
 	}
 
 	return true;
-}
-
-void TcpListener::Stop()
-{
-	_pSocket->Close();
 }

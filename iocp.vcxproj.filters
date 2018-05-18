@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="iocp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IoService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,6 +42,12 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="IoCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CircularBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -94,5 +97,11 @@
     <ClInclude Include="NonCopyable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CircularBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

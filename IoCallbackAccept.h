@@ -9,6 +9,13 @@ class TcpListener;
 class IoCallbackAccept final : public IoCallback
 {
 public:
+	//	{{GET}}
+	inline char* GetBuffer()
+	{
+		return _buf;
+	}
+	//	{{GET}}
+
 	//	{{SET}}
 	inline void SetListener(shared_ptr<TcpListener> listenerPtr)
 	{

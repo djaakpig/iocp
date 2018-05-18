@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #include <Winsock2.h>
 #include <utility>
 
@@ -22,6 +23,10 @@ public:
 	inline T GetExtension(GUID&& id) const
 	{
 		return static_cast<T>(_GetExtension(std::move(id)));
+	}
+	inline bool SetNonblock( u_long enable )
+	{
+		return SOCKET_ERROR != ioctlsocket( _socket, FIONBIO, &enable );
 	}
 	inline bool SetOptionInt(const int level, const int name, int val) const
 	{

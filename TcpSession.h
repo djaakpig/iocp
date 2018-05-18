@@ -22,19 +22,33 @@ public:
 	}
 	//	{{GET}}
 
+	//	{{SET}}
+	inline void SetLocalSockaddr( const SOCKADDR& sockaddr )
+	{
+		_localSockaddr = sockaddr;
+	}
+	inline void SetRemoteSockaddr( const SOCKADDR& sockaddr )
+	{
+		_remoteSockaddr = sockaddr;
+	}
+	//	{{SET}}
+
 	bool Accept();
-	bool Accept(shared_ptr<TcpListener> listenerPtr, const IoCallback::Fn&& fn);
+	bool Accept( shared_ptr<TcpListener> listenerPtr, const IoCallback::Fn&& fn );
 	void Close();
 	bool Create();
-	bool Recv(const IoCallback::Fn&& fn);
-	bool Reuse(const IoCallback::Fn&& fn);
-	bool Send(const IoCallback::Fn&& fn);
+	bool ProcessRecvData( const function<bool( CircularBuffer& )>&& fn );
+	bool Recv( const IoCallback::Fn&& fn );
+	bool Reuse( const IoCallback::Fn&& fn );
+	bool Send( const IoCallback::Fn&& fn );
 
 private:
 	bool _Accept();
 
 private:
 	Socket* _pSocket = nullptr;
+	SOCKADDR _localSockaddr;
+	SOCKADDR _remoteSockaddr;
 	IoCallbackAccept _acceptCallback;
 	IoCallbackConnect _connectCallback;
 	IoCallbackRecv _recvCallback;

@@ -17,10 +17,11 @@ public:
 	}
 	//	{{GET}}
 
+	void Close();
+	bool Create();
 	HANDLE GetHandle() const override;
 	bool ImbueContextTo(const Socket* const pChild) const;
 	bool Start(const string& ip, const WORD port, const WORD numReserved, const IoCallback::Fn&& fn);
-	void Stop();
 
 private:
 	Socket* _pSocket = nullptr;
