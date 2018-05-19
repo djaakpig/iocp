@@ -16,11 +16,11 @@ const Socket* IoCallbackAccept::GetListenerSocket() const
 
 bool IoCallbackAccept::OnComplete(const int e, const DWORD numBytes)
 {
-	if(e) return _Invoke(e, numBytes);
+	if(e) return _fn(e, _sessionPtr);
 
 	if(!_listenerPtr->ImbueContextTo(_sessionPtr->GetSocket()))
 	{
-		_Invoke(WSAGetLastError(), numBytes);
+		_fn(WSAGetLastError(), _sessionPtr);
 		return false;
 	}
 
@@ -35,8 +35,5 @@ bool IoCallbackAccept::OnComplete(const int e, const DWORD numBytes)
 	_sessionPtr->SetLocalSockaddr( *pLocalSockaddr );
 	_sessionPtr->SetRemoteSockaddr( *pRemoteSockaddr );
 
-	if( !_Invoke( ERROR_SUCCESS, numBytes ) )
-		return false;
-
-	return true;
+    return _fn( ERROR_SUCCESS, _sessionPtr );
 }

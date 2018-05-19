@@ -5,20 +5,25 @@
 class IoCallbackRecv final : public IoCallback
 {
 public:
+	using Fn = function<bool(const int, shared_ptr<TcpSession>, CircularBuffer&>;
+
+public:
 	explicit IoCallbackRecv( const DWORD capacity );
 
-	//	{{GET}}
-	inline CircularBuffer& GetBuffer()
-	{
-		return _buffer;
-	}
-	//	{{GET}}
+    //  {{SET}}
+    inline void Bind(shared_ptr<TcpSession> sessionPtr, const Fn&& fn)
+    {
+        _sessionPtr = sessionPtr;
+        _fn = fn;
+    }
+    //  {{SET}}
 
-	bool OnComplete(const int e, const DWORD numBytes) override;
+    bool OnComplete(const int e, const DWORD numBytes) override;
 
 private:
 	DWORD _Read( const SOCKET s, char* const pBuf, const int sz ) const;
 
 private:
+    Fn _fn;
 	CircularBuffer _buffer;
 };

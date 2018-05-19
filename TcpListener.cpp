@@ -42,7 +42,7 @@ bool TcpListener::ImbueContextTo(const Socket* const pChild) const
 	return pChild->SetOptionPtr(SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, &listenSocket);
 }
 
-bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved, const IoCallback::Fn&& fn)
+bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved, const IoCallbackAccept::Fn&& fn)
 {
 	SOCKADDR_IN listenAddr;
 	listenAddr.sin_family = AF_INET;
@@ -59,7 +59,7 @@ bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserve
 	for(WORD sessionId = 0; numReserved > sessionId; ++sessionId)
 	{
 		const auto sessionPtr = make_shared<TcpSession>();
-		//	TODO: sessionPtr, Create(), Accept() ¿¹¿ÜÃ³¸® ÇÏÀÚ!
+		//	TODO: sessionPtr, Create(), Accept() ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!
 		sessionPtr->Create();
 		sessionPtr->Accept(thisPtr, move(fn));
 	}

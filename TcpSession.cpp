@@ -24,15 +24,14 @@ bool TcpSession::Accept()
 	return _Accept();
 }
 
-bool TcpSession::Accept( shared_ptr<TcpListener> listenerPtr, const IoCallback::Fn&& fn )
+bool TcpSession::Accept( shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn )
 {
 	SecureZeroMemory( &_localSockaddr, sizeof( _localSockaddr ) );
 	SecureZeroMemory( &_remoteSockaddr, sizeof( _remoteSockaddr ) );
 
 	if( !listenerPtr ) return false;
 
-	_acceptCallback.Bind( shared_from_this(), move( fn ) );
-	_acceptCallback.SetListener( listenerPtr );
+	_acceptCallback.Bind(listenerPtr,  shared_from_this(), move( fn ) );
 
 	return _Accept();
 }
@@ -53,15 +52,7 @@ bool TcpSession::Create()
 	return true;
 }
 
-bool TcpSession::ProcessRecvData( const function<bool( CircularBuffer& )>&& fn )
-{
-	if( !fn( _recvCallback.GetBuffer() ) )
-		return false;
-
-	return true;
-}
-
-bool TcpSession::Recv( const IoCallback::Fn&& fn )
+bool TcpSession::Recv( const IoCallbackRecv::Fn&& fn )
 {
 	_recvCallback.Bind( shared_from_this(), move( fn ) );
 
@@ -79,7 +70,7 @@ bool TcpSession::Recv( const IoCallback::Fn&& fn )
 	return true;
 }
 
-bool TcpSession::Reuse( const IoCallback::Fn&& fn )
+bool TcpSession::Reuse( const IoCallbackReuse::Fn&& fn )
 {
 	_reuseCallback.Bind( shared_from_this(), move( fn ) );
 
@@ -96,7 +87,7 @@ bool TcpSession::Reuse( const IoCallback::Fn&& fn )
 	return true;
 }
 
-bool TcpSession::Send( const IoCallback::Fn&& fn )
+bool TcpSession::Send( const IoCallbackSend::Fn&& fn )
 {
 	_sendCallback.Bind( shared_from_this(), move( fn ) );
 

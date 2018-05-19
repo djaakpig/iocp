@@ -34,13 +34,12 @@ public:
 	//	{{SET}}
 
 	bool Accept();
-	bool Accept( shared_ptr<TcpListener> listenerPtr, const IoCallback::Fn&& fn );
+	bool Accept( shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn );
 	void Close();
 	bool Create();
-	bool ProcessRecvData( const function<bool( CircularBuffer& )>&& fn );
-	bool Recv( const IoCallback::Fn&& fn );
-	bool Reuse( const IoCallback::Fn&& fn );
-	bool Send( const IoCallback::Fn&& fn );
+	bool Recv( const IoCallbackRecv::Fn&& fn );
+	bool Reuse( const IoCallbackReuse::Fn&& fn );
+	bool Send( const IoCallbackSend::Fn&& fn );
 
 private:
 	bool _Accept();

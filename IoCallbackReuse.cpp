@@ -2,5 +2,5 @@
 
 bool IoCallbackReuse::OnComplete(const int e, const DWORD numBytes)
 {
-	return _Invoke(e, numBytes);
+	return _fn(e, _sessionPtr);
 }

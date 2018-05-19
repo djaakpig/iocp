@@ -9,7 +9,7 @@ IoCallbackRecv::IoCallbackRecv( const DWORD capacity ) : _buffer( capacity )
 
 bool IoCallbackRecv::OnComplete( const int e, const DWORD numBytes )
 {
-	if( e ) return _Invoke( e, numBytes );
+	if( e ) return _fn( e, _sessionPtr,_buffer  );
 
 	const auto socket = _sessionPtr->GetSocket()->GetSocketHandle();
 	WSABUF wsaBuf;
@@ -29,11 +29,11 @@ bool IoCallbackRecv::OnComplete( const int e, const DWORD numBytes )
 			numWrittenBytes += numReadBytes;
 		}
 
-		return _Invoke( ERROR_SUCCESS, numWrittenBytes );
+		return _fn( ERROR_SUCCESS, _sessionPtr, _buffer );
 	}
 	catch( const system_error& e)
 	{
-		_Invoke( e.code().value(), numBytes );
+		_fn( e.code().value(), _sessionPtr,_buffer  );
 		return false;
 	}
 }

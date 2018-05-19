@@ -9,18 +9,16 @@ class TcpListener;
 class IoCallbackAccept final : public IoCallback
 {
 public:
-	//	{{GET}}
-	inline char* GetBuffer()
-	{
-		return _buf;
-	}
-	//	{{GET}}
+	using Fn = function<bool(const int, shared_ptr<TcpSession>)>;
 
+public:
 	//	{{SET}}
-	inline void SetListener(shared_ptr<TcpListener> listenerPtr)
-	{
-		_listenerPtr = listenerPtr;
-	}
+    inline void Bind(shared_ptr<TcpListener> listenerPtr, shared_ptr<TcpSession> sessionPtr, const Fn&& fn)
+    {
+        _listenerPtr = listenerPtr;
+        _sessionPtr = sessionPtr;
+        _fn = fn;
+    }
 	//	{{SET}}
 
 	void Clear() override;
@@ -29,5 +27,6 @@ public:
 
 private:
 	shared_ptr<TcpListener> _listenerPtr;
+    Fn _f;
 	char _buf[LocalSockaddrLen + RemoteSockaddrLen];
 };
