@@ -31,7 +31,7 @@ public:
 
 		_ioService.Associate( listenerPtr.get() );
 
-		const auto acceptCallback = bind( &Server::OnAccept, this, placeholders::_1, placeholders::_2, placeholders::_3 );
+		const auto acceptCallback = bind( &Server::OnAccept, this, placeholders::_1, placeholders::_2 );
 		if( !listenerPtr->Start( "10.6.5.88", 8801, 5, acceptCallback ) )
 			return false;
 
@@ -39,7 +39,7 @@ public:
 	}
 
 private:
-	bool OnAccept( const int e, shared_ptr<TcpSession> sessionPtr, const DWORD numBytes )
+	bool OnAccept( const int e, shared_ptr<TcpSession> sessionPtr )
 	{
 		if( e )
 		{
@@ -55,35 +55,36 @@ private:
 		return true;
 	}
 
-	bool OnRecv( const int e, shared_ptr<TcpSession> sessionPtr, const DWORD numBytes )
+	bool OnRecv( const int e, shared_ptr<TcpSession> sessionPtr, CircularBuffer& buf )
 	{
 		if( e )
 		{
-			cout << "receive fail! error:" << e << endl;
+			cout << "recv fail! error:" << e << endl;
 			return false;
 		}
 
-		cout << "receive! numBytes:" << numBytes << endl;
+		cout << "recv! numBytes:" << buf.GetSize() << endl;
 
-		if( !sessionPtr->ProcessRecvData( bind( &Server::OnProcessRecvData, this, placeholders::_1 ) ) )
-		{
-			cout << "parse error!" << endl;
-			return false;
-		}
+        while(!buf.IsEmpty())
+        {
+            //TODO: psrsing...
+        }
 
 		sessionPtr->Recv( bind( &Server::OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
 
 		return true;
 	}
 
-	bool OnProcessRecvData( CircularBuffer& buffer )
-	{
-		if( !buffer.IsEmpty())
+    bool OnSend(const int e, const WSABUF& buf)
+    {
+        if( e )
 		{
+			cout << "send fail! error:" << e << endl;
+			return false;
 		}
 
-		return true;
-	}
+        return true;
+    }
 
 private:
 	IoService& _ioService;
