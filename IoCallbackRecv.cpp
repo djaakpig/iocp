@@ -13,32 +13,37 @@ bool IoCallbackRecv::OnComplete( const int e, const DWORD numBytes )
 
 	const auto socket = _sessionPtr->GetSocket()->GetSocketHandle();
 	WSABUF wsaBuf;
-	DWORD numReadBytes = 0;
-	DWORD numWrittenBytes = 0;
+    pair<int, DWORD> r{ERROR_SUCCESS, 0};
 
-	try
+	while( _buffer.BeginWrite( wsaBuf ) )
 	{
-		while( _buffer.BeginWrite( wsaBuf ) )
-		{
-			numReadBytes = _Read( socket, wsaBuf.buf, wsaBuf.len );
-			if( 0 == numReadBytes )
-				break;
+		r = _Read( socket, wsaBuf.buf, wsaBuf.len );
+        if( r.first || 0 == r.second )
+			break;
 
-			_buffer.EndWrite( numReadBytes );
-
-			numWrittenBytes += numReadBytes;
-		}
-
-		return _fn( ERROR_SUCCESS, _sessionPtr, _buffer );
+		_buffer.EndWrite( r.second );
 	}
-	catch( const system_error& e)
-	{
-		_fn( e.code().value(), _sessionPtr,_buffer  );
-		return false;
-	}
+
+	return _fn( r.first, _sessionPtr, _buffer );
 }
 
-DWORD IoCallbackRecv::_Read( const SOCKET s, char* const pBuf, const int sz ) const
+bool IoCallback::Post()
+{
+    DWORD flags = 0;
+	WSABUF wsaBuf{ 0, nullptr };
+	const auto r = WSARecv( _sessionPtr->GetSocket()->GetSocketHandle(), &wsaBuf, 1, nullptr, &flags, this, nullptr );
+
+	if( SOCKET_ERROR == r )
+	{
+		const auto lastError = WSAGetLastError();
+		if( WSA_IO_PENDING != lastError )
+			return false;
+	}
+
+    return true;
+}
+
+pair<int, DWORD> IoCallbackRecv::_Read( const SOCKET s, char* const pBuf, const int sz ) const
 {
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
@@ -48,7 +53,7 @@ DWORD IoCallbackRecv::_Read( const SOCKET s, char* const pBuf, const int sz ) co
 		const auto r = ::recv( s, pCurrentBuf, remainSize, 0 );
 
 		if( 0 == r )
-			throw system_error(error_code( WSAECONNRESET, system_category() ));
+            return {WSAECONNRESET, 0};
 
 		if( SOCKET_ERROR == r )
 		{
@@ -56,12 +61,12 @@ DWORD IoCallbackRecv::_Read( const SOCKET s, char* const pBuf, const int sz ) co
 			if( WSAEWOULDBLOCK == lastError )
 				break;
 
-			throw system_error( error_code( lastError, system_category() ) );
+            return {lastError, 0};
 		}
 
 		pCurrentBuf += r;
 		remainSize -= r;
 	}
 
-	return sz - remainSize;
+	return {ERROR_SUCCESS, sz - remainSize};
 }

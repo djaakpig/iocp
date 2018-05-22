@@ -19,9 +19,10 @@ public:
     //  {{SET}}
 
     bool OnComplete(const int e, const DWORD numBytes) override;
+    bool Post();
 
 private:
-	DWORD _Read( const SOCKET s, char* const pBuf, const int sz ) const;
+	pair<int,DWORD> _Read( const SOCKET s, char* const pBuf, const int sz ) const;
 
 private:
     Fn _fn;

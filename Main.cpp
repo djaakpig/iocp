@@ -65,9 +65,9 @@ private:
 
 		cout << "recv! numBytes:" << buf.GetSize() << endl;
 
-        while(!buf.IsEmpty())
+        while( !buf.IsEmpty() )
         {
-            //TODO: psrsing...
+            //TODO: parsing...
         }
 
 		sessionPtr->Recv( bind( &Server::OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
@@ -77,11 +77,15 @@ private:
 
     bool OnSend(const int e, const WSABUF& buf)
     {
+        delete[] buf.buf;
+
         if( e )
 		{
 			cout << "send fail! error:" << e << endl;
 			return false;
 		}
+
+        //  TODO: continue to send a next packet in queue if the queue is not empty.
 
         return true;
     }

@@ -16,6 +16,7 @@ public:
     //{{SET}}
 
     bool OnComplete(const int e, const DWORD numBytes) override;
+    bool Post();
 
 private:
     Fn _fn;

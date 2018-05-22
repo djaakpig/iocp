@@ -37,3 +37,24 @@ bool IoCallbackAccept::OnComplete(const int e, const DWORD numBytes)
 
     return _fn( ERROR_SUCCESS, _sessionPtr );
 }
+
+bool IoCallbackAccept::Post()
+{
+	const auto r = AcceptEx( _listenerPtr->GetSocket()->GetSocketHandle(),
+							 _sessionPtr->GetSocket()->GetSocketHandle(),
+							 _buf,
+							 0,
+							 LocalSockaddrLen,
+							 RemoteSockaddrLen,
+							 nullptr,
+							 this );
+
+	if( SOCKET_ERROR == r )
+	{
+		const auto lastError = WSAGetLastError();
+		if( WSA_IO_PENDING != lastError )
+			return false;
+	}
+
+	return true;
+}

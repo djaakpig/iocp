@@ -24,6 +24,7 @@ public:
 	void Clear() override;
 	const Socket* GetListenerSocket() const;
 	bool OnComplete(const int e, const DWORD numBytes) override;
+    bool Post();
 
 private:
 	shared_ptr<TcpListener> _listenerPtr;

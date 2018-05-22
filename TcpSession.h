@@ -1,4 +1,4 @@
-#pragma once
+7#pragma once
 #include "IIoObject.h"
 #include "IoCallbackAccept.h"
 #include "IoCallbackConnect.h"
@@ -40,9 +40,6 @@ public:
 	bool Recv( const IoCallbackRecv::Fn&& fn );
 	bool Reuse( const IoCallbackReuse::Fn&& fn );
 	bool Send( const IoCallbackSend::Fn&& fn );
-
-private:
-	bool _Accept();
 
 private:
 	Socket* _pSocket = nullptr;

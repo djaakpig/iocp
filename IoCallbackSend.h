@@ -17,6 +17,10 @@ public:
 
 public:
 	bool OnComplete(const int e, const DWORD numBytes) override;
+    bool Post();
+
+private:
+    pair<int,DWORD> _Send( const SOCKET s, char* const pBuf, const int sz ) const;
 
 private:
     Fn _fn;
