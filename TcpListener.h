@@ -1,6 +1,6 @@
 #pragma once
 #include "IIoObject.h"
-#include "IoCallback.h"
+#include "IoCallbackFn.h"
 #include <string>
 
 class Socket;
@@ -21,7 +21,7 @@ public:
 	bool Create();
 	HANDLE GetHandle() const override;
 	bool ImbueContextTo(const Socket* const pChild) const;
-	bool Start(const string& ip, const WORD port, const WORD numReserved, const IoCallbackAccept::Fn&& fn);
+	bool Start(const string& ip, const WORD port, const WORD numReserved, const IoCallbackFn&& fn);
 
 private:
 	Socket* _pSocket = nullptr;

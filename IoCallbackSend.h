@@ -1,29 +1,19 @@
 #pragma once
 #include "IoCallback.h"
+#include "IoCallbackFn.h"
 
 class IoCallbackSend final : public IoCallback
 {
 public:
-	using Fn = function<bool(const int, shared_ptr<TcpSession>, const WSABUF&)>;
-
-    //  {{SET}}
-    inline void Bind(shared_ptr<TcpSession> sessionPtr, const Fn&& fn, const WSABUF& buf)
-    {
-        _sessionPtr = sessionPtr;
-        _fn = fn;
-        _buf = buf;
-    }
-    //  {{SET}}
-
-public:
+	void Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFnSend&& fn, const WSABUF& buf);
 	bool OnComplete(const int e, const DWORD numBytes) override;
-    bool Post();
+	bool Post();
 
 private:
-    pair<int,DWORD> _Send( const SOCKET s, char* const pBuf, const int sz ) const;
+	pair<int, DWORD> _Send(const SOCKET s, char* const pBuf, const int sz) const;
 
 private:
-    Fn _fn;
-    WSABUF _buf;
-    DWORD _numSentBytes = 0;
+	IoCallbackFnSend _fn;
+	WSABUF _buf;
+	DWORD _numSentBytes = 0;
 };

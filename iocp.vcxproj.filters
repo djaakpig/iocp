@@ -94,10 +94,13 @@
     <ClInclude Include="IoCallbackSend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NonCopyable.h">
+    <ClInclude Include="CircularBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CircularBuffer.h">
+    <ClInclude Include="IoCallbackFn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackImpl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

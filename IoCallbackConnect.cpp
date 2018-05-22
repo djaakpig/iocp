@@ -1,11 +1,17 @@
 #include "IoCallbackConnect.h"
 
-bool IoCallbackConnect::OnComplete(const int e, const DWORD numBytes)
+void IoCallbackConnect::Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFn&& fn)
 {
-  return _Invoke(e, _sessionPtr);
+	_sessionPtr = sessionPtr;
+	_fn = fn;
+}
+
+bool IoCallbackConnect::OnComplete(const int e, const DWORD)
+{
+	return _fn(e, _sessionPtr);
 }
 
 bool IoCallbackConnect::Post()
 {
-    return true;
+	return true;
 }

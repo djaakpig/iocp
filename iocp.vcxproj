@@ -103,11 +103,12 @@
     <ClInclude Include="IoCallback.h" />
     <ClInclude Include="IoCallbackAccept.h" />
     <ClInclude Include="IoCallbackConnect.h" />
+    <ClInclude Include="IoCallbackFn.h" />
+    <ClInclude Include="IoCallbackImpl.hpp" />
     <ClInclude Include="IoCallbackRecv.h" />
     <ClInclude Include="IoCallbackReuse.h" />
     <ClInclude Include="IoCallbackSend.h" />
     <ClInclude Include="IoService.h" />
-    <ClInclude Include="NonCopyable.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="TcpListener.h" />
     <ClInclude Include="TcpSession.h" />

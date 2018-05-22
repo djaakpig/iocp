@@ -22,10 +22,10 @@ void TcpListener::Close()
 
 bool TcpListener::Create()
 {
-	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
+	if(!_pSocket->Create(SOCK_STREAM, IPPROTO_TCP))
 		return false;
 
-	if( !_pSocket->SetOptionInt( SOL_SOCKET, SO_REUSEADDR, TRUE ) )
+	if(!_pSocket->SetOptionInt(SOL_SOCKET, SO_REUSEADDR, TRUE))
 		return false;
 
 	return true;
@@ -42,7 +42,7 @@ bool TcpListener::ImbueContextTo(const Socket* const pChild) const
 	return pChild->SetOptionPtr(SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, &listenSocket);
 }
 
-bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved, const IoCallbackAccept::Fn&& fn)
+bool TcpListener::Start(const string& ip, const WORD port, const WORD numReserved, const IoCallbackFn&& fn)
 {
 	SOCKADDR_IN listenAddr;
 	listenAddr.sin_family = AF_INET;

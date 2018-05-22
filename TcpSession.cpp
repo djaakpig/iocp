@@ -3,15 +3,30 @@
 #include "Global.h"
 #include "TcpListener.h"
 #include <MSWSock.h>
+#include "IoCallbackAccept.h"
+#include "IoCallbackConnect.h"
+#include "IoCallbackRecv.h"
+#include "IoCallbackReuse.h"
+#include "IoCallbackSend.h"
 
-TcpSession::TcpSession() : _recvCallback( 1024 )
+TcpSession::TcpSession()
 {
 	_pSocket = new Socket();
+	_pAcceptCallback = new IoCallbackAccept();
+	_pConnectCallback = new IoCallbackConnect();
+	_pRecvCallback = new IoCallbackRecv(1024);
+	_pReuseCallback = new IoCallbackReuse();
+	_pSendCallback = new IoCallbackSend();
 }
 
 TcpSession::~TcpSession()
 {
-	SafeDelete( _pSocket );
+	SafeDelete(_pSocket);
+	SafeDelete(_pAcceptCallback);
+	SafeDelete(_pConnectCallback);
+	SafeDelete(_pRecvCallback);
+	SafeDelete(_pReuseCallback);
+	SafeDelete(_pSendCallback);
 }
 
 HANDLE TcpSession::GetHandle() const
@@ -21,17 +36,17 @@ HANDLE TcpSession::GetHandle() const
 
 bool TcpSession::Accept()
 {
-	SecureZeroMemory( &_localSockaddr, sizeof( _localSockaddr ) );
-	SecureZeroMemory( &_remoteSockaddr, sizeof( _remoteSockaddr ) );
+	SecureZeroMemory(&_localSockaddr, sizeof(_localSockaddr));
+	SecureZeroMemory(&_remoteSockaddr, sizeof(_remoteSockaddr));
 
-    return _acceptCallback.Post();
+	return _pAcceptCallback->Post();
 }
 
-bool TcpSession::Accept( shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn )
+bool TcpSession::Accept(const IoCallbackFn&& fn, shared_ptr<TcpListener> listenerPtr)
 {
-	if( !listenerPtr ) return false;
+	if(!listenerPtr) return false;
 
-	_acceptCallback.Bind(listenerPtr,  shared_from_this(), move( fn ) );
+	_pAcceptCallback->Bind(shared_from_this(), move(fn), listenerPtr);
 
 	return Accept();
 }
@@ -43,34 +58,34 @@ void TcpSession::Close()
 
 bool TcpSession::Create()
 {
-	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
+	if(!_pSocket->Create(SOCK_STREAM, IPPROTO_TCP))
 		return false;
 
-	if( !_pSocket->SetNonblock( true ) )
+	if(!_pSocket->SetNonblock(true))
 		return false;
 
 	return true;
 }
 
-bool TcpSession::Recv( const IoCallbackRecv::Fn&& fn )
+bool TcpSession::Recv(const IoCallbackFnRecv&& fn)
 {
-	_recvCallback.Bind( shared_from_this(), move( fn ) );
+	_pRecvCallback->Bind(shared_from_this(), move(fn));
 
-    return _recvCallback.Post();
+	return _pRecvCallback->Post();
 }
 
-bool TcpSession::Reuse( const IoCallbackReuse::Fn&& fn )
+bool TcpSession::Reuse(const IoCallbackFn&& fn)
 {
-	_reuseCallback.Bind( shared_from_this(), move( fn ) );
+	_pReuseCallback->Bind(shared_from_this(), move(fn));
 
-    return _reuseCallback.Post();
+	return _pReuseCallback->Post();
 }
 
-bool TcpSession::Send( const IoCallbackSend::Fn&& fn )
+bool TcpSession::Send(const IoCallbackFnSend&& fn, const WSABUF& buf)
 {
-    //  TODO: if the queue is not empty enqueue packet there.
+	//  TODO: if the queue is not empty enqueue packet there.
 
-	_sendCallback.Bind( shared_from_this(), move( fn ) );
+	_pSendCallback->Bind(shared_from_this(), move(fn), buf);
 
-    return _sendCallback.Post();
+	return _pSendCallback->Post();
 }

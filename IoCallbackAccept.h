@@ -1,5 +1,6 @@
 #pragma once
 #include "IoCallback.h"
+#include "IoCallbackFn.h"
 
 const DWORD LocalSockaddrLen = sizeof(SOCKADDR_IN) + 16;
 const DWORD RemoteSockaddrLen = sizeof(SOCKADDR_IN) + 16;
@@ -9,25 +10,14 @@ class TcpListener;
 class IoCallbackAccept final : public IoCallback
 {
 public:
-	using Fn = function<bool(const int, shared_ptr<TcpSession>)>;
-
-public:
-	//	{{SET}}
-    inline void Bind(shared_ptr<TcpListener> listenerPtr, shared_ptr<TcpSession> sessionPtr, const Fn&& fn)
-    {
-        _listenerPtr = listenerPtr;
-        _sessionPtr = sessionPtr;
-        _fn = fn;
-    }
-	//	{{SET}}
-
+	void Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFn&& fn, shared_ptr<TcpListener> listenerPtr);
 	void Clear() override;
 	const Socket* GetListenerSocket() const;
 	bool OnComplete(const int e, const DWORD numBytes) override;
-    bool Post();
+	bool Post();
 
 private:
 	shared_ptr<TcpListener> _listenerPtr;
-    Fn _f;
+	IoCallbackFn _fn;
 	char _buf[LocalSockaddrLen + RemoteSockaddrLen];
 };

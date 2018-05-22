@@ -1,13 +1,17 @@
-7#pragma once
+#pragma once
 #include "IIoObject.h"
-#include "IoCallbackAccept.h"
-#include "IoCallbackConnect.h"
-#include "IoCallbackRecv.h"
-#include "IoCallbackReuse.h"
-#include "IoCallbackSend.h"
+#include "IoCallbackFn.h"
+#include <WinSock2.h>
+#include <memory>
+using namespace std;
 
 class Socket;
 class TcpListener;
+class IoCallbackAccept;
+class IoCallbackConnect;
+class IoCallbackRecv;
+class IoCallbackReuse;
+class IoCallbackSend;
 class TcpSession final : public IIoObject, public enable_shared_from_this<TcpSession>
 {
 public:
@@ -23,31 +27,31 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetLocalSockaddr( const SOCKADDR& sockaddr )
+	inline void SetLocalSockaddr(const SOCKADDR& sockaddr)
 	{
 		_localSockaddr = sockaddr;
 	}
-	inline void SetRemoteSockaddr( const SOCKADDR& sockaddr )
+	inline void SetRemoteSockaddr(const SOCKADDR& sockaddr)
 	{
 		_remoteSockaddr = sockaddr;
 	}
 	//	{{SET}}
 
 	bool Accept();
-	bool Accept( shared_ptr<TcpListener> listenerPtr, const IoCallbackAccept::Fn&& fn );
+	bool Accept(const IoCallbackFn&& fn);
 	void Close();
 	bool Create();
-	bool Recv( const IoCallbackRecv::Fn&& fn );
-	bool Reuse( const IoCallbackReuse::Fn&& fn );
-	bool Send( const IoCallbackSend::Fn&& fn );
+	bool Recv(const IoCallbackFnRecv&& fn);
+	bool Reuse(const IoCallbackFn&& fn);
+	bool Send(const IoCallbackFnSend&& fn, const WSABUF& buf);
 
 private:
 	Socket* _pSocket = nullptr;
 	SOCKADDR _localSockaddr;
 	SOCKADDR _remoteSockaddr;
-	IoCallbackAccept _acceptCallback;
-	IoCallbackConnect _connectCallback;
-	IoCallbackRecv _recvCallback;
-	IoCallbackReuse _reuseCallback;
-	IoCallbackSend _sendCallback;
+	IoCallbackAccept* _pAcceptCallback = nullptr;
+	IoCallbackConnect* _pConnectCallback = nullptr;
+	IoCallbackRecv* _pRecvCallback = nullptr;
+	IoCallbackReuse* _pReuseCallback = nullptr;
+	IoCallbackSend* _pSendCallback = nullptr;
 };

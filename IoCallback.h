@@ -1,13 +1,9 @@
 #pragma once
 #include <WinSock2.h>
-#include <memory>
-#include <functional>
 #include <atomic>
-#include "NonCopyable.h"
 using namespace std;
 
-class TcpSession;
-class IoCallback abstract : public OVERLAPPED, private NonCopyable
+class IoCallback abstract : public OVERLAPPED
 {
 public:
 	IoCallback();
@@ -29,14 +25,12 @@ public:
 	{
 		_inProgress = true;
 	}
-    //{{SET}}
+	//	{{SET}}
 
-	virtual void Clear();
-	virtual bool OnComplete(const int e, const DWORD numBytes) = 0;
+	virtual void Clear() = 0;
+	virtual bool OnComplete() = 0;
+	virtual bool Post() = 0;
 	void Reset();
-
-protected:
-	shared_ptr<TcpSession> _sessionPtr;
 
 private:
 	atomic_bool _inProgress = false;

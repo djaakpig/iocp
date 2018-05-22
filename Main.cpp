@@ -6,17 +6,17 @@
 #include "IoService.h"
 #include "TcpListener.h"
 #include "TcpSession.h"
-
+#include "CircularBuffer.h"
 
 class Server
 {
 public:
-	explicit Server( IoService& ioService ) : _ioService( ioService )
+	explicit Server(IoService& ioService) : _ioService(ioService)
 	{
 	}
 	~Server()
 	{
-		if( listenerPtr )
+		if(listenerPtr)
 		{
 			listenerPtr->Close();
 			listenerPtr = nullptr;
@@ -26,38 +26,38 @@ public:
 	bool Start()
 	{
 		listenerPtr = make_shared<TcpListener>();
-		if( !listenerPtr->Create() )
+		if(!listenerPtr->Create())
 			return false;
 
-		_ioService.Associate( listenerPtr.get() );
+		_ioService.Associate(listenerPtr.get());
 
-		const auto acceptCallback = bind( &Server::OnAccept, this, placeholders::_1, placeholders::_2 );
-		if( !listenerPtr->Start( "10.6.5.88", 8801, 5, acceptCallback ) )
+		const auto acceptCallback = bind(&Server::OnAccept, this, placeholders::_1, placeholders::_2);
+		if(!listenerPtr->Start("10.6.5.88", 8801, 5, acceptCallback))
 			return false;
 
 		return true;
 	}
 
 private:
-	bool OnAccept( const int e, shared_ptr<TcpSession> sessionPtr )
+	bool OnAccept(const int e, shared_ptr<TcpSession> sessionPtr)
 	{
-		if( e )
+		if(e)
 		{
 			cout << "accept fail! error:" << e << endl;
 			return false;
 		}
 
-		cout << "accept! numBytes:" << numBytes << endl;
+		cout << "accept!" << endl;
 
-		_ioService.Associate( sessionPtr.get() );
-		sessionPtr->Recv( bind( &Server::OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
+		_ioService.Associate(sessionPtr.get());
+		sessionPtr->Recv(bind(&Server::OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3));
 
 		return true;
 	}
 
-	bool OnRecv( const int e, shared_ptr<TcpSession> sessionPtr, CircularBuffer& buf )
+	bool OnRecv(const int e, shared_ptr<TcpSession> sessionPtr, CircularBuffer& buf)
 	{
-		if( e )
+		if(e)
 		{
 			cout << "recv fail! error:" << e << endl;
 			return false;
@@ -65,30 +65,30 @@ private:
 
 		cout << "recv! numBytes:" << buf.GetSize() << endl;
 
-        while( !buf.IsEmpty() )
-        {
-            //TODO: parsing...
-        }
+		while(!buf.IsEmpty())
+		{
+			//TODO: parsing...
+		}
 
-		sessionPtr->Recv( bind( &Server::OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
+		sessionPtr->Recv(bind(&Server::OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3));
 
 		return true;
 	}
 
-    bool OnSend(const int e, const WSABUF& buf)
-    {
-        delete[] buf.buf;
+	bool OnSend(const int e, const WSABUF& buf)
+	{
+		delete[] buf.buf;
 
-        if( e )
+		if(e)
 		{
 			cout << "send fail! error:" << e << endl;
 			return false;
 		}
 
-        //  TODO: continue to send a next packet in queue if the queue is not empty.
+		//  TODO: continue to send a next packet in queue if the queue is not empty.
 
-        return true;
-    }
+		return true;
+	}
 
 private:
 	IoService& _ioService;
@@ -97,16 +97,16 @@ private:
 
 int main()
 {
-	WinsockStarter wsockStarter( 2, 2 );
+	WinsockStarter wsockStarter(2, 2);
 	IoService ioService;
 
-	if( ioService.Start( 4 ) )
+	if(ioService.Start(4))
 	{
-		Server theServer( ioService );
-		if( theServer.Start() )
+		Server theServer(ioService);
+		if(theServer.Start())
 		{
 			cout << "hi~" << endl;
-			while( true );
+			while(true);
 		}
 
 		ioService.Stop();
