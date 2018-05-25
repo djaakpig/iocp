@@ -3,9 +3,13 @@
 #include <Winsock2.h>
 #include <utility>
 
+class SockaddrIn;
 class Socket final
 {
 public:
+	Socket() = default;
+	~Socket();
+
 	//	{{GET}}
 	inline HANDLE GetHandle() const
 	{
@@ -15,8 +19,14 @@ public:
 	{
 		return _socket;
 	}
+	inline bool IsValid() const
+	{
+		return INVALID_SOCKET != _socket;
+	}
 	//	{{GET}}
 
+	bool Bind();
+	bool Bind(const SockaddrIn& addr );
 	bool Create(const int type, const int protocol);
 	void Close();
 	template<class T>
@@ -24,7 +34,7 @@ public:
 	{
 		return static_cast<T>(_GetExtension(std::move(id)));
 	}
-	inline bool SetNonblock(u_long enable)
+	inline bool SetNonblock(u_long enable) const
 	{
 		return SOCKET_ERROR != ioctlsocket(_socket, FIONBIO, &enable);
 	}
@@ -33,9 +43,13 @@ public:
 		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(&val), sizeof(val));
 	}
 	template<class T>
-	inline bool SetOptionPtr(const int level, const int name, T* const pVal) const
+	inline bool SetOptionPtr( const int level, const int name, T* const pVal ) const
 	{
-		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(pVal), sizeof(T));
+		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<char*>(pVal), sizeof( T ) );
+	}
+	inline bool SetOptionNull( const int level, const int name ) const
+	{
+		return SOCKET_ERROR != setsockopt( _socket, level, name, nullptr, 0 );
 	}
 
 private:

@@ -1,8 +1,10 @@
 #pragma once
 #include <WinSock2.h>
 #include <atomic>
+#include <memory>
 using namespace std;
 
+class TcpSession;
 class IoCallback abstract : public OVERLAPPED
 {
 public:
@@ -21,16 +23,22 @@ public:
 	{
 		_inProgress = false;
 	}
-	inline void SetInProgress()
+	inline bool SetInProgress()
 	{
-		_inProgress = true;
+		return _inProgress.exchange( true );
+	}
+	inline void SetSession( const shared_ptr<TcpSession>& sessionPtr )
+	{
+		_sessionPtr = sessionPtr;
 	}
 	//	{{SET}}
 
-	virtual void Clear() = 0;
-	virtual bool OnComplete() = 0;
-	virtual bool Post() = 0;
+	virtual void Clear();
+	virtual bool OnComplete(const int) = 0;
 	void Reset();
+
+protected:
+	shared_ptr<TcpSession> _sessionPtr;
 
 private:
 	atomic_bool _inProgress = false;

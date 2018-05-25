@@ -1,32 +1,31 @@
 #include "TcpSession.h"
-#include "Socket.h"
 #include "Global.h"
+#include "Socket.h"
 #include "TcpListener.h"
-#include <MSWSock.h>
 #include "IoCallbackAccept.h"
 #include "IoCallbackConnect.h"
+#include "IoCallbackDisconnect.h"
 #include "IoCallbackRecv.h"
-#include "IoCallbackReuse.h"
 #include "IoCallbackSend.h"
 
-TcpSession::TcpSession()
+TcpSession::TcpSession( const ExtensionTable& extensionTable ) : _extensionTable( extensionTable )
 {
 	_pSocket = new Socket();
 	_pAcceptCallback = new IoCallbackAccept();
 	_pConnectCallback = new IoCallbackConnect();
-	_pRecvCallback = new IoCallbackRecv(1024);
-	_pReuseCallback = new IoCallbackReuse();
+	_pDisconnectCallback = new IoCallbackDisconnect();
+	_pRecvCallback = new IoCallbackRecv( 1024 );
 	_pSendCallback = new IoCallbackSend();
 }
 
 TcpSession::~TcpSession()
 {
-	SafeDelete(_pSocket);
-	SafeDelete(_pAcceptCallback);
-	SafeDelete(_pConnectCallback);
-	SafeDelete(_pRecvCallback);
-	SafeDelete(_pReuseCallback);
-	SafeDelete(_pSendCallback);
+	SafeDelete( _pAcceptCallback );
+	SafeDelete( _pConnectCallback );
+	SafeDelete( _pDisconnectCallback );
+	SafeDelete( _pRecvCallback );
+	SafeDelete( _pSendCallback );
+	SafeDelete( _pSocket );
 }
 
 HANDLE TcpSession::GetHandle() const
@@ -34,21 +33,46 @@ HANDLE TcpSession::GetHandle() const
 	return _pSocket->GetHandle();
 }
 
-bool TcpSession::Accept()
+void TcpSession::SetOnAccept( const IoCallbackFn&& fn )
 {
-	SecureZeroMemory(&_localSockaddr, sizeof(_localSockaddr));
-	SecureZeroMemory(&_remoteSockaddr, sizeof(_remoteSockaddr));
-
-	return _pAcceptCallback->Post();
+	_pAcceptCallback->SetFn( move( fn ) );
 }
 
-bool TcpSession::Accept(const IoCallbackFn&& fn, shared_ptr<TcpListener> listenerPtr)
+void TcpSession::SetOnConnect( const IoCallbackFn&& fn )
 {
-	if(!listenerPtr) return false;
+	_pConnectCallback->SetFn( move( fn ) );
+}
 
-	_pAcceptCallback->Bind(shared_from_this(), move(fn), listenerPtr);
+void TcpSession::SetOnDisconnect( const IoCallbackFn&& fn )
+{
+	_pDisconnectCallback->SetFn( move( fn ) );
+}
 
-	return Accept();
+void TcpSession::SetOnRecv( const IoCallbackFnRecv&& fn )
+{
+	_pRecvCallback->SetFn( move( fn ) );
+}
+
+void TcpSession::SetOnSend( const IoCallbackFnSend&& fn )
+{
+	_pSendCallback->SetFn( move( fn ) );
+}
+
+bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
+{
+	if( !_pSocket->IsValid() )
+		return false;
+
+	if( _pAcceptCallback->IsInProgress() )
+		return true;
+
+	_pAcceptCallback->SetSession( shared_from_this() );
+	_pAcceptCallback->SetListener( listenerPtr );
+
+	SecureZeroMemory( &_localSockaddr, sizeof( _localSockaddr ) );
+	SecureZeroMemory( &_remoteSockaddr, sizeof( _remoteSockaddr ) );
+
+	return _pAcceptCallback->Post( _extensionTable );
 }
 
 void TcpSession::Close()
@@ -56,36 +80,75 @@ void TcpSession::Close()
 	_pSocket->Close();
 }
 
-bool TcpSession::Create()
+bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 {
-	if(!_pSocket->Create(SOCK_STREAM, IPPROTO_TCP))
+	if( !_pSocket->IsValid() )
 		return false;
 
-	if(!_pSocket->SetNonblock(true))
+	if( _pConnectCallback->IsInProgress() )
+		return true;
+
+	_pConnectCallback->SetSession( shared_from_this() );
+	_pConnectCallback->SetAddr( remoteAddr );
+
+	return _pConnectCallback->Post( _extensionTable );
+}
+
+bool TcpSession::Create()
+{
+	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
 		return false;
 
 	return true;
 }
 
-bool TcpSession::Recv(const IoCallbackFnRecv&& fn)
+bool TcpSession::Disconnect()
 {
-	_pRecvCallback->Bind(shared_from_this(), move(fn));
+	if( _pDisconnectCallback->IsInProgress() )
+		return true;
+
+	_pDisconnectCallback->SetSession( shared_from_this() );
+
+	return _pDisconnectCallback->Post( _extensionTable );
+}
+
+bool TcpSession::FillAddr()
+{
+	int remoteSockaddrLen = _remoteSockaddr.GetSize();
+	if( SOCKET_ERROR == getpeername( _pSocket->GetSocketHandle(), _remoteSockaddr.ToSockAddrPtr(), &remoteSockaddrLen ) )
+		return false;
+
+	int localSockaddrLen = _localSockaddr.GetSize();
+	if( SOCKET_ERROR == getsockname( _pSocket->GetSocketHandle(), _localSockaddr.ToSockAddrPtr(), &localSockaddrLen ) )
+		return false;
+
+	return true;
+}
+
+bool TcpSession::Recv()
+{
+	if( !_pSocket->IsValid() )
+		return false;
+
+	if( _pRecvCallback->IsInProgress() )
+		return true;
+
+	_pRecvCallback->SetSession( shared_from_this() );
 
 	return _pRecvCallback->Post();
 }
 
-bool TcpSession::Reuse(const IoCallbackFn&& fn)
+bool TcpSession::Send( const WSABUF& buf )
 {
-	_pReuseCallback->Bind(shared_from_this(), move(fn));
+	if( !_pSocket->IsValid() )
+		return false;
 
-	return _pReuseCallback->Post();
-}
+	_pSendCallback->Enqueue( buf );
 
-bool TcpSession::Send(const IoCallbackFnSend&& fn, const WSABUF& buf)
-{
-	//  TODO: if the queue is not empty enqueue packet there.
+	if( _pSendCallback->SetInProgress() )
+		return true;
 
-	_pSendCallback->Bind(shared_from_this(), move(fn), buf);
+	_pSendCallback->SetSession( shared_from_this() );
 
 	return _pSendCallback->Post();
 }

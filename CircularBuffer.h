@@ -32,7 +32,7 @@ public:
 private:
 	char* _pBuf = nullptr;
 	DWORD _capacity = 0;
-	DWORD _size = 0;
 	DWORD _positionToWrite = 0;
 	DWORD _positionToRead = 0;
+	DWORD _size = 0;
 };

@@ -1,17 +1,37 @@
 #include "IoCallbackConnect.h"
+#include <WS2tcpip.h>
+#include "ExtensionTable.h"
+#include "Socket.h"
+#include "TcpSession.h"
 
-void IoCallbackConnect::Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFn&& fn)
+bool IoCallbackConnect::OnComplete( const int e )
 {
-	_sessionPtr = sessionPtr;
-	_fn = fn;
+	const auto r = _Invoke( e, _sessionPtr );
+	ResetInProgress();
+	return r;
 }
 
-bool IoCallbackConnect::OnComplete(const int e, const DWORD)
+bool IoCallbackConnect::Post( const ExtensionTable& extensionTable )
 {
-	return _fn(e, _sessionPtr);
-}
+	const auto r = extensionTable.connectEx( _sessionPtr->GetSocket()->GetSocketHandle(),
+											 _addr.ToSockAddrPtr(),
+											 _addr.GetSize(),
+											 nullptr,
+											 0,
+											 nullptr,
+											 this );
 
-bool IoCallbackConnect::Post()
-{
+	if( !r )
+	{
+		const auto lastError = WSAGetLastError();
+		if( WSA_IO_PENDING != lastError )
+		{
+			Clear();
+			return false;
+		}
+	}
+
+	SetInProgress();
+
 	return true;
 }

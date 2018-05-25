@@ -1,14 +1,22 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoCallbackImpl.hpp"
 #include "IoCallbackFn.h"
+#include "SockaddrIn.h"
 
-class IoCallbackConnect final : public IoCallback
+struct ExtensionTable;
+class IoCallbackConnect final : public IoCallbackImpl<IoCallbackFn>
 {
 public:
-	void Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFn&& fn);
-	bool OnComplete(const int e, const DWORD numBytes) override;
-	bool Post();
+	//	{{SET}}
+	inline void SetAddr( const SockaddrIn& addr )
+	{
+		_addr = addr;
+	}
+	//	{{SET}}
+
+	bool OnComplete( const int e ) override;
+	bool Post( const ExtensionTable& extensionTable );
 
 private:
-	IoCallbackFn _fn;
+	SockaddrIn _addr;
 };

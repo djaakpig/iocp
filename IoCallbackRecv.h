@@ -1,21 +1,20 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoCallbackImpl.hpp"
 #include "IoCallbackFn.h"
 #include "CircularBuffer.h"
 
-class IoCallbackRecv final : public IoCallback
+class IoCallbackRecv final : public IoCallbackImpl<IoCallbackFnRecv>
 {
 public:
-	explicit IoCallbackRecv(const DWORD capacity);
+	explicit IoCallbackRecv( const DWORD capacity );
 
-	void Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFnRecv&& fn);
-	bool OnComplete(const int e, const DWORD numBytes) override;
+	bool OnComplete( const int e ) override;
 	bool Post();
 
 private:
+	bool _OnComplete( const int e );
 	pair<int, DWORD> _Read(const SOCKET s, char* const pBuf, const int sz) const;
 
 private:
-	IoCallbackFnRecv _fn;
 	CircularBuffer _buffer;
 };

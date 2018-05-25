@@ -8,18 +8,20 @@ template<class Fn>
 class IoCallbackImpl abstract : public IoCallback
 {
 public:
-	void Bind(shared_ptr<TcpSession> sessionPtr, const Fn&& fn)
+	//	{{SET}}
+	inline void SetFn( const Fn&& fn )
 	{
-		_sessionPtr = sessionPtr;
 		_fn = fn;
 	}
-
-	virtual void Clear() override
-	{
-		_sessionPtr = nullptr;
-	}
+	//	{{SET}}
 
 protected:
-	shared_ptr<TcpSession> _sessionPtr;
+	template<class... Args>
+	inline bool _Invoke( Args&&... args )
+	{
+		return _fn ? _fn( forward<Args>( args )... ) : false;
+	}
+
+private:
 	Fn _fn;
 };

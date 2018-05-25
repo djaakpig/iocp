@@ -1,23 +1,29 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoCallbackImpl.hpp"
 #include "IoCallbackFn.h"
 
-const DWORD LocalSockaddrLen = sizeof(SOCKADDR_IN) + 16;
-const DWORD RemoteSockaddrLen = sizeof(SOCKADDR_IN) + 16;
+const DWORD SockaddrLen = sizeof(SOCKADDR_IN) + 16;
 
-class Socket;
+struct ExtensionTable;
 class TcpListener;
-class IoCallbackAccept final : public IoCallback
+class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>, private enable_shared_from_this<IoCallbackAccept>
 {
 public:
-	void Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFn&& fn, shared_ptr<TcpListener> listenerPtr);
+	//	{{SET}}
+	inline void SetListener( shared_ptr<TcpListener> listenerPtr )
+	{
+		_listenerPtr = listenerPtr;
+	}
+	//	{{SET}}
+
 	void Clear() override;
-	const Socket* GetListenerSocket() const;
-	bool OnComplete(const int e, const DWORD numBytes) override;
-	bool Post();
+	bool OnComplete( const int e ) override;
+	bool Post( const ExtensionTable& extensionTable );
+
+private:
+	bool _OnComplete( const int e );
 
 private:
 	shared_ptr<TcpListener> _listenerPtr;
-	IoCallbackFn _fn;
-	char _buf[LocalSockaddrLen + RemoteSockaddrLen];
+	char _buf[SockaddrLen * 2];
 };

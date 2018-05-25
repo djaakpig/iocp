@@ -1,57 +1,74 @@
 #pragma once
 #include "IIoObject.h"
 #include "IoCallbackFn.h"
-#include <WinSock2.h>
-#include <memory>
+#include "SockaddrIn.h"
+#include <atomic>
 using namespace std;
 
 class Socket;
+struct ExtensionTable;
 class TcpListener;
 class IoCallbackAccept;
 class IoCallbackConnect;
+class IoCallbackDisconnect;
 class IoCallbackRecv;
-class IoCallbackReuse;
 class IoCallbackSend;
 class TcpSession final : public IIoObject, public enable_shared_from_this<TcpSession>
 {
 public:
-	TcpSession();
+	explicit TcpSession( const ExtensionTable& extensionTable );
 	~TcpSession();
 
 	//	{{GET}}
 	HANDLE GetHandle() const override;
+	inline uint64_t GetId() const
+	{
+		return _id;
+	}
 	inline Socket* GetSocket() const
 	{
 		return _pSocket;
 	}
+	inline const SockaddrIn& GetLocalAddr() const
+	{
+		return _localSockaddr;
+	}
+	inline const SockaddrIn& GetRemoteAddr() const
+	{
+		return _remoteSockaddr;
+	}
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetLocalSockaddr(const SOCKADDR& sockaddr)
+	inline void SetId( const uint64_t id )
 	{
-		_localSockaddr = sockaddr;
+		_id = id;
 	}
-	inline void SetRemoteSockaddr(const SOCKADDR& sockaddr)
-	{
-		_remoteSockaddr = sockaddr;
-	}
+	void SetOnAccept( const IoCallbackFn&& fn );
+	void SetOnConnect( const IoCallbackFn&& fn );
+	void SetOnDisconnect( const IoCallbackFn&& fn );
+	void SetOnRecv( const IoCallbackFnRecv&& fn );
+	void SetOnSend( const IoCallbackFnSend&& fn );
 	//	{{SET}}
 
-	bool Accept();
-	bool Accept(const IoCallbackFn&& fn);
+	bool Accept( const shared_ptr<TcpListener>& listenerPtr );
 	void Close();
+	bool Connect( const SockaddrIn& remoteAddr );
 	bool Create();
-	bool Recv(const IoCallbackFnRecv&& fn);
-	bool Reuse(const IoCallbackFn&& fn);
-	bool Send(const IoCallbackFnSend&& fn, const WSABUF& buf);
+	bool Disconnect();
+	bool FillAddr();
+	bool Recv();
+	bool Send( const WSABUF& buf );
 
 private:
+	atomic_uint64_t _id = 0;
 	Socket* _pSocket = nullptr;
-	SOCKADDR _localSockaddr;
-	SOCKADDR _remoteSockaddr;
+	const ExtensionTable& _extensionTable;
+	SockaddrIn _localSockaddr;
+	SockaddrIn _remoteSockaddr;
 	IoCallbackAccept* _pAcceptCallback = nullptr;
 	IoCallbackConnect* _pConnectCallback = nullptr;
+	IoCallbackDisconnect* _pDisconnectCallback = nullptr;
 	IoCallbackRecv* _pRecvCallback = nullptr;
-	IoCallbackReuse* _pReuseCallback = nullptr;
 	IoCallbackSend* _pSendCallback = nullptr;
 };

@@ -86,8 +86,8 @@
     <ClCompile Include="IoCallback.cpp" />
     <ClCompile Include="IoCallbackAccept.cpp" />
     <ClCompile Include="IoCallbackConnect.cpp" />
+    <ClCompile Include="IoCallbackDisconnect.cpp" />
     <ClCompile Include="IoCallbackRecv.cpp" />
-    <ClCompile Include="IoCallbackReuse.cpp" />
     <ClCompile Include="IoCallbackSend.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="IoService.cpp" />
@@ -103,12 +103,14 @@
     <ClInclude Include="IoCallback.h" />
     <ClInclude Include="IoCallbackAccept.h" />
     <ClInclude Include="IoCallbackConnect.h" />
+    <ClInclude Include="IoCallbackDisconnect.h" />
     <ClInclude Include="IoCallbackFn.h" />
     <ClInclude Include="IoCallbackImpl.hpp" />
     <ClInclude Include="IoCallbackRecv.h" />
-    <ClInclude Include="IoCallbackReuse.h" />
     <ClInclude Include="IoCallbackSend.h" />
     <ClInclude Include="IoService.h" />
+    <ClInclude Include="Lock.h" />
+    <ClInclude Include="SockaddrIn.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="TcpListener.h" />
     <ClInclude Include="TcpSession.h" />

@@ -34,7 +34,7 @@ bool CircularBuffer::BeginWrite(WSABUF& wsaBuf) const
 void CircularBuffer::EndRead(const DWORD numReadBytes)
 {
 	_positionToRead = (_positionToRead + numReadBytes) % _capacity;
-	_size += numReadBytes;
+	_size -= numReadBytes;
 }
 
 void CircularBuffer::EndWrite(const DWORD numWrittenBytes)
@@ -45,7 +45,7 @@ void CircularBuffer::EndWrite(const DWORD numWrittenBytes)
 
 void CircularBuffer::Reset()
 {
-	_size = 0;
 	_positionToWrite = 0;
 	_positionToRead = 0;
+	_size = 0;
 }

@@ -1,19 +1,21 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoCallbackImpl.hpp"
 #include "IoCallbackFn.h"
+#include "Lock.h"
+#include <list>
 
-class IoCallbackSend final : public IoCallback
+class IoCallbackSend final : public IoCallbackImpl<IoCallbackFnSend>
 {
 public:
-	void Bind(shared_ptr<TcpSession> sessionPtr, const IoCallbackFnSend&& fn, const WSABUF& buf);
-	bool OnComplete(const int e, const DWORD numBytes) override;
+	void Enqueue( const WSABUF& buf );
+	bool OnComplete( const int e) override;
 	bool Post();
 
 private:
 	pair<int, DWORD> _Send(const SOCKET s, char* const pBuf, const int sz) const;
 
 private:
-	IoCallbackFnSend _fn;
-	WSABUF _buf;
+	mutex _lock;
+	list<WSABUF> _bufs;
 	DWORD _numSentBytes = 0;
 };
