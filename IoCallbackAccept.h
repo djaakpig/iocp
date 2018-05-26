@@ -6,7 +6,7 @@ const DWORD SockaddrLen = sizeof(SOCKADDR_IN) + 16;
 
 struct ExtensionTable;
 class TcpListener;
-class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>, private enable_shared_from_this<IoCallbackAccept>
+class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>
 {
 public:
 	//	{{SET}}

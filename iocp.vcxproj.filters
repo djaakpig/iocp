@@ -79,25 +79,10 @@
     <ClInclude Include="WinsockStarter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IoCallbackAccept.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackConnect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackRecv.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IoCallbackSend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackFn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackImpl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lock.h">
@@ -106,7 +91,22 @@
     <ClInclude Include="SockaddrIn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IoCallbackAccept.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackConnect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="IoCallbackDisconnect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackFn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackImpl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackRecv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

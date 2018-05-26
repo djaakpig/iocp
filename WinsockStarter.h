@@ -1,13 +1,12 @@
 #pragma once
-#include <Windows.h>
 #include <WinSock2.h>
 
 class WinsockStarter final
 {
 public:
-	explicit WinsockStarter(const BYTE highVersion, const BYTE lowVersion)
+	WinsockStarter()
 	{
-		const auto versionRequired = MAKEWORD(highVersion, lowVersion);
+		const auto versionRequired = MAKEWORD(2, 2);
 		if(0 == WSAStartup(versionRequired, &_wsaData))
 		{
 			_available = _wsaData.wVersion == versionRequired;

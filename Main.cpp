@@ -92,23 +92,21 @@ public:
 private:
 	bool _OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr )
 	{
-		sessionPtr->SetOnDisconnect( bind( &Server::_OnDisconnect, this, placeholders::_1, placeholders::_2 ) );
-		sessionPtr->SetOnRecv( bind( &Server::_OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
-		sessionPtr->SetOnSend( bind( &Server::_OnSend, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
-
 		if( e )
 		{
 			cout << "accept fail! error:" << e << endl;
-			sessionPtr->Disconnect();
 			return false;
 		}
 
 		if( !_ioService.Associate( sessionPtr.get() ) )
 		{
 			cout << "accept associate fail!" << endl;
-			sessionPtr->Disconnect();
 			return false;
 		}
+
+		sessionPtr->SetOnDisconnect(bind(&Server::_OnDisconnect, this, placeholders::_1, placeholders::_2));
+		sessionPtr->SetOnRecv(bind(&Server::_OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3));
+		sessionPtr->SetOnSend(bind(&Server::_OnSend, this, placeholders::_1, placeholders::_2, placeholders::_3));
 
 		if( !sessionPtr->Recv() )
 		{
@@ -262,11 +260,8 @@ public:
 	}
 
 private:
-	atomic_uint32_t _count = 0;
 	bool _OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
 	{
-		cout << "_OnConnect() count:" << ++_count << endl;
-
 		if( e )
 		{
 			cout << "connect fail! error:" << e << endl;
@@ -388,7 +383,7 @@ int main( int argc, char** args )
 	const WORD port = static_cast<WORD>(min( 40000, max( 30000, atoi( args[4] ) ) ));
 	const WORD numSessions = static_cast<WORD>(min( 1000, max( 1, atoi( args[5] ) ) ));
 
-	WinsockStarter wsStarter( 2, 2 );
+	WinsockStarter wsStarter;
 	IoService ioService;
 
 	if( ioService.Start( numWorkers ) )
