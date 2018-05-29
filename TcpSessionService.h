@@ -19,11 +19,11 @@ public:
 	virtual ~TcpSessionService() = default;
 
 	//	{{GET}}
-	bool IsInProgress() const
+	inline bool IsInProgress() const
 	{
 		return _inProgress;
 	}
-	const IoService& GetIoService() const
+	inline const IoService& GetIoService() const
 	{
 		return _ioService;
 	}

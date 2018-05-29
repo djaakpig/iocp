@@ -4,7 +4,8 @@
 
 bool IoService::Associate( const Socket* const pSocket ) const
 {
-	if( !_iocpHandle ) return false;
+	if( !_iocpHandle )
+		return false;
 
 	const auto r = CreateIoCompletionPort( pSocket->GetHandle(), _iocpHandle, NULL, 0 );
 	if( !r )
@@ -24,7 +25,8 @@ bool IoService::Post( LPOVERLAPPED pOverlapped ) const
 bool IoService::Start( const DWORD numWorkers )
 {
 	_iocpHandle = CreateIoCompletionPort( INVALID_HANDLE_VALUE, nullptr, NULL, numWorkers );
-	if( !_iocpHandle ) return false;
+	if( !_iocpHandle )
+		return false;
 
 	for( DWORD workerId = 0; numWorkers > workerId; ++workerId )
 		_workers.push_back( thread( bind( &IoService::_Run, this ) ) );

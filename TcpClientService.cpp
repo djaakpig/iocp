@@ -7,7 +7,8 @@
 #include "Socket.h"
 #include "CircularBuffer.h"
 
-TcpClientService::TcpClientService( const IoService& ioService ) : TcpSessionService( ioService )
+TcpClientService::TcpClientService( const IoService& ioService ) :
+	TcpSessionService( ioService )
 {
 	_pSocket = new Socket();
 }

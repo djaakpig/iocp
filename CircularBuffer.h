@@ -4,7 +4,7 @@
 class CircularBuffer final
 {
 public:
-	explicit CircularBuffer(const DWORD capacity);
+	explicit CircularBuffer( const DWORD capacity );
 	~CircularBuffer();
 
 	//	{{GET}}
@@ -22,10 +22,10 @@ public:
 	}
 	//	{{GET}}
 
-	bool BeginRead(WSABUF& wsaBuf) const;
-	bool BeginWrite(WSABUF& wsaBuf) const;
-	void EndRead(const DWORD numReadBytes);
-	void EndWrite(const DWORD numWrittenBytes);
+	bool BeginRead( WSABUF& wsaBuf ) const;
+	bool BeginWrite( WSABUF& wsaBuf ) const;
+	void EndRead( const DWORD numReadBytes );
+	void EndWrite( const DWORD numWrittenBytes );
 	void Clear();
 
 private:

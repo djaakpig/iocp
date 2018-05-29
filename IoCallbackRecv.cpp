@@ -2,7 +2,8 @@
 #include "Socket.h"
 #include "TcpSession.h"
 
-IoCallbackRecv::IoCallbackRecv( const DWORD capacity ) : _buffer( capacity )
+IoCallbackRecv::IoCallbackRecv( const DWORD capacity ) :
+	_buffer( capacity )
 {
 }
 
