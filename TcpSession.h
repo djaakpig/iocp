@@ -3,7 +3,6 @@
 #include "IoCallbackFn.h"
 #include "SockaddrIn.h"
 #include <atomic>
-using namespace std;
 
 class ExtensionTable;
 class IoCallbackAccept;
