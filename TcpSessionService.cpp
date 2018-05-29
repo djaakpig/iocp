@@ -25,6 +25,7 @@ bool TcpSessionService::Start( const SockaddrIn& listenAddr, const DWORD numRese
 void TcpSessionService::Stop()
 {
 	_inProgress = false;
+
 	_CloseAllSessions();
 	_Stop();
 }
