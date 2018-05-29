@@ -2,7 +2,7 @@
 #include "IoCallbackImpl.hpp"
 #include "IoCallbackFn.h"
 
-const DWORD SockaddrLen = sizeof(SOCKADDR_IN) + 16;
+const DWORD SockaddrLen = sizeof( SOCKADDR_IN ) + 16;
 
 class ExtensionTable;
 class TcpListener;
@@ -10,6 +10,17 @@ class TcpListener;
 class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>
 {
 public:
+	//	{{GET}}
+	inline char* GetBuf()
+	{
+		return _buf;
+	}
+	inline DWORD GetSize() const
+	{
+		return sizeof( _buf );
+	}
+	//	{{GET}}
+
 	//	{{SET}}
 	inline void SetListener( shared_ptr<TcpListener> listenerPtr )
 	{

@@ -26,21 +26,21 @@ public:
 	//	{{GET}}
 
 	bool Bind();
-	bool Bind(const SockaddrIn& addr );
-	bool Create(const int type, const int protocol);
+	bool Bind( const SockaddrIn& addr );
+	bool Create( const int type, const int protocol );
 	void Close();
 	template<class T>
-	inline T GetExtension(GUID&& id) const
+	inline T GetExtension( GUID&& id ) const
 	{
-		return static_cast<T>(_GetExtension(std::move(id)));
+		return static_cast<T>(_GetExtension( std::move( id ) ));
 	}
-	inline bool SetNonblock(u_long enable) const
+	inline bool SetNonblock( u_long enable ) const
 	{
-		return SOCKET_ERROR != ioctlsocket(_socket, FIONBIO, &enable);
+		return SOCKET_ERROR != ioctlsocket( _socket, FIONBIO, &enable );
 	}
-	inline bool SetOptionInt(const int level, const int name, int val) const
+	inline bool SetOptionInt( const int level, const int name, int val ) const
 	{
-		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(&val), sizeof( int ));
+		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<char*>(&val), sizeof( int ) );
 	}
 	template<class T>
 	inline bool SetOptionPtr( const int level, const int name, T* const pVal ) const
@@ -53,7 +53,7 @@ public:
 	}
 
 private:
-	LPVOID _GetExtension(GUID&& id) const;
+	LPVOID _GetExtension( GUID&& id ) const;
 
 private:
 	SOCKET _socket = INVALID_SOCKET;

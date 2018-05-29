@@ -62,8 +62,8 @@ bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
 	_acceptCallback->SetSession( shared_from_this() );
 	_acceptCallback->SetListener( listenerPtr );
 
-	SecureZeroMemory( &_localSockaddr, sizeof( _localSockaddr ) );
-	SecureZeroMemory( &_remoteSockaddr, sizeof( _remoteSockaddr ) );
+	_localSockaddr.Clear();
+	_remoteSockaddr.Clear();
 
 	return _acceptCallback->Post( _extensionTable );
 }
@@ -113,13 +113,23 @@ bool TcpSession::Disconnect()
 
 bool TcpSession::FillAddr()
 {
-	int remoteSockaddrLen = _remoteSockaddr.GetSize();
-	if( SOCKET_ERROR == getpeername( _pSocket->GetSocketHandle(), _remoteSockaddr.ToSockAddrPtr(), &remoteSockaddrLen ) )
-		return false;
+	PSOCKADDR pLocalSockaddr = nullptr;
+	int pLocalSockaddrLen = 0;
+	PSOCKADDR pRemoteSockaddr = nullptr;
+	int pRemoteSockaddrLen = 0;
 
-	int localSockaddrLen = _localSockaddr.GetSize();
-	if( SOCKET_ERROR == getsockname( _pSocket->GetSocketHandle(), _localSockaddr.ToSockAddrPtr(), &localSockaddrLen ) )
-		return false;
+	_extensionTable.getAcceptExSockaddrs( _acceptCallback->GetBuf(), 0, SockaddrLen, SockaddrLen, &pLocalSockaddr, &pLocalSockaddrLen, &pRemoteSockaddr, &pRemoteSockaddrLen );
+
+	_localSockaddr = *pLocalSockaddr;
+	_remoteSockaddr = *pRemoteSockaddr;
+
+	//int remoteSockaddrLen = _remoteSockaddr.GetSize();
+	//if( SOCKET_ERROR == getpeername( _pSocket->GetSocketHandle(), _remoteSockaddr.ToSockAddrPtr(), &remoteSockaddrLen ) )
+	//	return false;
+
+	//int localSockaddrLen = _localSockaddr.GetSize();
+	//if( SOCKET_ERROR == getsockname( _pSocket->GetSocketHandle(), _localSockaddr.ToSockAddrPtr(), &localSockaddrLen ) )
+	//	return false;
 
 	return true;
 }

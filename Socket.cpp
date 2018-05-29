@@ -41,8 +41,8 @@ LPVOID Socket::_GetExtension( GUID&& id ) const
 	LPVOID ptr = nullptr;
 	DWORD bytesReturned = 0;
 	const auto r = WSAIoctl( _socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
-							 reinterpret_cast<LPVOID>(&id), sizeof( id ),
-							 static_cast<LPVOID>(&ptr), sizeof( ptr ),
+							 reinterpret_cast<LPVOID>(&id), sizeof( GUID ),
+							 static_cast<LPVOID>(&ptr), sizeof( LPVOID ),
 							 &bytesReturned,
 							 nullptr,
 							 nullptr );

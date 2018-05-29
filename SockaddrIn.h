@@ -8,23 +8,31 @@ class SockaddrIn final
 public:
 	SockaddrIn()
 	{
-		SecureZeroMemory( &_addr, sizeof( _addr ) );
+		Clear();
 		_addr.sin_family = AF_INET;
 	}
-	SockaddrIn(const string& ip, const WORD port)
+	SockaddrIn( const string& ip, const WORD port )
 	{
-		SecureZeroMemory( &_addr, sizeof( _addr ) );
+		Clear();
 		_addr.sin_family = AF_INET;
 
 		SetIP( ip );
 		SetPort( port );
 	}
 
+	//	{{OPERATOR}}
+	inline const SockaddrIn& operator = ( const SOCKADDR& addr )
+	{
+		CopyMemory( &_addr, &addr, sizeof( SOCKADDR ) );
+		return *this;
+	}
+	//	{{OPERATOR}}
+
 	//	{{GET}}
 	inline string GetIP() const
 	{
 		char ipBuffer[15 + 1];
-		return inet_ntop( AF_INET, const_cast<PSOCKADDR_IN>(&_addr), ipBuffer, sizeof ipBuffer );
+		return inet_ntop( AF_INET, const_cast<PIN_ADDR>(&_addr.sin_addr), ipBuffer, sizeof( ipBuffer ) );
 	}
 	inline WORD GetPort() const
 	{
@@ -32,7 +40,7 @@ public:
 	}
 	inline int GetSize() const
 	{
-		return sizeof _addr;
+		return sizeof( SOCKADDR_IN );
 	}
 	inline SOCKADDR* ToSockAddrPtr()
 	{
@@ -54,6 +62,11 @@ public:
 		_addr.sin_port = htons( port );
 	}
 	//	{{SET}}
+
+	void Clear()
+	{
+		SecureZeroMemory( &_addr, sizeof( SOCKADDR_IN ) );
+	}
 
 private:
 	SOCKADDR_IN _addr;

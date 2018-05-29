@@ -26,7 +26,7 @@ public:
 	bool BeginWrite(WSABUF& wsaBuf) const;
 	void EndRead(const DWORD numReadBytes);
 	void EndWrite(const DWORD numWrittenBytes);
-	void Reset();
+	void Clear();
 
 private:
 	char* _pBuf = nullptr;

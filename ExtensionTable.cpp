@@ -12,5 +12,8 @@ bool ExtensionTable::Load( const Socket* const pSocket )
 	disconnectEx = pSocket->GetExtension<LPFN_DISCONNECTEX>( WSAID_DISCONNECTEX );
 	if( !disconnectEx ) return false;
 
+	getAcceptExSockaddrs = pSocket->GetExtension<LPFN_GETACCEPTEXSOCKADDRS>( WSAID_GETACCEPTEXSOCKADDRS );
+	if( !getAcceptExSockaddrs ) return false;
+
 	return true;
 }

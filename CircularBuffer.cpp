@@ -43,7 +43,7 @@ void CircularBuffer::EndWrite(const DWORD numWrittenBytes)
 	_size += numWrittenBytes;
 }
 
-void CircularBuffer::Reset()
+void CircularBuffer::Clear()
 {
 	_positionToWrite = 0;
 	_positionToRead = 0;
