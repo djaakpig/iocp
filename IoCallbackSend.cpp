@@ -9,44 +9,44 @@ void IoCallbackSend::Enqueue( const WSABUF& buf )
 	_bufs.push_back( buf );
 }
 
-bool IoCallbackSend::OnComplete( const int e )
+void IoCallbackSend::OnComplete( const int e )
 {
 	if( e )
 	{
 		DoExclusive( _lock, [this, e]()
 		{
-			if( !_bufs.empty() )
-			{
-				_Invoke( e, _sessionPtr, _bufs.front() );
-				_bufs.pop_front();
+			auto iter = _bufs.begin();
 
-				for( const auto buf : _bufs )
-					_Invoke( WSAECANCELLED, _sessionPtr, buf );
-			}
+			_Invoke( e, _sessionPtr, *iter );
 
-			ResetInProgress();
+			while( _bufs.end() != ++iter )
+				_Invoke( WSAECANCELLED, _sessionPtr, *iter );
+
+			_bufs.clear();
+			_numSentBytes = 0;
+
+			_sessionPtr->Disconnect();
+			Clear();
 		} );
 
-		return false;
+		return;
 	}
 
+	auto numSentBytes = _numSentBytes;
 	list<WSABUF> bufs;
 	DoExclusive( _lock, bind( &list<WSABUF>::swap, ref( _bufs ), ref( bufs ) ) );
 
 	while( !bufs.empty() )
 	{
 		const auto buf = bufs.front();
-		const auto r = _Send( _sessionPtr->GetSocket()->GetSocketHandle(), buf.buf + _numSentBytes, buf.len - _numSentBytes );
+		const auto r = _Send( _sessionPtr->GetSocket()->GetSocketHandle(), buf.buf + numSentBytes, buf.len - numSentBytes );
 
 		if( ERROR_SUCCESS != r.first )
 		{
-			bufs.pop_front();
-			_numSentBytes = 0;
-
 			_Invoke( r.first, _sessionPtr, buf );
 
-			for( const auto cancelledBuf : bufs )
-				_Invoke( WSAECANCELLED, _sessionPtr, cancelledBuf );
+			bufs.pop_front();
+			numSentBytes = 0;
 
 			break;
 		}
@@ -54,29 +54,28 @@ bool IoCallbackSend::OnComplete( const int e )
 		if( 0 == r.second )
 			break;
 
-		_numSentBytes += r.second;
+		numSentBytes += r.second;
 
-		if( _numSentBytes < buf.len )
+		if( numSentBytes < buf.len )
 			break;
 
-		bufs.pop_front();
-		_numSentBytes = 0;
-
 		_Invoke( ERROR_SUCCESS, _sessionPtr, buf );
+
+		bufs.pop_front();
+		numSentBytes = 0;
 	}
 
-	const auto r = DoExclusive( _lock, [this, &bufs]()
+	_numSentBytes = numSentBytes;
+
+	DoExclusive( _lock, [this, &bufs]()
 	{
 		_bufs.insert( _bufs.begin(), bufs.rbegin(), bufs.rend() );
 
-		return _bufs.empty();
+		if( _bufs.empty() )
+			Clear();
+		else
+			Post();
 	} );
-
-	if( !r ) return Post();
-
-	ResetInProgress();
-
-	return true;
 }
 
 bool IoCallbackSend::Post()
@@ -92,8 +91,8 @@ bool IoCallbackSend::Post()
 		const auto lastError = WSAGetLastError();
 		if( WSA_IO_PENDING != lastError )
 		{
-			Clear();
-			return false;
+			if( !_sessionPtr->PostError( lastError, shared_from_this() ) )
+				return false;
 		}
 	}
 

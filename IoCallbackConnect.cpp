@@ -4,11 +4,14 @@
 #include "Socket.h"
 #include "TcpSession.h"
 
-bool IoCallbackConnect::OnComplete( const int e )
+void IoCallbackConnect::OnComplete( const int e )
 {
 	const auto r = _Invoke( e, _sessionPtr );
-	ResetInProgress();
-	return r;
+
+	if( !r )
+		_sessionPtr->Disconnect();
+
+	Clear();
 }
 
 bool IoCallbackConnect::Post( const ExtensionTable& extensionTable )
@@ -26,12 +29,10 @@ bool IoCallbackConnect::Post( const ExtensionTable& extensionTable )
 		const auto lastError = WSAGetLastError();
 		if( WSA_IO_PENDING != lastError )
 		{
-			Clear();
-			return false;
+			if( !_sessionPtr->PostError( lastError, shared_from_this() ) )
+				return false;
 		}
 	}
-
-	SetInProgress();
 
 	return true;
 }

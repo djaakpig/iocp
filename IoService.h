@@ -4,12 +4,14 @@
 #include <thread>
 using namespace std;
 
-__interface IIoObject;
+class Socket;
+
 class IoService final
 {
 public:
-	bool Associate(const IIoObject* const pObj);
-	bool Start(const DWORD numWorkers);
+	bool Associate( const Socket* const pSocket ) const;
+	bool Post( LPOVERLAPPED pOverlapped ) const;
+	bool Start( const DWORD numWorkers );
 	void Stop();
 
 private:

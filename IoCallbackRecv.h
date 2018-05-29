@@ -8,7 +8,7 @@ class IoCallbackRecv final : public IoCallbackImpl<IoCallbackFnRecv>
 public:
 	explicit IoCallbackRecv( const DWORD capacity );
 
-	bool OnComplete( const int e ) override;
+	void OnComplete( const int e ) override;
 	bool Post();
 
 private:

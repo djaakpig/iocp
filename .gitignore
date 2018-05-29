@@ -35,3 +35,11 @@
 /Release
 /Debug/iocp.exe - s.lnk
 /Debug/iocp.exe - c.lnk
+/Debug/TcpSessionService.obj
+/Debug/TcpServerService.obj
+/Debug/TcpClientService.obj
+/Debug/Log.obj
+/Debug/iocp.Build.CppClean.log
+/Debug/IoCallbackShared.obj
+/Debug/IoCallbackError.obj
+/Debug/IoCallbackDisconnect.obj

@@ -1,27 +1,29 @@
 #pragma once
-#include "IIoObject.h"
+#include "Type.h"
 #include "IoCallbackFn.h"
 #include "SockaddrIn.h"
 #include <atomic>
 using namespace std;
 
-class Socket;
-struct ExtensionTable;
-class TcpListener;
+class ExtensionTable;
 class IoCallbackAccept;
 class IoCallbackConnect;
 class IoCallbackDisconnect;
 class IoCallbackRecv;
 class IoCallbackSend;
-class TcpSession final : public IIoObject, public enable_shared_from_this<TcpSession>
+class IoCallbackShared;
+class Socket;
+class TcpListener;
+class TcpSessionService;
+
+class TcpSession final : public enable_shared_from_this<TcpSession>
 {
 public:
 	explicit TcpSession( const ExtensionTable& extensionTable );
 	~TcpSession();
 
 	//	{{GET}}
-	HANDLE GetHandle() const override;
-	inline uint64_t GetId() const
+	inline SessionId GetId() const
 	{
 		return _id;
 	}
@@ -40,7 +42,7 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetId( const uint64_t id )
+	inline void SetId( const SessionId id )
 	{
 		_id = id;
 	}
@@ -54,21 +56,23 @@ public:
 	bool Accept( const shared_ptr<TcpListener>& listenerPtr );
 	void Close();
 	bool Connect( const SockaddrIn& remoteAddr );
-	bool Create();
+	bool Create( const shared_ptr<TcpSessionService>& servicePtr );
 	bool Disconnect();
 	bool FillAddr();
+	bool PostError( const int e, const shared_ptr<IoCallbackShared>& callbackPtr );
 	bool Recv();
 	bool Send( const WSABUF& buf );
 
 private:
-	atomic_uint64_t _id = 0;
-	Socket* _pSocket = nullptr;
+	shared_ptr<TcpSessionService> _servicePtr;
 	const ExtensionTable& _extensionTable;
+	Socket* _pSocket = nullptr;
+	SessionId _id = 0;
 	SockaddrIn _localSockaddr;
 	SockaddrIn _remoteSockaddr;
-	IoCallbackAccept* _pAcceptCallback = nullptr;
-	IoCallbackConnect* _pConnectCallback = nullptr;
-	IoCallbackDisconnect* _pDisconnectCallback = nullptr;
-	IoCallbackRecv* _pRecvCallback = nullptr;
-	IoCallbackSend* _pSendCallback = nullptr;
+	shared_ptr<IoCallbackAccept> _acceptCallback;
+	shared_ptr<IoCallbackConnect> _connectCallback;
+	shared_ptr<IoCallbackDisconnect> _disconnectCallback;
+	shared_ptr<IoCallbackRecv> _recvCallback;
+	shared_ptr<IoCallbackSend> _sendCallback;
 };

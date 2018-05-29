@@ -3,11 +3,10 @@
 #include "ExtensionTable.h"
 #include "TcpSession.h"
 
-bool IoCallbackDisconnect::OnComplete( const int e )
+void IoCallbackDisconnect::OnComplete( const int e )
 {
-	const auto r = _Invoke( e, _sessionPtr );
-	ResetInProgress();
-	return r;
+	_Invoke( e, _sessionPtr );
+	Clear();
 }
 
 bool IoCallbackDisconnect::Post( const ExtensionTable& extensionTable )
@@ -19,12 +18,10 @@ bool IoCallbackDisconnect::Post( const ExtensionTable& extensionTable )
 		const auto lastError = WSAGetLastError();
 		if( WSA_IO_PENDING != lastError )
 		{
-			Clear();
-			return false;
+			if( !_sessionPtr->PostError( lastError, shared_from_this() ) )
+				return false;
 		}
 	}
-
-	SetInProgress();
 
 	return true;
 }

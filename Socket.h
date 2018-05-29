@@ -3,6 +3,7 @@
 #include <utility>
 
 class SockaddrIn;
+
 class Socket final
 {
 public:
@@ -39,7 +40,7 @@ public:
 	}
 	inline bool SetOptionInt(const int level, const int name, int val) const
 	{
-		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(&val), sizeof(val));
+		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<char*>(&val), sizeof( int ));
 	}
 	template<class T>
 	inline bool SetOptionPtr( const int level, const int name, T* const pVal ) const

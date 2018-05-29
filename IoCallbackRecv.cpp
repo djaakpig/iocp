@@ -6,12 +6,19 @@ IoCallbackRecv::IoCallbackRecv( const DWORD capacity ) : _buffer( capacity )
 {
 }
 
-bool IoCallbackRecv::OnComplete( const int e )
+void IoCallbackRecv::OnComplete( const int e )
 {
-	if( !_OnComplete( e ) )
-		return false;
+	const auto r = _OnComplete( e );
 
-	return Post();
+	if( r )
+	{
+		Post();
+	}
+	else
+	{
+		_sessionPtr->Disconnect();
+		Clear();
+	}
 }
 
 bool IoCallbackRecv::Post()
@@ -25,12 +32,10 @@ bool IoCallbackRecv::Post()
 		const auto lastError = WSAGetLastError();
 		if( WSA_IO_PENDING != lastError )
 		{
-			Clear();
-			return false;
+			if( !_sessionPtr->PostError( lastError, shared_from_this() ) )
+				return false;
 		}
 	}
-
-	SetInProgress();
 
 	return true;
 }

@@ -6,14 +6,18 @@
 void IoCallbackAccept::Clear()
 {
 	_listenerPtr = nullptr;
+
 	__super::Clear();
 }
 
-bool IoCallbackAccept::OnComplete( const int e )
+void IoCallbackAccept::OnComplete( const int e )
 {
 	const auto r = _OnComplete( e );
-	ResetInProgress();
-	return r;
+
+	if( !r )
+		_sessionPtr->Disconnect();
+
+	Clear();
 }
 
 bool IoCallbackAccept::Post( const ExtensionTable& extensionTable )
@@ -33,12 +37,10 @@ bool IoCallbackAccept::Post( const ExtensionTable& extensionTable )
 		const auto lastError = WSAGetLastError();
 		if( WSA_IO_PENDING != lastError )
 		{
-			Clear();
-			return false;
+			if( !_sessionPtr->PostError( lastError, shared_from_this() ) )
+				return false;
 		}
 	}
-
-	SetInProgress();
 
 	return true;
 }

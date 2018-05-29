@@ -3,13 +3,13 @@
 #include <MSWSock.h>
 
 class Socket;
-struct ExtensionTable final
-{
-	bool Load(const Socket* const pSocket);
 
-	LPFN_TRANSMITFILE transmitFile = nullptr;
+class ExtensionTable final
+{
+public:
+	bool Load( const Socket* const pSocket );
+
 	LPFN_ACCEPTEX acceptEx = nullptr;
-	LPFN_GETACCEPTEXSOCKADDRS getAcceptExSockaddrs = nullptr;
 	LPFN_CONNECTEX connectEx = nullptr;
 	LPFN_DISCONNECTEX disconnectEx = nullptr;
 };

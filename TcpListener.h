@@ -1,13 +1,12 @@
 #pragma once
-#include "IIoObject.h"
 #include "IoCallbackFn.h"
 #include "ExtensionTable.h"
 #include <string>
 
 class SockaddrIn;
-class Socket;
-class IoCallbackAccept;
-class TcpListener final : public IIoObject, public enable_shared_from_this<TcpListener>
+class TcpSessionService;
+
+class TcpListener final : public enable_shared_from_this<TcpListener>
 {
 public:
 	TcpListener();
@@ -20,13 +19,13 @@ public:
 	}
 	//	{{GET}}
 
-	bool Create();
+	bool Create( const shared_ptr<TcpSessionService>& servicePtr );
 	void Close();
-	HANDLE GetHandle() const override;
-	bool ImbueContextTo(const Socket* const pChild) const;
-	bool Listen(const SockaddrIn& listenAddr, const WORD numReserved, const IoCallbackFn&& fn);
+	bool ImbueContextTo( const Socket* const pChild ) const;
+	bool Listen( const SockaddrIn& listenAddr, const DWORD numReserved, const IoCallbackFn&& fn );
 
 private:
+	shared_ptr<TcpSessionService> _servicePtr;
 	Socket* _pSocket = nullptr;
 	ExtensionTable _extensionTable;
 };

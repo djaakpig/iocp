@@ -1,11 +1,11 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoCallbackShared.h"
 #include <memory>
 
 class TcpSession;
 
 template<class Fn>
-class IoCallbackImpl abstract : public IoCallback
+class IoCallbackImpl abstract : public IoCallbackShared
 {
 public:
 	//	{{SET}}

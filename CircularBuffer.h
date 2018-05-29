@@ -8,15 +8,15 @@ public:
 	~CircularBuffer();
 
 	//	{{GET}}
-	bool IsEmpty() const
+	inline bool IsEmpty() const
 	{
 		return 0 == _size;
 	}
-	bool IsFull() const
+	inline bool IsFull() const
 	{
 		return _capacity <= _size;
 	}
-	DWORD GetSize() const
+	inline DWORD GetSize() const
 	{
 		return _size;
 	}

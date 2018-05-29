@@ -83,37 +83,49 @@
   <ItemGroup>
     <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="ExtensionTable.cpp" />
-    <ClCompile Include="IoCallback.cpp" />
+    <ClCompile Include="IoCallbackShared.cpp" />
     <ClCompile Include="IoCallbackAccept.cpp" />
     <ClCompile Include="IoCallbackConnect.cpp" />
     <ClCompile Include="IoCallbackDisconnect.cpp" />
+    <ClCompile Include="IoCallbackError.cpp" />
     <ClCompile Include="IoCallbackRecv.cpp" />
     <ClCompile Include="IoCallbackSend.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="IoService.cpp" />
     <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="TcpClientService.cpp" />
     <ClCompile Include="TcpListener.cpp" />
+    <ClCompile Include="TcpServerService.cpp" />
     <ClCompile Include="TcpSession.cpp" />
+    <ClCompile Include="TcpSessionService.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arguments.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="ExtensionTable.h" />
     <ClInclude Include="Global.h" />
-    <ClInclude Include="IIoObject.h" />
-    <ClInclude Include="IoCallback.h" />
+    <ClInclude Include="IoCallbackShared.h" />
     <ClInclude Include="IoCallbackAccept.h" />
     <ClInclude Include="IoCallbackConnect.h" />
     <ClInclude Include="IoCallbackDisconnect.h" />
+    <ClInclude Include="IoCallbackError.h" />
     <ClInclude Include="IoCallbackFn.h" />
     <ClInclude Include="IoCallbackImpl.hpp" />
     <ClInclude Include="IoCallbackRecv.h" />
     <ClInclude Include="IoCallbackSend.h" />
     <ClInclude Include="IoService.h" />
     <ClInclude Include="Lock.h" />
+    <ClInclude Include="IoCallback.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="SockaddrIn.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="TcpClientService.h" />
     <ClInclude Include="TcpListener.h" />
+    <ClInclude Include="TcpServerService.h" />
     <ClInclude Include="TcpSession.h" />
+    <ClInclude Include="TcpSessionService.h" />
+    <ClInclude Include="Type.h" />
     <ClInclude Include="WinsockStarter.h" />
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,8 @@
 #include "IoCallbackFn.h"
 #include "SockaddrIn.h"
 
-struct ExtensionTable;
+class ExtensionTable;
+
 class IoCallbackConnect final : public IoCallbackImpl<IoCallbackFn>
 {
 public:
@@ -14,7 +15,7 @@ public:
 	}
 	//	{{SET}}
 
-	bool OnComplete( const int e ) override;
+	void OnComplete( const int e ) override;
 	bool Post( const ExtensionTable& extensionTable );
 
 private:

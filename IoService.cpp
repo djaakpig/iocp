@@ -1,13 +1,12 @@
 #include "IoService.h"
-#include "IIoObject.h"
 #include "IoCallback.h"
+#include "Socket.h"
 
-bool IoService::Associate( const IIoObject* const pObj )
+bool IoService::Associate( const Socket* const pSocket ) const
 {
 	if( !_iocpHandle ) return false;
 
-	const auto cmpl = reinterpret_cast<ULONG_PTR>(pObj);
-	const auto r = CreateIoCompletionPort( pObj->GetHandle(), _iocpHandle, cmpl, 0 );
+	const auto r = CreateIoCompletionPort( pSocket->GetHandle(), _iocpHandle, NULL, 0 );
 	if( !r )
 	{
 		const auto e = WSAGetLastError();
@@ -15,6 +14,11 @@ bool IoService::Associate( const IIoObject* const pObj )
 	}
 
 	return _iocpHandle == r;
+}
+
+bool IoService::Post( LPOVERLAPPED pOverlapped ) const
+{
+	return TRUE == PostQueuedCompletionStatus( _iocpHandle, 0, NULL, pOverlapped );
 }
 
 bool IoService::Start( const DWORD numWorkers )
@@ -50,20 +54,19 @@ void IoService::Stop()
 void IoService::_Run()
 {
 	DWORD numBytes = 0;
-	ULONG_PTR cmpl = 0;
-	LPOVERLAPPED pOvl = nullptr;
+	ULONG_PTR cmpletionKey = NULL;
+	LPOVERLAPPED pOverlapped = nullptr;
 
 	while( true )
 	{
-		const auto r = GetQueuedCompletionStatus( _iocpHandle, &numBytes, &cmpl, &pOvl, INFINITE );
+		const auto r = GetQueuedCompletionStatus( _iocpHandle, &numBytes, &cmpletionKey, &pOverlapped, INFINITE );
 
-		if( !pOvl )
+		if( !pOverlapped )
 			break;
 
-		const auto pCallback = static_cast<IoCallback*>(pOvl);
+		const auto pCallback = static_cast<IoCallback*>(pOverlapped);
 		const auto e = r ? ERROR_SUCCESS : WSAGetLastError();
 
-		if( !pCallback->OnComplete( e ) )
-			pCallback->Clear();
+		pCallback->OnComplete( e );
 	}
 }

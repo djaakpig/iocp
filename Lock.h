@@ -17,8 +17,8 @@ inline auto DoExclusive( Mutex& m, Fn&& fn, Args&&... args )
 }
 
 template<class Fn, class... Args>
-inline void WaitCondition( const int sleepTime, Fn&& fn, Args&&... args )
+inline void WaitCondition( const chrono::milliseconds& sleepTime, Fn&& fn, Args&&... args )
 {
 	while( fn( args... ) )
-		this_thread::sleep_for( chrono::milliseconds( sleepTime ) );
+		this_thread::sleep_for( sleepTime );
 }

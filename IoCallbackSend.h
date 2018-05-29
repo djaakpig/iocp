@@ -8,7 +8,7 @@ class IoCallbackSend final : public IoCallbackImpl<IoCallbackFnSend>
 {
 public:
 	void Enqueue( const WSABUF& buf );
-	bool OnComplete( const int e) override;
+	void OnComplete( const int e) override;
 	bool Post();
 
 private:

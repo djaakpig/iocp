@@ -26,9 +26,6 @@
     <ClCompile Include="ExtensionTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IoCallback.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,14 +47,26 @@
     <ClCompile Include="IoCallbackDisconnect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IoCallbackError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IoCallbackShared.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpClientService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpServerService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpSessionService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IIoObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IoService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,25 +88,19 @@
     <ClInclude Include="WinsockStarter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IoCallbackSend.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SockaddrIn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IoCallbackAccept.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IoCallbackConnect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IoCallbackDisconnect.h">
+    <ClInclude Include="IoCallbackRecv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackSend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CircularBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IoCallbackFn.h">
@@ -106,7 +109,40 @@
     <ClInclude Include="IoCallbackImpl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IoCallbackRecv.h">
+    <ClInclude Include="Lock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SockaddrIn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackDisconnect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallbackShared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpSessionService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpClientService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpServerService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arguments.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

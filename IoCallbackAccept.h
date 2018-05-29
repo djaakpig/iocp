@@ -4,8 +4,9 @@
 
 const DWORD SockaddrLen = sizeof(SOCKADDR_IN) + 16;
 
-struct ExtensionTable;
+class ExtensionTable;
 class TcpListener;
+
 class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>
 {
 public:
@@ -17,7 +18,7 @@ public:
 	//	{{SET}}
 
 	void Clear() override;
-	bool OnComplete( const int e ) override;
+	void OnComplete( const int e ) override;
 	bool Post( const ExtensionTable& extensionTable );
 
 private:
