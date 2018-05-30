@@ -41,17 +41,17 @@ bool IoCallbackRecv::Post()
 	return true;
 }
 
-pair<int, DWORD> IoCallbackRecv::_Read( const SOCKET s, char* const pBuf, const int sz ) const
+pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
 {
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
 
 	while( 0 < remainSize )
 	{
-		const auto r = ::recv( s, pCurrentBuf, remainSize, 0 );
+		const auto r = ::recv( _sessionPtr->GetSocket()->GetSocketHandle(), pCurrentBuf, remainSize, 0 );
 
 		if( 0 == r )
-			return{ WSAECONNRESET, 0 };
+			return{ WSAECONNRESET, sz - remainSize };
 
 		if( SOCKET_ERROR == r )
 		{
@@ -59,7 +59,7 @@ pair<int, DWORD> IoCallbackRecv::_Read( const SOCKET s, char* const pBuf, const 
 			if( WSAEWOULDBLOCK == lastError )
 				break;
 
-			return{ lastError, 0 };
+			return{ lastError, sz - remainSize };
 		}
 
 		pCurrentBuf += r;
@@ -74,17 +74,20 @@ bool IoCallbackRecv::_OnComplete( const int e )
 	if( e )
 		return _Invoke( e, _sessionPtr, _buffer );
 
-	const auto socket = _sessionPtr->GetSocket()->GetSocketHandle();
 	WSABUF wsaBuf;
 	pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
 
 	while( _buffer.BeginWrite( wsaBuf ) )
 	{
-		r = _Read( socket, wsaBuf.buf, wsaBuf.len );
-		if( r.first || 0 == r.second )
+		r = _Read( wsaBuf.buf, wsaBuf.len );
+
+		if( 0 == r.second )
 			break;
 
 		_buffer.EndWrite( r.second );
+
+		if( r.first )
+			break;
 	}
 
 	return _Invoke( r.first, _sessionPtr, _buffer );

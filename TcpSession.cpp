@@ -1,4 +1,5 @@
 #include "TcpSession.h"
+#include "ExtensionTable.h"
 #include "Global.h"
 #include "Socket.h"
 #include "IoService.h"
@@ -11,8 +12,8 @@
 #include "TcpListener.h"
 #include "TcpSessionService.h"
 
-TcpSession::TcpSession( const ExtensionTable& extensionTable ) :
-	_extensionTable( extensionTable )
+TcpSession::TcpSession( const shared_ptr<ExtensionTable>& extensionTablePtr ) :
+	_extensionTablePtr( extensionTablePtr )
 {
 	_pSocket = new Socket();
 	_acceptCallback = make_shared<IoCallbackAccept>();
@@ -46,7 +47,7 @@ void TcpSession::SetOnRecv( const IoCallbackFnRecv&& fn )
 	_recvCallback->SetFn( move( fn ) );
 }
 
-void TcpSession::SetOnSend( const IoCallbackFnSend&& fn )
+void TcpSession::SetOnSend( const IoCallbackFn&& fn )
 {
 	_sendCallback->SetFn( move( fn ) );
 }
@@ -65,13 +66,14 @@ bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
 	_localSockaddr.Clear();
 	_remoteSockaddr.Clear();
 
-	return _acceptCallback->Post( _extensionTable );
+	return _acceptCallback->Post( _extensionTablePtr );
 }
 
 void TcpSession::Close()
 {
 	_pSocket->Close();
 	_servicePtr = nullptr;
+	_extensionTablePtr = nullptr;
 }
 
 bool TcpSession::Connect( const SockaddrIn& remoteAddr )
@@ -85,7 +87,7 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	_connectCallback->SetSession( shared_from_this() );
 	_connectCallback->SetAddr( remoteAddr );
 
-	return _connectCallback->Post( _extensionTable );
+	return _connectCallback->Post( _extensionTablePtr );
 }
 
 bool TcpSession::Create( const shared_ptr<TcpSessionService>& servicePtr )
@@ -108,30 +110,27 @@ bool TcpSession::Disconnect()
 
 	_disconnectCallback->SetSession( shared_from_this() );
 
-	return _disconnectCallback->Post( _extensionTable );
+	return _disconnectCallback->Post( _extensionTablePtr );
 }
 
-bool TcpSession::FillAddr()
+void TcpSession::FillAddr()
 {
 	PSOCKADDR pLocalSockaddr = nullptr;
 	int pLocalSockaddrLen = 0;
 	PSOCKADDR pRemoteSockaddr = nullptr;
 	int pRemoteSockaddrLen = 0;
 
-	_extensionTable.getAcceptExSockaddrs( _acceptCallback->GetBuf(), 0, SockaddrLen, SockaddrLen, &pLocalSockaddr, &pLocalSockaddrLen, &pRemoteSockaddr, &pRemoteSockaddrLen );
+	_extensionTablePtr->getAcceptExSockaddrs( _acceptCallback->GetBuf(),
+											  0,
+											  SockaddrLen,
+											  SockaddrLen,
+											  &pLocalSockaddr,
+											  &pLocalSockaddrLen,
+											  &pRemoteSockaddr,
+											  &pRemoteSockaddrLen );
 
 	_localSockaddr = *pLocalSockaddr;
 	_remoteSockaddr = *pRemoteSockaddr;
-
-	//int remoteSockaddrLen = _remoteSockaddr.GetSize();
-	//if( SOCKET_ERROR == getpeername( _pSocket->GetSocketHandle(), _remoteSockaddr.ToSockAddrPtr(), &remoteSockaddrLen ) )
-	//	return false;
-
-	//int localSockaddrLen = _localSockaddr.GetSize();
-	//if( SOCKET_ERROR == getsockname( _pSocket->GetSocketHandle(), _localSockaddr.ToSockAddrPtr(), &localSockaddrLen ) )
-	//	return false;
-
-	return true;
 }
 
 bool TcpSession::PostError( const int e, const shared_ptr<IoCallbackShared>& callbackPtr )
@@ -168,7 +167,7 @@ bool TcpSession::Recv()
 	return _recvCallback->Post();
 }
 
-bool TcpSession::Send( const WSABUF& buf )
+bool TcpSession::Send( const shared_ptr<WsaBuf>& buf )
 {
 	if( !_pSocket->IsValid() )
 		return false;

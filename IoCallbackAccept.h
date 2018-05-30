@@ -30,7 +30,7 @@ public:
 
 	void Clear() override;
 	void OnComplete( const int e ) override;
-	bool Post( const ExtensionTable& extensionTable );
+	bool Post( const shared_ptr<ExtensionTable>& extensionTablePtr );
 
 private:
 	bool _OnComplete( const int e );

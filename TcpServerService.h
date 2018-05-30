@@ -1,7 +1,6 @@
 #pragma once
 #include "TcpSessionService.h"
 
-class CircularBuffer;
 class TcpListener;
 
 class TcpServerService final : public TcpSessionService
@@ -11,10 +10,12 @@ class TcpServerService final : public TcpSessionService
 private:
 	bool _Start( const SockaddrIn& listenAddr, const DWORD numReserved ) override;
 	void _Stop() override;
+
+	//	{{CALLBACK}}
 	bool _OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr );
-	bool _OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr );
-	bool _OnRecv( const int e, const shared_ptr<TcpSession>& sessionPtr, CircularBuffer& buf );
-	bool _OnSend( const int e, const shared_ptr<TcpSession>& sessionPtr, const WSABUF& buf );
+	bool _OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr ) override;
+	bool _OnPacket( const shared_ptr<TcpSession>& sessionPtr, const WSABUF& buf ) override;
+	//	{{CALLBACK}}
 
 private:
 	shared_ptr<TcpListener> _listenerPtr;

@@ -6,13 +6,13 @@ class IoCallback abstract : public OVERLAPPED
 public:
 	IoCallback()
 	{
-		SecureZeroMemory( static_cast<LPOVERLAPPED>(this), sizeof( OVERLAPPED ) );
+		memset( static_cast<LPOVERLAPPED>( this ), 0, sizeof( OVERLAPPED ) );
 	}
 	virtual ~IoCallback() = default;
 
 	virtual void Clear()
 	{
-		SecureZeroMemory( static_cast<LPOVERLAPPED>(this), sizeof( OVERLAPPED ) );
+		memset( static_cast<LPOVERLAPPED>( this ), 0, sizeof( OVERLAPPED ) );
 	}
 	virtual void OnComplete( const int ) = 0;
 };

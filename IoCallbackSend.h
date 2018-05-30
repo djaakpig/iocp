@@ -4,10 +4,14 @@
 #include "Lock.h"
 #include <list>
 
-class IoCallbackSend final : public IoCallbackImpl<IoCallbackFnSend>
+class WsaBuf;
+
+class IoCallbackSend final : public IoCallbackImpl<IoCallbackFn>
 {
+	using BufferPtrList = list<shared_ptr<WsaBuf>>;
+
 public:
-	void Enqueue( const WSABUF& buf );
+	void Enqueue( const shared_ptr<WsaBuf>& buf );
 	void OnComplete( const int e ) override;
 	bool Post();
 
@@ -16,6 +20,6 @@ private:
 
 private:
 	mutex _lock;
-	list<WSABUF> _bufs;
+	BufferPtrList _bufs;
 	DWORD _numSentBytes = 0;
 };

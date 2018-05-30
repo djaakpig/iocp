@@ -28,36 +28,26 @@ inline void Log( T&& t )
 template<class... Args>
 inline void LogForce( Args&&... args )
 {
-	cout << "[FORCE] ";
-	Log( forward<Args>( args )... );
+	Log( "[FORCE] ", forward<Args>( args )... );
 }
 
 template<class... Args>
 inline void LogNormal( Args&&... args )
 {
 	if( GetLogLevel() <= ELogLevel::normal )
-	{
-		cout << "[NORMAL] ";
-		Log( forward<Args>( args )... );
-	}
+		Log( "[NORMAL] ", forward<Args>( args )... );
 }
 
 template<class... Args>
 inline void LogWarning( Args&&... args )
 {
 	if( GetLogLevel() <= ELogLevel::warning )
-	{
-		cout << "[WARNING] ";
-		Log( forward<Args>( args )... );
-	}
+		Log( "[WARNING] ", forward<Args>( args )... );
 }
 
 template<class... Args>
 inline void LogError( Args&&... args )
 {
 	if( GetLogLevel() <= ELogLevel::error )
-	{
-		cout << "[ERROR] ";
-		Log( forward<Args>( args )... );
-	}
+		Log( "[ERROR] ", forward<Args>( args )... );
 }

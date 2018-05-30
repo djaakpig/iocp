@@ -1,4 +1,5 @@
 #include "IoCallbackAccept.h"
+#include "ExtensionTable.h"
 #include "Socket.h"
 #include "TcpListener.h"
 #include "TcpSession.h"
@@ -20,17 +21,17 @@ void IoCallbackAccept::OnComplete( const int e )
 	Clear();
 }
 
-bool IoCallbackAccept::Post( const ExtensionTable& extensionTable )
+bool IoCallbackAccept::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
 	DWORD bytesReceived = 0;
-	const auto r = extensionTable.acceptEx( _listenerPtr->GetSocket()->GetSocketHandle(),
-											_sessionPtr->GetSocket()->GetSocketHandle(),
-											_buf,
-											0,
-											SockaddrLen,
-											SockaddrLen,
-											&bytesReceived,
-											this );
+	const auto r = extensionTablePtr->acceptEx( _listenerPtr->GetSocket()->GetSocketHandle(),
+												_sessionPtr->GetSocket()->GetSocketHandle(),
+												_buf,
+												0,
+												SockaddrLen,
+												SockaddrLen,
+												&bytesReceived,
+												this );
 
 	if( !r )
 	{
@@ -50,14 +51,10 @@ bool IoCallbackAccept::_OnComplete( const int e )
 	if( e )
 		return _Invoke( e, _sessionPtr );
 
-	if( !_listenerPtr->ImbueContextTo( _sessionPtr->GetSocket() ) )
-	{
-		_Invoke( WSAGetLastError(), _sessionPtr );
-		return false;
-	}
+	if( !_listenerPtr->SetContextTo( _sessionPtr->GetSocket() ) )
+		return _Invoke( WSAGetLastError(), _sessionPtr );
 
-	if( !_sessionPtr->FillAddr() )
-		return false;
+	_sessionPtr->FillAddr();
 
 	return _Invoke( ERROR_SUCCESS, _sessionPtr );
 }

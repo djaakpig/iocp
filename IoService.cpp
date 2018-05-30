@@ -29,7 +29,7 @@ bool IoService::Start( const DWORD numWorkers )
 		return false;
 
 	for( DWORD workerId = 0; numWorkers > workerId; ++workerId )
-		_workers.push_back( thread( bind( &IoService::_Run, this ) ) );
+		_workers.emplace_back( thread( bind( &IoService::_Run, this ) ) );
 
 	return true;
 }
@@ -66,7 +66,7 @@ void IoService::_Run()
 		if( !pOverlapped )
 			break;
 
-		const auto pCallback = static_cast<IoCallback*>(pOverlapped);
+		const auto pCallback = static_cast<IoCallback*>( pOverlapped );
 		const auto e = r ? ERROR_SUCCESS : WSAGetLastError();
 
 		pCallback->OnComplete( e );

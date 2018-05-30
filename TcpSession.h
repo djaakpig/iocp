@@ -14,11 +14,12 @@ class IoCallbackShared;
 class Socket;
 class TcpListener;
 class TcpSessionService;
+class WsaBuf;
 
 class TcpSession final : public enable_shared_from_this<TcpSession>
 {
 public:
-	explicit TcpSession( const ExtensionTable& extensionTable );
+	explicit TcpSession( const shared_ptr<ExtensionTable>& extensionTablePtr );
 	~TcpSession();
 
 	//	{{GET}}
@@ -49,7 +50,7 @@ public:
 	void SetOnConnect( const IoCallbackFn&& fn );
 	void SetOnDisconnect( const IoCallbackFn&& fn );
 	void SetOnRecv( const IoCallbackFnRecv&& fn );
-	void SetOnSend( const IoCallbackFnSend&& fn );
+	void SetOnSend( const IoCallbackFn&& fn );
 	//	{{SET}}
 
 	bool Accept( const shared_ptr<TcpListener>& listenerPtr );
@@ -57,14 +58,14 @@ public:
 	bool Connect( const SockaddrIn& remoteAddr );
 	bool Create( const shared_ptr<TcpSessionService>& servicePtr );
 	bool Disconnect();
-	bool FillAddr();
+	void FillAddr();
 	bool PostError( const int e, const shared_ptr<IoCallbackShared>& callbackPtr );
 	bool Recv();
-	bool Send( const WSABUF& buf );
+	bool Send( const shared_ptr<WsaBuf>& buf );
 
 private:
+	shared_ptr<ExtensionTable> _extensionTablePtr;
 	shared_ptr<TcpSessionService> _servicePtr;
-	const ExtensionTable& _extensionTable;
 	Socket* _pSocket = nullptr;
 	SessionId _id = 0;
 	SockaddrIn _localSockaddr;

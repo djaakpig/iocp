@@ -14,15 +14,15 @@ void IoCallbackConnect::OnComplete( const int e )
 	Clear();
 }
 
-bool IoCallbackConnect::Post( const ExtensionTable& extensionTable )
+bool IoCallbackConnect::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
-	const auto r = extensionTable.connectEx( _sessionPtr->GetSocket()->GetSocketHandle(),
-											 _addr.ToSockAddrPtr(),
-											 _addr.GetSize(),
-											 nullptr,
-											 0,
-											 nullptr,
-											 this );
+	const auto r = extensionTablePtr->connectEx( _sessionPtr->GetSocket()->GetSocketHandle(),
+												 _addr.ToSockAddrPtr(),
+												 _addr.GetSize(),
+												 nullptr,
+												 0,
+												 nullptr,
+												 this );
 
 	if( !r )
 	{

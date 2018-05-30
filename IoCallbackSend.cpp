@@ -1,12 +1,12 @@
 #include "IoCallbackSend.h"
 #include "Socket.h"
 #include "TcpSession.h"
+#include "WsaBuf.h"
 
-void IoCallbackSend::Enqueue( const WSABUF& buf )
+void IoCallbackSend::Enqueue( const shared_ptr<WsaBuf>& buf )
 {
-	lock_guard<mutex> lock( _lock );
-
-	_bufs.push_back( buf );
+	const unique_lock<mutex> l( _lock );
+	_bufs.emplace_back( buf );
 }
 
 void IoCallbackSend::OnComplete( const int e )
@@ -15,12 +15,7 @@ void IoCallbackSend::OnComplete( const int e )
 	{
 		DoExclusive( _lock, [this, e]()
 		{
-			auto iter = _bufs.begin();
-
-			_Invoke( e, _sessionPtr, *iter );
-
-			while( _bufs.end() != ++iter )
-				_Invoke( WSAECANCELLED, _sessionPtr, *iter );
+			_Invoke( e, _sessionPtr );
 
 			_bufs.clear();
 			_numSentBytes = 0;
@@ -33,20 +28,19 @@ void IoCallbackSend::OnComplete( const int e )
 	}
 
 	auto numSentBytes = _numSentBytes;
-	list<WSABUF> bufs;
-	DoExclusive( _lock, bind( &list<WSABUF>::swap, ref( _bufs ), ref( bufs ) ) );
+	BufferPtrList bufs;
+	DoExclusive( _lock, bind( &BufferPtrList::swap, ref( _bufs ), ref( bufs ) ) );
 
 	while( !bufs.empty() )
 	{
-		const auto buf = bufs.front();
+		const auto& buf = bufs.front()->Get();
 		const auto r = _Send( _sessionPtr->GetSocket()->GetSocketHandle(), buf.buf + numSentBytes, buf.len - numSentBytes );
+
+		numSentBytes += r.second;
 
 		if( ERROR_SUCCESS != r.first )
 		{
-			_Invoke( r.first, _sessionPtr, buf );
-
-			bufs.pop_front();
-			numSentBytes = 0;
+			_Invoke( r.first, _sessionPtr );
 
 			break;
 		}
@@ -54,12 +48,10 @@ void IoCallbackSend::OnComplete( const int e )
 		if( 0 == r.second )
 			break;
 
-		numSentBytes += r.second;
-
 		if( numSentBytes < buf.len )
 			break;
 
-		_Invoke( ERROR_SUCCESS, _sessionPtr, buf );
+		_Invoke( ERROR_SUCCESS, _sessionPtr );
 
 		bufs.pop_front();
 		numSentBytes = 0;
@@ -109,15 +101,15 @@ pair<int, DWORD> IoCallbackSend::_Send( const SOCKET s, char* const pBuf, const 
 		const auto r = ::send( s, pCurrentBuf, remainSize, 0 );
 
 		if( 0 == r )
-			return{ WSAECONNRESET, 0 };
+			return{ WSAECONNRESET, sz - remainSize };
 
 		if( SOCKET_ERROR == r )
 		{
 			const auto lastError = WSAGetLastError();
-			if( WSAEWOULDBLOCK == lastError )
-				break;
+			if( WSAEWOULDBLOCK != lastError )
+				return{ lastError, sz - remainSize };
 
-			return{ lastError, 0 };
+			break;
 		}
 
 		pCurrentBuf += r;

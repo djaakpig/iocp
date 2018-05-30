@@ -16,7 +16,7 @@ public:
 	//	{{SET}}
 
 	void OnComplete( const int e ) override;
-	bool Post( const ExtensionTable& extensionTable );
+	bool Post( const shared_ptr<ExtensionTable>& extensionTablePtr );
 
 private:
 	SockaddrIn _addr;

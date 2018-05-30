@@ -22,11 +22,14 @@ public:
 	}
 	//	{{GET}}
 
-	bool BeginRead( WSABUF& wsaBuf ) const;
+	bool BeginRead( WSABUF& wsaBuf );
 	bool BeginWrite( WSABUF& wsaBuf ) const;
 	void EndRead( const DWORD numReadBytes );
 	void EndWrite( const DWORD numWrittenBytes );
 	void Clear();
+
+private:
+	void _DoLinearize();
 
 private:
 	char* _pBuf = nullptr;

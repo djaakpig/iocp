@@ -9,9 +9,9 @@ void IoCallbackDisconnect::OnComplete( const int e )
 	Clear();
 }
 
-bool IoCallbackDisconnect::Post( const ExtensionTable& extensionTable )
+bool IoCallbackDisconnect::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
-	const auto r = extensionTable.disconnectEx( _sessionPtr->GetSocket()->GetSocketHandle(), this, TF_REUSE_SOCKET, 0 );
+	const auto r = extensionTablePtr->disconnectEx( _sessionPtr->GetSocket()->GetSocketHandle(), this, TF_REUSE_SOCKET, 0 );
 
 	if( !r )
 	{

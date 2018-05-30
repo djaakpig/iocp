@@ -12,13 +12,20 @@ CircularBuffer::~CircularBuffer()
 	SafeDeleteArray( _pBuf );
 }
 
-bool CircularBuffer::BeginRead( WSABUF& wsaBuf ) const
+bool CircularBuffer::BeginRead( WSABUF& wsaBuf )
 {
 	if( IsEmpty() )
 		return false;
 
+	if( _size < wsaBuf.len )
+		return false;
+
 	const auto bufLimit = _positionToRead > _positionToWrite ? _capacity : _positionToWrite;
-	wsaBuf = { bufLimit - _positionToRead, _pBuf + _positionToRead };
+
+	if( bufLimit - _positionToRead < wsaBuf.len )
+		_DoLinearize();
+
+	wsaBuf.buf = _pBuf + _positionToRead;
 
 	return true;
 }
@@ -36,13 +43,13 @@ bool CircularBuffer::BeginWrite( WSABUF& wsaBuf ) const
 
 void CircularBuffer::EndRead( const DWORD numReadBytes )
 {
-	_positionToRead = (_positionToRead + numReadBytes) % _capacity;
+	_positionToRead = ( _positionToRead + numReadBytes ) % _capacity;
 	_size -= numReadBytes;
 }
 
 void CircularBuffer::EndWrite( const DWORD numWrittenBytes )
 {
-	_positionToWrite = (_positionToWrite + numWrittenBytes) % _capacity;
+	_positionToWrite = ( _positionToWrite + numWrittenBytes ) % _capacity;
 	_size += numWrittenBytes;
 }
 
@@ -51,4 +58,8 @@ void CircularBuffer::Clear()
 	_positionToWrite = 0;
 	_positionToRead = 0;
 	_size = 0;
+}
+
+void CircularBuffer::_DoLinearize()
+{
 }

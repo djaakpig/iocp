@@ -99,6 +99,7 @@
     <ClCompile Include="TcpServerService.cpp" />
     <ClCompile Include="TcpSession.cpp" />
     <ClCompile Include="TcpSessionService.cpp" />
+    <ClCompile Include="WsaBuf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arguments.h" />
@@ -118,6 +119,7 @@
     <ClInclude Include="Lock.h" />
     <ClInclude Include="IoCallback.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="WsaBuf.h" />
     <ClInclude Include="SockaddrIn.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="TcpClientService.h" />

@@ -13,7 +13,7 @@ public:
 
 private:
 	bool _OnComplete( const int e );
-	pair<int, DWORD> _Read( const SOCKET s, char* const pBuf, const int sz ) const;
+	pair<int, DWORD> _Read( char* const pBuf, const int sz ) const;
 
 private:
 	CircularBuffer _buffer;

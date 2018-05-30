@@ -23,7 +23,7 @@ public:
 	//	{{OPERATOR}}
 	inline const SockaddrIn& operator = ( const SOCKADDR& addr )
 	{
-		CopyMemory( &_addr, &addr, sizeof( SOCKADDR ) );
+		memcpy( &_addr, &addr, sizeof( SOCKADDR ) );
 		return *this;
 	}
 	//	{{OPERATOR}}
@@ -32,7 +32,7 @@ public:
 	inline string GetIP() const
 	{
 		char ipBuffer[15 + 1];
-		return inet_ntop( AF_INET, const_cast<PIN_ADDR>(&_addr.sin_addr), ipBuffer, sizeof( ipBuffer ) );
+		return inet_ntop( AF_INET, const_cast<PIN_ADDR>( &_addr.sin_addr ), ipBuffer, sizeof( ipBuffer ) );
 	}
 	inline WORD GetPort() const
 	{
@@ -44,11 +44,11 @@ public:
 	}
 	inline SOCKADDR* ToSockAddrPtr()
 	{
-		return reinterpret_cast<SOCKADDR*>(&_addr);
+		return reinterpret_cast<SOCKADDR*>( &_addr );
 	}
 	inline const SOCKADDR* ToSockAddrPtr() const
 	{
-		return reinterpret_cast<const SOCKADDR*>(&_addr);
+		return reinterpret_cast<const SOCKADDR*>( &_addr );
 	}
 	//	{{GET}}
 
@@ -63,9 +63,9 @@ public:
 	}
 	//	{{SET}}
 
-	void Clear()
+	inline void Clear()
 	{
-		SecureZeroMemory( &_addr, sizeof( SOCKADDR_IN ) );
+		memset( &_addr, 0, sizeof( SOCKADDR_IN ) );
 	}
 
 private:
