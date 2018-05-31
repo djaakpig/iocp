@@ -1,31 +1,30 @@
 #include "CircularBuffer.h"
 #include "Global.h"
 
-CircularBuffer::CircularBuffer( const DWORD capacity ) :
-	_capacity( capacity )
+thread_local WsaBuf RecvBufForLinearize;
+
+CircularBuffer::CircularBuffer( const DWORD capacity ) : _buf( capacity )
 {
-	_pBuf = new char[capacity];
 }
 
 CircularBuffer::~CircularBuffer()
 {
-	SafeDeleteArray( _pBuf );
 }
 
 bool CircularBuffer::BeginRead( WSABUF& wsaBuf )
 {
-	if( IsEmpty() )
+	if( 0 == wsaBuf.len )
 		return false;
 
-	if( _size < wsaBuf.len )
+	if( IsNotEnough( wsaBuf.len ) )
 		return false;
 
-	const auto bufLimit = _positionToRead > _positionToWrite ? _capacity : _positionToWrite;
+	const auto bufLimit = _positionToRead > _positionToWrite ? _buf->len : _positionToWrite;
 
 	if( bufLimit - _positionToRead < wsaBuf.len )
 		_DoLinearize();
 
-	wsaBuf.buf = _pBuf + _positionToRead;
+	wsaBuf.buf = _buf->buf + _positionToRead;
 
 	return true;
 }
@@ -35,21 +34,21 @@ bool CircularBuffer::BeginWrite( WSABUF& wsaBuf ) const
 	if( IsFull() )
 		return false;
 
-	const auto bufLimit = _positionToRead > _positionToWrite ? _positionToRead : _capacity;
-	wsaBuf = { bufLimit - _positionToWrite, _pBuf + _positionToWrite };
+	const auto bufLimit = _positionToRead > _positionToWrite ? _positionToRead : _buf->len;
+	wsaBuf = { bufLimit - _positionToWrite, _buf->buf + _positionToWrite };
 
 	return true;
 }
 
 void CircularBuffer::EndRead( const DWORD numReadBytes )
 {
-	_positionToRead = ( _positionToRead + numReadBytes ) % _capacity;
+	_positionToRead = ( _positionToRead + numReadBytes ) % _buf->len;
 	_size -= numReadBytes;
 }
 
 void CircularBuffer::EndWrite( const DWORD numWrittenBytes )
 {
-	_positionToWrite = ( _positionToWrite + numWrittenBytes ) % _capacity;
+	_positionToWrite = ( _positionToWrite + numWrittenBytes ) % _buf->len;
 	_size += numWrittenBytes;
 }
 
@@ -62,4 +61,12 @@ void CircularBuffer::Clear()
 
 void CircularBuffer::_DoLinearize()
 {
+	const auto readSize = _buf->len - _positionToRead;
+
+	RecvBufForLinearize.CopyFrom( _buf->buf + _positionToRead, readSize );
+	_buf.Move( 0, readSize, _positionToWrite );
+	_buf.CopyFrom( RecvBufForLinearize->buf, readSize );
+
+	_positionToRead = 0;
+	_positionToWrite = _size;
 }

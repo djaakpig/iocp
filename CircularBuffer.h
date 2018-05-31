@@ -1,5 +1,6 @@
 #pragma once
 #include <WinSock2.h>
+#include "WsaBuf.h"
 
 class CircularBuffer final
 {
@@ -8,13 +9,13 @@ public:
 	~CircularBuffer();
 
 	//	{{GET}}
-	inline bool IsEmpty() const
+	inline bool IsNotEnough( const DWORD needBytes ) const
 	{
-		return 0 == _size;
+		return _size < needBytes;
 	}
 	inline bool IsFull() const
 	{
-		return _capacity <= _size;
+		return _buf->len <= _size;
 	}
 	inline DWORD GetSize() const
 	{
@@ -32,8 +33,7 @@ private:
 	void _DoLinearize();
 
 private:
-	char* _pBuf = nullptr;
-	DWORD _capacity = 0;
+	WsaBuf _buf;
 	DWORD _positionToWrite = 0;
 	DWORD _positionToRead = 0;
 	DWORD _size = 0;

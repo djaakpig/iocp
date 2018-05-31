@@ -19,7 +19,7 @@ TcpSession::TcpSession( const shared_ptr<ExtensionTable>& extensionTablePtr ) :
 	_acceptCallback = make_shared<IoCallbackAccept>();
 	_connectCallback = make_shared<IoCallbackConnect>();
 	_disconnectCallback = make_shared<IoCallbackDisconnect>();
-	_recvCallback = make_shared<IoCallbackRecv>( 1024 );
+	_recvCallback = make_shared<IoCallbackRecv>( 15 );
 	_sendCallback = make_shared<IoCallbackSend>();
 }
 
@@ -60,7 +60,8 @@ bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
 	if( _acceptCallback->SetInProgress() )
 		return true;
 
-	_acceptCallback->SetSession( shared_from_this() );
+	const auto thisPtr = shared_from_this();
+	_acceptCallback->SetSession( thisPtr );
 	_acceptCallback->SetListener( listenerPtr );
 
 	_localSockaddr.Clear();
@@ -84,7 +85,8 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	if( _connectCallback->SetInProgress() )
 		return true;
 
-	_connectCallback->SetSession( shared_from_this() );
+	const auto thisPtr = shared_from_this();
+	_connectCallback->SetSession( thisPtr );
 	_connectCallback->SetAddr( remoteAddr );
 
 	return _connectCallback->Post( _extensionTablePtr );
@@ -108,7 +110,8 @@ bool TcpSession::Disconnect()
 	if( _disconnectCallback->SetInProgress() )
 		return true;
 
-	_disconnectCallback->SetSession( shared_from_this() );
+	const auto thisPtr = shared_from_this();
+	_disconnectCallback->SetSession( thisPtr );
 
 	return _disconnectCallback->Post( _extensionTablePtr );
 }
@@ -162,7 +165,8 @@ bool TcpSession::Recv()
 	if( _recvCallback->SetInProgress() )
 		return true;
 
-	_recvCallback->SetSession( shared_from_this() );
+	const auto thisPtr = shared_from_this();
+	_recvCallback->SetSession( thisPtr );
 
 	return _recvCallback->Post();
 }
@@ -177,7 +181,8 @@ bool TcpSession::Send( const shared_ptr<WsaBuf>& buf )
 	if( _sendCallback->SetInProgress() )
 		return true;
 
-	_sendCallback->SetSession( shared_from_this() );
+	const auto thisPtr = shared_from_this();
+	_sendCallback->SetSession( thisPtr );
 
 	return _sendCallback->Post();
 }

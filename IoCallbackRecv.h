@@ -8,6 +8,7 @@ class IoCallbackRecv final : public IoCallbackImpl<IoCallbackFnRecv>
 public:
 	explicit IoCallbackRecv( const DWORD capacity );
 
+	void Clear() override;
 	void OnComplete( const int e ) override;
 	bool Post();
 
@@ -16,5 +17,5 @@ private:
 	pair<int, DWORD> _Read( char* const pBuf, const int sz ) const;
 
 private:
-	CircularBuffer _buffer;
+	CircularBuffer _buf;
 };

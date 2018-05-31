@@ -3,8 +3,14 @@
 #include "TcpSession.h"
 
 IoCallbackRecv::IoCallbackRecv( const DWORD capacity ) :
-	_buffer( capacity )
+	_buf( capacity )
 {
+}
+
+void IoCallbackRecv::Clear()
+{
+	_buf.Clear();
+	__super::Clear();
 }
 
 void IoCallbackRecv::OnComplete( const int e )
@@ -33,7 +39,8 @@ bool IoCallbackRecv::Post()
 		const auto lastError = WSAGetLastError();
 		if( WSA_IO_PENDING != lastError )
 		{
-			if( !_sessionPtr->PostError( lastError, shared_from_this() ) )
+			const auto thisPtr = shared_from_this();
+			if( !_sessionPtr->PostError( lastError, thisPtr ) )
 				return false;
 		}
 	}
@@ -72,23 +79,23 @@ pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
 bool IoCallbackRecv::_OnComplete( const int e )
 {
 	if( e )
-		return _Invoke( e, _sessionPtr, _buffer );
+		return _Invoke( e, _sessionPtr, _buf );
 
 	WSABUF wsaBuf;
 	pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
 
-	while( _buffer.BeginWrite( wsaBuf ) )
+	while( _buf.BeginWrite( wsaBuf ) )
 	{
 		r = _Read( wsaBuf.buf, wsaBuf.len );
 
 		if( 0 == r.second )
 			break;
 
-		_buffer.EndWrite( r.second );
+		_buf.EndWrite( r.second );
 
 		if( r.first )
 			break;
 	}
 
-	return _Invoke( r.first, _sessionPtr, _buffer );
+	return _Invoke( r.first, _sessionPtr, _buf );
 }
