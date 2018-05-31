@@ -3,11 +3,8 @@
 
 thread_local WsaBuf RecvBufForLinearize;
 
-CircularBuffer::CircularBuffer( const DWORD capacity ) : _buf( capacity )
-{
-}
-
-CircularBuffer::~CircularBuffer()
+CircularBuffer::CircularBuffer( const DWORD capacity ) :
+	_buf( capacity )
 {
 }
 

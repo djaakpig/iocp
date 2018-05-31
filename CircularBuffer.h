@@ -6,7 +6,6 @@ class CircularBuffer final
 {
 public:
 	explicit CircularBuffer( const DWORD capacity );
-	~CircularBuffer();
 
 	//	{{GET}}
 	inline bool IsNotEnough( const DWORD needBytes ) const
