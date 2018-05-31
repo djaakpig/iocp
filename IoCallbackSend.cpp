@@ -34,7 +34,7 @@ void IoCallbackSend::OnComplete( const int e )
 	while( !bufs.empty() )
 	{
 		const auto& buf = bufs.front()->Get();
-		const auto r = _Send( _sessionPtr->GetSocket()->GetSocketHandle(), buf.buf + numSentBytes, buf.len - numSentBytes );
+		const auto r = _Send( buf.buf + numSentBytes, buf.len - numSentBytes );
 
 		numSentBytes += r.second;
 
@@ -78,28 +78,20 @@ bool IoCallbackSend::Post()
 	WSABUF wsaBuf{ 0, nullptr };
 	const auto r = WSASend( _sessionPtr->GetSocket()->GetSocketHandle(), &wsaBuf, 1, nullptr, flags, this, nullptr );
 
-	if( SOCKET_ERROR == r )
-	{
-		const auto lastError = WSAGetLastError();
-		if( WSA_IO_PENDING != lastError )
-		{
-			const auto thisPtr = shared_from_this();
-			if( !_sessionPtr->PostError( lastError, thisPtr ) )
-				return false;
-		}
-	}
+	if( SOCKET_ERROR != r )
+		return true;
 
-	return true;
+	return _HandleError( WSAGetLastError() );
 }
 
-pair<int, DWORD> IoCallbackSend::_Send( const SOCKET s, char* const pBuf, const int sz ) const
+pair<int, DWORD> IoCallbackSend::_Send( char* const pBuf, const int sz ) const
 {
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
 
 	while( 0 < remainSize )
 	{
-		const auto r = ::send( s, pCurrentBuf, remainSize, 0 );
+		const auto r = ::send( _sessionPtr->GetSocket()->GetSocketHandle(), pCurrentBuf, remainSize, 0 );
 
 		if( 0 == r )
 			return{ WSAECONNRESET, sz - remainSize };

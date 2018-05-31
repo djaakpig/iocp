@@ -34,18 +34,34 @@ bool IoCallbackRecv::Post()
 	WSABUF wsaBuf{ 0, nullptr };
 	const auto r = WSARecv( _sessionPtr->GetSocket()->GetSocketHandle(), &wsaBuf, 1, nullptr, &flags, this, nullptr );
 
-	if( SOCKET_ERROR == r )
+	if( SOCKET_ERROR != r )
+		return true;
+
+	return _HandleError( WSAGetLastError() );
+}
+
+bool IoCallbackRecv::_OnComplete( const int e )
+{
+	if( e )
+		return _Invoke( e, _sessionPtr, _buf );
+
+	WSABUF wsaBuf;
+	pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
+
+	while( _buf.BeginWrite( wsaBuf ) )
 	{
-		const auto lastError = WSAGetLastError();
-		if( WSA_IO_PENDING != lastError )
-		{
-			const auto thisPtr = shared_from_this();
-			if( !_sessionPtr->PostError( lastError, thisPtr ) )
-				return false;
-		}
+		r = _Read( wsaBuf.buf, wsaBuf.len );
+
+		if( 0 == r.second )
+			break;
+
+		_buf.EndWrite( r.second );
+
+		if( r.first )
+			break;
 	}
 
-	return true;
+	return _Invoke( r.first, _sessionPtr, _buf );
 }
 
 pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
@@ -74,28 +90,4 @@ pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
 	}
 
 	return{ ERROR_SUCCESS, sz - remainSize };
-}
-
-bool IoCallbackRecv::_OnComplete( const int e )
-{
-	if( e )
-		return _Invoke( e, _sessionPtr, _buf );
-
-	WSABUF wsaBuf;
-	pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
-
-	while( _buf.BeginWrite( wsaBuf ) )
-	{
-		r = _Read( wsaBuf.buf, wsaBuf.len );
-
-		if( 0 == r.second )
-			break;
-
-		_buf.EndWrite( r.second );
-
-		if( r.first )
-			break;
-	}
-
-	return _Invoke( r.first, _sessionPtr, _buf );
 }

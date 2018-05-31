@@ -136,7 +136,7 @@ void TcpSession::FillAddr()
 	_remoteSockaddr = *pRemoteSockaddr;
 }
 
-bool TcpSession::PostError( const int e, const shared_ptr<IoCallbackShared>& callbackPtr )
+bool TcpSession::PostError( const int lastError, const shared_ptr<IoCallbackShared>& callbackPtr )
 {
 	if( !_servicePtr )
 	{
@@ -145,7 +145,7 @@ bool TcpSession::PostError( const int e, const shared_ptr<IoCallbackShared>& cal
 	}
 
 	const auto pErrorCallback = new IoCallbackError();
-	pErrorCallback->SetError( e );
+	pErrorCallback->SetError( lastError );
 	pErrorCallback->SetCallback( callbackPtr );
 
 	if( !_servicePtr->GetIoService().Post( pErrorCallback ) )

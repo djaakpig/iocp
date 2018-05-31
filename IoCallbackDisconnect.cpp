@@ -13,16 +13,8 @@ bool IoCallbackDisconnect::Post( const shared_ptr<ExtensionTable>& extensionTabl
 {
 	const auto r = extensionTablePtr->disconnectEx( _sessionPtr->GetSocket()->GetSocketHandle(), this, TF_REUSE_SOCKET, 0 );
 
-	if( !r )
-	{
-		const auto lastError = WSAGetLastError();
-		if( WSA_IO_PENDING != lastError )
-		{
-			const auto thisPtr = shared_from_this();
-			if( !_sessionPtr->PostError( lastError, thisPtr ) )
-				return false;
-		}
-	}
+	if( r )
+		return true;
 
-	return true;
+	return _HandleError( WSAGetLastError() );
 }

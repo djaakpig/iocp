@@ -33,18 +33,10 @@ bool IoCallbackAccept::Post( const shared_ptr<ExtensionTable>& extensionTablePtr
 												&bytesReceived,
 												this );
 
-	if( !r )
-	{
-		const auto lastError = WSAGetLastError();
-		if( WSA_IO_PENDING != lastError )
-		{
-			const auto thisPtr = shared_from_this();
-			if( !_sessionPtr->PostError( lastError, thisPtr ) )
-				return false;
-		}
-	}
+	if( r )
+		return true;
 
-	return true;
+	return _HandleError( WSAGetLastError() );
 }
 
 bool IoCallbackAccept::_OnComplete( const int e )

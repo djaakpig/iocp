@@ -16,7 +16,7 @@ public:
 	bool Post();
 
 private:
-	pair<int, DWORD> _Send( const SOCKET s, char* const pBuf, const int sz ) const;
+	pair<int, DWORD> _Send( char* const pBuf, const int sz ) const;
 
 private:
 	mutex _lock;

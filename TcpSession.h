@@ -59,7 +59,7 @@ public:
 	bool Create( const shared_ptr<TcpSessionService>& servicePtr );
 	bool Disconnect();
 	void FillAddr();
-	bool PostError( const int e, const shared_ptr<IoCallbackShared>& callbackPtr );
+	bool PostError( const int lastError, const shared_ptr<IoCallbackShared>& callbackPtr );
 	bool Recv();
 	bool Send( const shared_ptr<WsaBuf>& buf );
 

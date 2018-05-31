@@ -34,6 +34,9 @@ public:
 	virtual void Clear();
 
 protected:
+	bool _HandleError( const int lastError );
+
+protected:
 	shared_ptr<TcpSession> _sessionPtr;
 
 private:
