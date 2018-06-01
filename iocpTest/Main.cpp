@@ -1,12 +1,13 @@
 #pragma comment(lib, "ws2_32.lib") 
 #pragma comment(lib, "mswsock.lib") 
+#pragma comment(lib, "iocp.lib") 
 
+#include <WinsockStarter.h>
+#include <IoService.h>
+#include <Log.h>
 #include "Arguments.h"
-#include "WinsockStarter.h"
-#include "IoService.h"
-#include "TcpServerService.h"
-#include "TcpClientService.h"
-#include "Log.h"
+#include "EchoServer.h"
+#include "EchoClient.h"
 
 int main( int argc, char** args )
 {
@@ -26,16 +27,15 @@ int main( int argc, char** args )
 		shared_ptr<TcpSessionService> servicePtr;
 
 		if( arguments.IsServerMode() )
-			servicePtr = make_shared<TcpServerService>( ioService );
+			servicePtr = make_shared<EchoServer>( ioService );
 		else
-			servicePtr = make_shared<TcpClientService>( ioService );
+			servicePtr = make_shared<EchoClient>( ioService );
 
 		if( servicePtr->Start( arguments.GetAddr(), arguments.GetNumSessions() ) )
 		{
 			cout << "[Press ENTER if you want to stop...]" << endl;
 
 			getchar();
-			//this_thread::sleep_for( chrono::milliseconds( 2000 ) );
 
 			cout << "[Stop...]" << endl;
 		}

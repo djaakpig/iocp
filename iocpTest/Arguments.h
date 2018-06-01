@@ -1,6 +1,6 @@
 #pragma once
-#include "SockaddrIn.h"
-#include "Type.h"
+#include <SockaddrIn.h>
+#include <Type.h>
 using namespace std;
 
 class Arguments final

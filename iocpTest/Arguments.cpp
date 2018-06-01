@@ -1,7 +1,7 @@
 #include "Arguments.h"
 #include <algorithm>
 #include <sstream>
-#include "Log.h"
+#include <Log.h>
 
 bool Arguments::Load( const int argc, char** args )
 {

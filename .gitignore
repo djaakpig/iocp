@@ -5,7 +5,8 @@
 /iocp.VC.VC.opendb
 /iocp.VC.db
 /.vs/iocp/v14/.suo
-/Debug
-/Release
-/iocp180531.vsp
-/iocp180531(1).vsp
+/Bin
+/iocp/Intermidiate
+/iocp/iocp.vcxproj.user
+/iocpTest/Intermidiate
+/iocpTest/iocpTest.vcxproj.user
