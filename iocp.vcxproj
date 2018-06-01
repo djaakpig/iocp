@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Arguments.cpp" />
     <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="ExtensionTable.cpp" />
     <ClCompile Include="IoCallbackShared.cpp" />

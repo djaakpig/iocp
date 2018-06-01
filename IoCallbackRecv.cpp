@@ -17,11 +17,7 @@ void IoCallbackRecv::OnComplete( const int e )
 {
 	const auto r = _OnComplete( e );
 
-	if( r )
-	{
-		Post();
-	}
-	else
+	if( !r || !Post() )
 	{
 		_sessionPtr->Disconnect();
 		Clear();

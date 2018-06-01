@@ -16,6 +16,7 @@ public:
 	bool Post();
 
 private:
+	bool _OnComplete( const int e );
 	pair<int, DWORD> _Send( char* const pBuf, const int sz ) const;
 
 private:

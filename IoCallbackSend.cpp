@@ -11,6 +11,31 @@ void IoCallbackSend::Enqueue( const shared_ptr<WsaBuf>& buf )
 
 void IoCallbackSend::OnComplete( const int e )
 {
+	const auto r = _OnComplete( e );
+
+	if( !r )
+	{
+		_sessionPtr->Disconnect();
+		Clear();
+	}
+}
+
+bool IoCallbackSend::Post()
+{
+	_numSentBytes = 0;
+
+	const DWORD flags = 0;
+	WSABUF wsaBuf{ 0, nullptr };
+	const auto r = WSASend( _sessionPtr->GetSocket()->GetSocketHandle(), &wsaBuf, 1, nullptr, flags, this, nullptr );
+
+	if( SOCKET_ERROR != r )
+		return true;
+
+	return _HandleError( WSAGetLastError() );
+}
+
+bool IoCallbackSend::_OnComplete( const int e )
+{
 	if( e )
 	{
 		DoExclusive( _lock, [this, e]()
@@ -19,12 +44,9 @@ void IoCallbackSend::OnComplete( const int e )
 
 			_bufs.clear();
 			_numSentBytes = 0;
-
-			_sessionPtr->Disconnect();
-			Clear();
 		} );
 
-		return;
+		return false;
 	}
 
 	auto numSentBytes = _numSentBytes;
@@ -59,29 +81,18 @@ void IoCallbackSend::OnComplete( const int e )
 
 	_numSentBytes = numSentBytes;
 
-	DoExclusive( _lock, [this, &bufs]()
+	return DoExclusive( _lock, [this, &bufs]()
 	{
 		_bufs.insert( _bufs.begin(), bufs.rbegin(), bufs.rend() );
 
 		if( _bufs.empty() )
+		{
 			Clear();
-		else
-			Post();
+			return true;
+		}
+
+		return Post();
 	} );
-}
-
-bool IoCallbackSend::Post()
-{
-	_numSentBytes = 0;
-
-	const DWORD flags = 0;
-	WSABUF wsaBuf{ 0, nullptr };
-	const auto r = WSASend( _sessionPtr->GetSocket()->GetSocketHandle(), &wsaBuf, 1, nullptr, flags, this, nullptr );
-
-	if( SOCKET_ERROR != r )
-		return true;
-
-	return _HandleError( WSAGetLastError() );
 }
 
 pair<int, DWORD> IoCallbackSend::_Send( char* const pBuf, const int sz ) const

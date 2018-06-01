@@ -6,6 +6,7 @@
 #include "IoService.h"
 #include "TcpServerService.h"
 #include "TcpClientService.h"
+#include "Log.h"
 
 int main( int argc, char** args )
 {
@@ -14,6 +15,7 @@ int main( int argc, char** args )
 	if( !arguments.Load( argc, args ) )
 		return 1;
 
+	SetConsoleTitleA( arguments.ToTitle().c_str() );
 	SetLogLevel( arguments.GetLogLevel() );
 
 	WinsockStarter wsStarter;
@@ -30,17 +32,18 @@ int main( int argc, char** args )
 
 		if( servicePtr->Start( arguments.GetAddr(), arguments.GetNumSessions() ) )
 		{
-			LogForce( "[press ENTER if you want to stop...]" );
+			cout << "[Press ENTER if you want to stop...]" << endl;
 
 			getchar();
+			//this_thread::sleep_for( chrono::milliseconds( 2000 ) );
 
-			LogForce( "stop!" );
-
-			servicePtr->Stop();
+			cout << "[Stop...]" << endl;
 		}
 
-		ioService.Stop();
+		servicePtr->Stop();
 	}
+
+	ioService.Stop();
 
 	return 0;
 }

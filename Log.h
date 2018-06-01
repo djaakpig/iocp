@@ -1,13 +1,6 @@
 #pragma once
 #include <iostream>
-
-enum class ELogLevel : int
-{
-	normal = 0,
-	warning = 1,
-	error = 2,
-	disable = 3,
-};
+#include "Type.h"
 
 ELogLevel GetLogLevel();
 void SetLogLevel( const ELogLevel logLevel );

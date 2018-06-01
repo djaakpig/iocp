@@ -48,7 +48,6 @@ protected:
 	virtual void _Stop() = 0;
 
 	//	{{CALLBACK}}
-	virtual bool _OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr );
 	virtual bool _OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr );
 	virtual bool _OnPacket( const shared_ptr<TcpSession>& sessionPtr, const WSABUF& buf ) = 0;
 	bool _OnRecv( const int e, const shared_ptr<TcpSession>& sessionPtr, CircularBuffer& buf );

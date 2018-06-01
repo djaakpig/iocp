@@ -40,20 +40,12 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 			sessionPtr->Close();
 	}
 
-	LogForce( "SERVER start!" );
-
 	return true;
 }
 
 void TcpServerService::_Stop()
 {
-	if( _listenerPtr )
-	{
-		_listenerPtr->Close();
-		_listenerPtr = nullptr;
-	}
-
-	LogForce( "SERVER stop!" );
+	_listenerPtr->Close();
 }
 
 bool TcpServerService::_OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr )

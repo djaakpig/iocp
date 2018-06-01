@@ -40,7 +40,6 @@ bool TcpSessionService::Start( const SockaddrIn& listenAddr, const DWORD numRese
 void TcpSessionService::Stop()
 {
 	_inProgress = false;
-	_extensionTablePtr = nullptr;
 
 	_CloseAllSessions();
 	_Stop();
@@ -88,31 +87,6 @@ void TcpSessionService::_SetCallbackTo( const shared_ptr<TcpSession>& sessionPtr
 	sessionPtr->SetOnDisconnect( bind( &TcpSessionService::_OnDisconnect, this, placeholders::_1, placeholders::_2 ) );
 	sessionPtr->SetOnRecv( bind( &TcpSessionService::_OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
 	sessionPtr->SetOnSend( bind( &TcpSessionService::_OnSend, this, placeholders::_1, placeholders::_2 ) );
-}
-
-bool TcpSessionService::_OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
-{
-	if( e )
-	{
-		LogError( "connect fail! id:", sessionPtr->GetId(), ", error:", e );
-		return false;
-	}
-
-	if( !sessionPtr->GetSocket()->SetOptionNull( SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT ) )
-	{
-		LogError( "UpdateConnectContext fail! id:", sessionPtr->GetId() );
-		return false;
-	}
-
-	if( !sessionPtr->Recv() )
-	{
-		LogError( "first recv fail! id:", sessionPtr->GetId() );
-		return false;
-	}
-
-	LogNormal( "connect! id:", sessionPtr->GetId() );
-
-	return true;
 }
 
 bool TcpSessionService::_OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr )

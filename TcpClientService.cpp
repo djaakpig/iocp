@@ -54,8 +54,6 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 		_Add( sessionPtr );
 	}
 
-	LogForce( "CLIENT start!" );
-
 	return true;
 }
 
@@ -63,14 +61,29 @@ void TcpClientService::_Stop()
 {
 	if( _pSocket )
 		_pSocket->Close();
-
-	LogForce( "CLIENT stop!" );
 }
 
 bool TcpClientService::_OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
 {
-	if( !__super::_OnConnect( e, sessionPtr ) )
+	if( e )
+	{
+		LogError( "connect fail! id:", sessionPtr->GetId(), ", error:", e );
 		return false;
+	}
+
+	if( !sessionPtr->GetSocket()->SetOptionNull( SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT ) )
+	{
+		LogError( "UpdateConnectContext fail! id:", sessionPtr->GetId() );
+		return false;
+	}
+
+	if( !sessionPtr->Recv() )
+	{
+		LogError( "first recv fail! id:", sessionPtr->GetId() );
+		return false;
+	}
+
+	LogNormal( "connect! id:", sessionPtr->GetId() );
 
 	//	{{ECHO_TEST}}
 	sessionPtr->Send( make_shared<WsaBuf>( "1234567890", 10 ) );

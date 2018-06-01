@@ -60,21 +60,24 @@ bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
 	if( _acceptCallback->SetInProgress() )
 		return true;
 
-	const auto thisPtr = shared_from_this();
-	_acceptCallback->SetSession( thisPtr );
+	_acceptCallback->SetSession( shared_from_this() );
 	_acceptCallback->SetListener( listenerPtr );
 
 	_localSockaddr.Clear();
 	_remoteSockaddr.Clear();
 
-	return _acceptCallback->Post( _extensionTablePtr );
+	if( !_acceptCallback->Post( _extensionTablePtr ) )
+	{
+		_acceptCallback->Clear();
+		return false;
+	}
+
+	return true;
 }
 
 void TcpSession::Close()
 {
 	_pSocket->Close();
-	_servicePtr = nullptr;
-	_extensionTablePtr = nullptr;
 }
 
 bool TcpSession::Connect( const SockaddrIn& remoteAddr )
@@ -85,11 +88,16 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	if( _connectCallback->SetInProgress() )
 		return true;
 
-	const auto thisPtr = shared_from_this();
-	_connectCallback->SetSession( thisPtr );
+	_connectCallback->SetSession( shared_from_this() );
 	_connectCallback->SetAddr( remoteAddr );
 
-	return _connectCallback->Post( _extensionTablePtr );
+	if( !_connectCallback->Post( _extensionTablePtr ) )
+	{
+		_connectCallback->Clear();
+		return false;
+	}
+
+	return true;
 }
 
 bool TcpSession::Create( const shared_ptr<TcpSessionService>& servicePtr )
@@ -110,10 +118,15 @@ bool TcpSession::Disconnect()
 	if( _disconnectCallback->SetInProgress() )
 		return true;
 
-	const auto thisPtr = shared_from_this();
-	_disconnectCallback->SetSession( thisPtr );
+	_disconnectCallback->SetSession( shared_from_this() );
 
-	return _disconnectCallback->Post( _extensionTablePtr );
+	if( !_disconnectCallback->Post( _extensionTablePtr ) )
+	{
+		_disconnectCallback->Clear();
+		return false;
+	}
+
+	return true;
 }
 
 void TcpSession::FillAddr()
@@ -139,10 +152,7 @@ void TcpSession::FillAddr()
 bool TcpSession::PostError( const int lastError, const shared_ptr<IoCallbackShared>& callbackPtr )
 {
 	if( !_servicePtr )
-	{
-		callbackPtr->Clear();
 		return false;
-	}
 
 	const auto pErrorCallback = new IoCallbackError();
 	pErrorCallback->SetError( lastError );
@@ -165,10 +175,15 @@ bool TcpSession::Recv()
 	if( _recvCallback->SetInProgress() )
 		return true;
 
-	const auto thisPtr = shared_from_this();
-	_recvCallback->SetSession( thisPtr );
+	_recvCallback->SetSession( shared_from_this() );
 
-	return _recvCallback->Post();
+	if( !_recvCallback->Post() )
+	{
+		_recvCallback->Clear();
+		return false;
+	}
+
+	return true;
 }
 
 bool TcpSession::Send( const shared_ptr<WsaBuf>& buf )
@@ -181,8 +196,13 @@ bool TcpSession::Send( const shared_ptr<WsaBuf>& buf )
 	if( _sendCallback->SetInProgress() )
 		return true;
 
-	const auto thisPtr = shared_from_this();
-	_sendCallback->SetSession( thisPtr );
+	_sendCallback->SetSession( shared_from_this() );
 
-	return _sendCallback->Post();
+	if( !_sendCallback->Post() )
+	{
+		_sendCallback->Clear();
+		return false;
+	}
+
+	return true;
 }

@@ -14,7 +14,7 @@ private:
 	void _Stop() override;
 
 	//	{{CALLBACK}}
-	bool _OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr ) override;
+	virtual bool _OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr );
 	bool _OnPacket( const shared_ptr<TcpSession>& sessionPtr, const WSABUF& buf ) override;
 	//	{{CALLBACK}}
 

@@ -12,7 +12,7 @@ private:
 	void _Stop() override;
 
 	//	{{CALLBACK}}
-	bool _OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr );
+	virtual bool _OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr );
 	bool _OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr ) override;
 	bool _OnPacket( const shared_ptr<TcpSession>& sessionPtr, const WSABUF& buf ) override;
 	//	{{CALLBACK}}
