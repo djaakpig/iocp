@@ -22,7 +22,7 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetListener( shared_ptr<TcpListener> listenerPtr )
+	inline void SetListener( const shared_ptr<TcpListener>& listenerPtr )
 	{
 		_listenerPtr = listenerPtr;
 	}
