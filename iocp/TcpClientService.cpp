@@ -23,25 +23,25 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
 		return false;
 
-	if( !_LoadExtensionTable( _pSocket ) )
+	if( !_LoadExtension( *_pSocket ) )
 		return false;
 
 	auto thisPtr = shared_from_this();
 
 	for( DWORD sessionId = 0; numReserved > sessionId && IsInProgress(); ++sessionId )
 	{
-		const auto sessionPtr = make_shared<TcpSession>( _extensionTablePtr );
-
+		const auto sessionPtr = make_shared<TcpSession>();
 		if( !sessionPtr->Create( thisPtr ) )
 			continue;
 
-		if( !sessionPtr->GetSocket()->Bind() )
+        const auto pSessionSocket = sessionPtr->GetSocket();
+		if( !pSessionSocket->Bind() )
 			continue;
 
-		if( !sessionPtr->GetSocket()->SetNonblock( true ) )
+		if( !pSessionSocket->SetNonblock( true ) )
 			continue;
 
-		if( !GetIoService().Associate( sessionPtr->GetSocket() ) )
+		if( !GetIoService().Associate( *pSessionSocket ) )
 			continue;
 
 		sessionPtr->SetId( sessionId );

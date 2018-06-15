@@ -1,21 +1,29 @@
 #include "ExtensionTable.h"
-#include "Socket.h"
 
-bool ExtensionTable::Load( const Socket* const pSocket )
+bool ExtensionTable::Load( SOCKET s )
 {
-	acceptEx = pSocket->GetExtension<LPFN_ACCEPTEX>( WSAID_ACCEPTEX );
+    const auto getExt = [s]( GUID&& id ) -> LPVOID
+    {
+        LPVOID ptr = nullptr;
+        DWORD bytesReturned = 0;
+        const auto r = WSAIoctl( s, SIO_GET_EXTENSION_FUNCTION_POINTER, reinterpret_cast<LPVOID>(&id), sizeof( GUID ), static_cast<LPVOID>(&ptr), sizeof( LPVOID ), &bytesReturned, nullptr, nullptr );
+
+        return SOCKET_ERROR == r ? nullptr : ptr;
+    };
+
+	acceptEx = static_cast<LPFN_ACCEPTEX>( getExt( WSAID_ACCEPTEX ) );
 	if( !acceptEx )
 		return false;
 
-	connectEx = pSocket->GetExtension<LPFN_CONNECTEX>( WSAID_CONNECTEX );
+	connectEx = static_cast<LPFN_CONNECTEX>( getExt( WSAID_CONNECTEX ) );
 	if( !connectEx )
 		return false;
 
-	disconnectEx = pSocket->GetExtension<LPFN_DISCONNECTEX>( WSAID_DISCONNECTEX );
+	disconnectEx = static_cast<LPFN_DISCONNECTEX>( getExt( WSAID_DISCONNECTEX ) );
 	if( !disconnectEx )
 		return false;
 
-	getAcceptExSockaddrs = pSocket->GetExtension<LPFN_GETACCEPTEXSOCKADDRS>( WSAID_GETACCEPTEXSOCKADDRS );
+	getAcceptExSockaddrs = static_cast<LPFN_GETACCEPTEXSOCKADDRS>( getExt( WSAID_GETACCEPTEXSOCKADDRS ) );
 	if( !getAcceptExSockaddrs )
 		return false;
 

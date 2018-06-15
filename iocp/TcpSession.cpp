@@ -12,8 +12,7 @@
 #include "TcpListener.h"
 #include "TcpSessionService.h"
 
-TcpSession::TcpSession( const shared_ptr<ExtensionTable>& extensionTablePtr ) :
-	_extensionTablePtr( extensionTablePtr )
+TcpSession::TcpSession()
 {
 	_pSocket = new Socket();
 	_acceptCallback = make_shared<IoCallbackAccept>();
@@ -25,6 +24,7 @@ TcpSession::TcpSession( const shared_ptr<ExtensionTable>& extensionTablePtr ) :
 
 TcpSession::~TcpSession()
 {
+    SafeDelete( _pSocket );
 }
 
 void TcpSession::SetOnAccept( const IoCallbackFn&& fn )
@@ -66,7 +66,7 @@ bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
 	_localSockaddr.Clear();
 	_remoteSockaddr.Clear();
 
-	if( !_acceptCallback->Post( _extensionTablePtr ) )
+	if( !_acceptCallback->Post( _servicePtr->GetExtension() ) )
 	{
 		_acceptCallback->Clear();
 		return false;
@@ -91,7 +91,7 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	_connectCallback->SetSession( shared_from_this() );
 	_connectCallback->SetAddr( remoteAddr );
 
-	if( !_connectCallback->Post( _extensionTablePtr ) )
+	if( !_connectCallback->Post( _servicePtr->GetExtension() ) )
 	{
 		_connectCallback->Clear();
 		return false;
@@ -120,7 +120,7 @@ bool TcpSession::Disconnect()
 
 	_disconnectCallback->SetSession( shared_from_this() );
 
-	if( !_disconnectCallback->Post( _extensionTablePtr ) )
+	if( !_disconnectCallback->Post( _servicePtr->GetExtension() ) )
 	{
 		_disconnectCallback->Clear();
 		return false;

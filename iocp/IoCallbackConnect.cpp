@@ -16,7 +16,7 @@ void IoCallbackConnect::OnComplete( const int e )
 
 bool IoCallbackConnect::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
-	const auto r = extensionTablePtr->connectEx( _sessionPtr->GetSocket()->GetSocketHandle(),
+	const auto r = extensionTablePtr->connectEx( *_sessionPtr->GetSocket(),
 												 _addr.ToSockAddrPtr(),
 												 _addr.GetSize(),
 												 nullptr,
@@ -27,5 +27,5 @@ bool IoCallbackConnect::Post( const shared_ptr<ExtensionTable>& extensionTablePt
 	if( r )
 		return true;
 
-	return _HandleError( WSAGetLastError() );
+	return _HandleError();
 }

@@ -10,10 +10,25 @@ public:
 	Socket() = default;
 	~Socket();
 
+    //  {{OPERATOR}}
+    inline operator HANDLE() const
+	{
+		return GetHandle();
+	}
+	inline operator SOCKET() const
+	{
+		return GetSocketHandle();
+	}
+	inline operator bool() const
+	{
+		return IsValid();
+	}
+    //  {{OPERATOR}}
+
 	//	{{GET}}
 	inline HANDLE GetHandle() const
 	{
-		return reinterpret_cast<HANDLE>(_socket);
+		return reinterpret_cast<HANDLE>( _socket );
 	}
 	inline SOCKET GetSocketHandle() const
 	{
@@ -25,15 +40,10 @@ public:
 	}
 	//	{{GET}}
 
-	bool Bind();
-	bool Bind( const SockaddrIn& addr );
+	bool Bind() const;
+	bool Bind( const SockaddrIn& addr ) const;
 	bool Create( const int type, const int protocol );
 	void Close();
-	template<class T>
-	inline T GetExtension( GUID&& id ) const
-	{
-		return static_cast<T>(_GetExtension( std::move( id ) ));
-	}
 	inline bool SetNonblock( u_long enable ) const
 	{
 		return SOCKET_ERROR != ioctlsocket( _socket, FIONBIO, &enable );
@@ -51,9 +61,6 @@ public:
 	{
 		return SOCKET_ERROR != setsockopt( _socket, level, name, nullptr, 0 );
 	}
-
-private:
-	LPVOID _GetExtension( GUID&& id ) const;
 
 private:
 	SOCKET _socket = INVALID_SOCKET;

@@ -2,7 +2,6 @@
 #include "Type.h"
 #include "IoCallbackFn.h"
 #include "SockaddrIn.h"
-#include <atomic>
 
 class ExtensionTable;
 class IoCallbackAccept;
@@ -19,7 +18,7 @@ class WsaBuf;
 class TcpSession final : public enable_shared_from_this<TcpSession>
 {
 public:
-	explicit TcpSession( const shared_ptr<ExtensionTable>& extensionTablePtr );
+	TcpSession();
 	~TcpSession();
 
 	//	{{GET}}
@@ -64,7 +63,6 @@ public:
 	bool Send( const shared_ptr<WsaBuf>& buf );
 
 private:
-	shared_ptr<ExtensionTable> _extensionTablePtr;
 	shared_ptr<TcpSessionService> _servicePtr;
 	Socket* _pSocket = nullptr;
 	SessionId _id = 0;

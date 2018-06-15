@@ -9,8 +9,9 @@ void IoCallbackShared::Clear()
 	_sessionPtr = nullptr;
 }
 
-bool IoCallbackShared::_HandleError( const int lastError )
+bool IoCallbackShared::_HandleError()
 {
+    const int lastError = WSAGetLasrError();
 	if( WSA_IO_PENDING == lastError )
 		return true;
 

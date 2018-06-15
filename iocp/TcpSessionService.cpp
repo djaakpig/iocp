@@ -69,11 +69,11 @@ void TcpSessionService::_CloseAllSessions()
 	} );
 }
 
-bool TcpSessionService::_LoadExtensionTable( const Socket* const pSocket )
+bool TcpSessionService::_LoadExtension( const Socket& s )
 {
 	_extensionTablePtr = make_shared<ExtensionTable>();
 
-	return _extensionTablePtr->Load( pSocket );
+	return _extensionTablePtr->Load( s );
 }
 
 void TcpSessionService::_Remove( const SessionId id )

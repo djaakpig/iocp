@@ -13,10 +13,11 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 	if( !_listenerPtr->Create() )
 		return false;
 
-	if( !_LoadExtensionTable( _listenerPtr->GetSocket() ) )
+    const auto pListenSocket = _listenerPtr->GetSocket();
+	if( !_LoadExtension( *pListenSocket ) )
 		return false;
 
-	if( !GetIoService().Associate( _listenerPtr->GetSocket() ) )
+	if( !GetIoService().Associate( *pListenSocket ) )
 		return false;
 
 	if( !_listenerPtr->Listen( listenAddr ) )
@@ -27,7 +28,7 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 
 	for( DWORD sessionId = 0; numReserved > sessionId && IsInProgress(); ++sessionId )
 	{
-		const auto sessionPtr = make_shared<TcpSession>( _extensionTablePtr );
+		const auto sessionPtr = make_shared<TcpSession>();
 
 		if( !sessionPtr->Create( thisPtr ) )
 			continue;
@@ -56,7 +57,7 @@ bool TcpServerService::_OnAccept( const int e, const shared_ptr<TcpSession>& ses
 		return false;
 	}
 
-	if( !GetIoService().Associate( sessionPtr->GetSocket() ) )
+	if( !GetIoService().Associate( *sessionPtr->GetSocket() ) )
 	{
 		LogError( "accept associate fail! id:", sessionPtr->GetId() );
 		return false;

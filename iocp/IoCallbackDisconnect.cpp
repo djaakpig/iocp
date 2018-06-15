@@ -11,10 +11,10 @@ void IoCallbackDisconnect::OnComplete( const int e )
 
 bool IoCallbackDisconnect::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
-	const auto r = extensionTablePtr->disconnectEx( _sessionPtr->GetSocket()->GetSocketHandle(), this, TF_REUSE_SOCKET, 0 );
+	const auto r = extensionTablePtr->disconnectEx( *_sessionPtr->GetSocket(), this, TF_REUSE_SOCKET, 0 );
 
 	if( r )
 		return true;
 
-	return _HandleError( WSAGetLastError() );
+	return _HandleError();
 }

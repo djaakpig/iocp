@@ -24,9 +24,7 @@ void IoCallbackAccept::OnComplete( const int e )
 bool IoCallbackAccept::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
 	DWORD bytesReceived = 0;
-	const auto r = extensionTablePtr->acceptEx( _listenerPtr->GetSocket()->GetSocketHandle(),
-												_sessionPtr->GetSocket()->GetSocketHandle(),
-												_buf,
+	const auto r = extensionTablePtr->acceptEx( *_listenerPtr->GetSocket(), *_sessionPtr->GetSocket(), _buf,
 												0,
 												SockaddrLen,
 												SockaddrLen,
@@ -36,7 +34,7 @@ bool IoCallbackAccept::Post( const shared_ptr<ExtensionTable>& extensionTablePtr
 	if( r )
 		return true;
 
-	return _HandleError( WSAGetLastError() );
+	return _HandleError();
 }
 
 bool IoCallbackAccept::_OnComplete( const int e )

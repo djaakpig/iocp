@@ -4,12 +4,10 @@
 #include <thread>
 using namespace std;
 
-class Socket;
-
 class IoService final
 {
 public:
-	bool Associate( const Socket* const pSocket ) const;
+	bool Associate( HANDLE h ) const;
 	bool Post( LPOVERLAPPED pOverlapped ) const;
 	bool Start( const DWORD numWorkers );
 	void Stop();

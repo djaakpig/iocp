@@ -24,14 +24,15 @@ bool IoCallbackSend::Post()
 {
 	_numSentBytes = 0;
 
-	const DWORD flags = 0;
+    const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
+    const DWORD flags = 0;
 	WSABUF wsaBuf{ 0, nullptr };
-	const auto r = WSASend( _sessionPtr->GetSocket()->GetSocketHandle(), &wsaBuf, 1, nullptr, flags, this, nullptr );
+	const auto r = WSASend( s, &wsaBuf, 1, nullptr, flags, this, nullptr );
 
 	if( SOCKET_ERROR != r )
 		return true;
 
-	return _HandleError( WSAGetLastError() );
+	return _HandleError();
 }
 
 bool IoCallbackSend::_OnComplete( const int e )
@@ -97,12 +98,13 @@ bool IoCallbackSend::_OnComplete( const int e )
 
 pair<int, DWORD> IoCallbackSend::_Send( char* const pBuf, const int sz ) const
 {
+    const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
 
 	while( 0 < remainSize )
 	{
-		const auto r = ::send( _sessionPtr->GetSocket()->GetSocketHandle(), pCurrentBuf, remainSize, 0 );
+		const auto r = ::send( s, pCurrentBuf, remainSize, 0 );
 
 		if( 0 == r )
 			return{ WSAECONNRESET, sz - remainSize };

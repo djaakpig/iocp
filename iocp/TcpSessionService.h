@@ -23,13 +23,17 @@ public:
 	virtual ~TcpSessionService() = default;
 
 	//	{{GET}}
+    inline const ExtensionTable& GetExtension() const
+    {
+        return _extensionTablePtr;
+    }
+    inline const IoService& GetIoService() const
+	{
+		return _ioService;
+	}
 	inline bool IsInProgress() const
 	{
 		return _inProgress;
-	}
-	inline const IoService& GetIoService() const
-	{
-		return _ioService;
 	}
 	//	{{GET}}
 

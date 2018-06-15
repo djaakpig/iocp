@@ -4,12 +4,10 @@
 #include <memory>
 using namespace std;
 
-class Socket;
-
 class ExtensionTable final : public enable_shared_from_this<ExtensionTable>
 {
 public:
-	bool Load( const Socket* const pSocket );
+	bool Load( SOCKET s );
 
 	LPFN_ACCEPTEX acceptEx = nullptr;
 	LPFN_CONNECTEX connectEx = nullptr;

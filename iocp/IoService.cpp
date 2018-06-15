@@ -1,13 +1,12 @@
 #include "IoService.h"
 #include "IoCallback.h"
-#include "Socket.h"
 
-bool IoService::Associate( const Socket* const pSocket ) const
+bool IoService::Associate( HANDLE h ) const
 {
 	if( !_iocpHandle )
 		return false;
 
-	const auto r = CreateIoCompletionPort( pSocket->GetHandle(), _iocpHandle, NULL, 0 );
+	const auto r = CreateIoCompletionPort( h, _iocpHandle, NULL, 0 );
 	if( !r )
 	{
 		const auto e = WSAGetLastError();
