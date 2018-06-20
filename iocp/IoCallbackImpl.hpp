@@ -2,8 +2,6 @@
 #include "IoCallbackShared.h"
 #include <memory>
 
-class TcpSession;
-
 template<class Fn>
 class IoCallbackImpl abstract : public IoCallbackShared
 {
