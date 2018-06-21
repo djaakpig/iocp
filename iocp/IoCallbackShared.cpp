@@ -11,7 +11,7 @@ void IoCallbackShared::Clear()
 
 bool IoCallbackShared::_HandleError()
 {
-    const int lastError = WSAGetLasrError();
+	const int lastError = WSAGetLastError();
 	if( WSA_IO_PENDING == lastError )
 		return true;
 

@@ -10,8 +10,8 @@ public:
 	Socket() = default;
 	~Socket();
 
-    //  {{OPERATOR}}
-    inline operator HANDLE() const
+	//  {{OPERATOR}}
+	inline operator HANDLE() const
 	{
 		return GetHandle();
 	}
@@ -23,7 +23,7 @@ public:
 	{
 		return IsValid();
 	}
-    //  {{OPERATOR}}
+	//  {{OPERATOR}}
 
 	//	{{GET}}
 	inline HANDLE GetHandle() const

@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "ExtensionTable.h"
 #include "IoService.h"
+#include "Socket.h"
 #include "TcpListener.h"
 #include "TcpSession.h"
 #include "WsaBuf.h"
@@ -13,7 +14,7 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 	if( !_listenerPtr->Create() )
 		return false;
 
-    const auto pListenSocket = _listenerPtr->GetSocket();
+	const auto pListenSocket = _listenerPtr->GetSocket();
 	if( !_LoadExtension( *pListenSocket ) )
 		return false;
 

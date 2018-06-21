@@ -23,11 +23,11 @@ public:
 	virtual ~TcpSessionService() = default;
 
 	//	{{GET}}
-    inline const ExtensionTable& GetExtension() const
-    {
-        return _extensionTablePtr;
-    }
-    inline const IoService& GetIoService() const
+	inline const shared_ptr<ExtensionTable>& GetExtension() const
+	{
+		return _extensionTablePtr;
+	}
+	inline const IoService& GetIoService() const
 	{
 		return _ioService;
 	}
@@ -45,7 +45,7 @@ public:
 protected:
 	void _Add( const shared_ptr<TcpSession>& sessionPtr );
 	void _CloseAllSessions();
-	bool _LoadExtensionTable( const Socket* const pSocket );
+	bool _LoadExtension( const Socket& s );
 	void _Remove( const SessionId id );
 	void _SetCallbackTo( const shared_ptr<TcpSession>& sessionPtr );
 	virtual bool _Start( const SockaddrIn& listenAddr, const DWORD numReserved ) = 0;

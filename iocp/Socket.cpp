@@ -8,14 +8,14 @@ Socket::~Socket()
 
 bool Socket::Bind() const
 {
-    static const SockaddrIn addr;
+	static const SockaddrIn addr;
 	return Bind( addr );
 }
 
 bool Socket::Bind( const SockaddrIn& addr ) const
 {
 	const auto r = ::bind( _socket, addr.ToSockAddrPtr(), addr.GetSize() );
-    return SOCKET_ERROR != r;
+	return SOCKET_ERROR != r;
 }
 
 bool Socket::Create( const int type, const int protocol )

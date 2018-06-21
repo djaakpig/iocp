@@ -24,7 +24,7 @@ TcpSession::TcpSession()
 
 TcpSession::~TcpSession()
 {
-    SafeDelete( _pSocket );
+	SafeDelete( _pSocket );
 }
 
 void TcpSession::SetOnAccept( const IoCallbackFn&& fn )
@@ -136,7 +136,7 @@ void TcpSession::FillAddr()
 	PSOCKADDR pRemoteSockaddr = nullptr;
 	int pRemoteSockaddrLen = 0;
 
-	_extensionTablePtr->getAcceptExSockaddrs( _acceptCallback->GetBuf(),
+	_servicePtr->GetExtension()->getAcceptExSockaddrs( _acceptCallback->GetBuf(),
 											  0,
 											  SockaddrLen,
 											  SockaddrLen,

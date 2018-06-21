@@ -1,3 +1,4 @@
+#include "IoCallbackRecv.h"
 #include "Socket.h"
 #include "TcpSession.h"
 
@@ -25,7 +26,7 @@ void IoCallbackRecv::OnComplete( const int e )
 
 bool IoCallbackRecv::Post()
 {
-    const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
+	const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
 	DWORD flags = 0;
 	WSABUF wsaBuf{ 0, nullptr };
 	const auto r = WSARecv( s, &wsaBuf, 1, nullptr, &flags, this, nullptr );
@@ -62,7 +63,7 @@ bool IoCallbackRecv::_OnComplete( const int e )
 
 pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
 {
-    const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
+	const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
 

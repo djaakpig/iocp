@@ -34,7 +34,7 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 		if( !sessionPtr->Create( thisPtr ) )
 			continue;
 
-        const auto pSessionSocket = sessionPtr->GetSocket();
+		const auto pSessionSocket = sessionPtr->GetSocket();
 		if( !pSessionSocket->Bind() )
 			continue;
 

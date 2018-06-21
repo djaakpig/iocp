@@ -24,8 +24,8 @@ bool IoCallbackSend::Post()
 {
 	_numSentBytes = 0;
 
-    const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
-    const DWORD flags = 0;
+	const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
+	const DWORD flags = 0;
 	WSABUF wsaBuf{ 0, nullptr };
 	const auto r = WSASend( s, &wsaBuf, 1, nullptr, flags, this, nullptr );
 
@@ -98,7 +98,7 @@ bool IoCallbackSend::_OnComplete( const int e )
 
 pair<int, DWORD> IoCallbackSend::_Send( char* const pBuf, const int sz ) const
 {
-    const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
+	const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
 
