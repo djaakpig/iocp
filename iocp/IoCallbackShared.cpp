@@ -15,7 +15,5 @@ bool IoCallbackShared::_HandleError()
 	if( WSA_IO_PENDING == lastError )
 		return true;
 
-	const auto thisPtr = shared_from_this();
-
-	return _sessionPtr->PostError( lastError, thisPtr );
+	return _sessionPtr->PostError( lastError, shared_from_this() );
 }
