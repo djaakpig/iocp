@@ -23,31 +23,10 @@
     <ClCompile Include="TcpSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExtensionTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CircularBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IoCallbackSend.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IoCallbackConnect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IoCallbackAccept.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IoCallbackRecv.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IoCallbackDisconnect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IoCallbackError.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IoCallbackShared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TcpClientService.cpp">
@@ -65,6 +44,27 @@
     <ClCompile Include="WsaBuf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TcpOperation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpOperationError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpOperationConnect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpOperationDisconnect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpOperationRecv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpOperationSend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinsockExtension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IoService.h">
@@ -79,52 +79,19 @@
     <ClInclude Include="TcpSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExtensionTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WinsockStarter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IoCallbackAccept.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackConnect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackRecv.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackSend.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackFn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackImpl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SockaddrIn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackDisconnect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackError.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallbackShared.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IoCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
@@ -143,6 +110,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WsaBuf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IoOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationAccept.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationConnect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationDisconnect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationRecv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationSend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationImpl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinsockExtension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,13 +1,13 @@
 #pragma once
-#include "IoCallbackImpl.hpp"
-#include "IoCallbackFn.h"
+#include "TcpOperationImpl.hpp"
+#include "TcpOperationCallback.h"
 
 const DWORD SockaddrLen = sizeof( SOCKADDR_IN ) + 16;
 
-class ExtensionTable;
+class WinsockExtension;
 class TcpListener;
 
-class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>
+class TcpOperationAccept final : public TcpOperationImpl<TcpOperationCallback>
 {
 public:
 	//	{{GET}}
@@ -25,11 +25,11 @@ public:
 	//	{{SET}}
 
 	void Clear() override;
-	void FillAddrTo( const shared_ptr<ExtensionTable>& extensionTablePtr,
+	void FillAddrTo( const shared_ptr<WinsockExtension>& exPtr,
 					 PSOCKADDR* const ppRemoteSockaddr,
 					 PSOCKADDR* const ppLocalSockaddr );
 	void OnComplete( const int e ) override;
-	bool Post( const shared_ptr<ExtensionTable>& extensionTablePtr );
+	bool Post( const shared_ptr<WinsockExtension>& exPtr );
 
 private:
 	bool _OnComplete( const int e );

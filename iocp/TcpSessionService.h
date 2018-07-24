@@ -7,10 +7,8 @@
 #include "Lock.h"
 
 class CircularBuffer;
-class ExtensionTable;
 class IoService;
 class SockaddrIn;
-class Socket;
 class TcpSession;
 class WsaBuf;
 
@@ -23,10 +21,6 @@ public:
 	virtual ~TcpSessionService() = default;
 
 	//	{{GET}}
-	inline const shared_ptr<ExtensionTable>& GetExtension() const
-	{
-		return _extensionTablePtr;
-	}
 	inline const IoService& GetIoService() const
 	{
 		return _ioService;
@@ -45,7 +39,6 @@ public:
 protected:
 	void _Add( const shared_ptr<TcpSession>& sessionPtr );
 	void _CloseAllSessions();
-	bool _LoadExtension( const Socket* const pSocket );
 	void _Remove( const SessionId id );
 	void _SetCallbackTo( const shared_ptr<TcpSession>& sessionPtr );
 	virtual bool _Start( const SockaddrIn& listenAddr, const DWORD numReserved ) = 0;
@@ -60,7 +53,6 @@ protected:
 
 protected:
 	shared_mutex _lock;
-	shared_ptr<ExtensionTable> _extensionTablePtr;
 
 private:
 	const IoService& _ioService;

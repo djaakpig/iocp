@@ -1,15 +1,15 @@
-#include "IoCallbackSend.h"
+#include "TcpOperationSend.h"
 #include "Socket.h"
 #include "TcpSession.h"
 #include "WsaBuf.h"
 
-void IoCallbackSend::Enqueue( const shared_ptr<WsaBuf>& buf )
+void TcpOperationSend::Enqueue( const shared_ptr<WsaBuf>& buf )
 {
 	const unique_lock<mutex> l( _lock );
 	_bufs.emplace_back( buf );
 }
 
-void IoCallbackSend::OnComplete( const int e )
+void TcpOperationSend::OnComplete( const int e )
 {
 	const auto r = _OnComplete( e );
 
@@ -20,7 +20,7 @@ void IoCallbackSend::OnComplete( const int e )
 	}
 }
 
-bool IoCallbackSend::Post()
+bool TcpOperationSend::Post()
 {
 	_numSentBytes = 0;
 
@@ -31,7 +31,7 @@ bool IoCallbackSend::Post()
 	return SOCKET_ERROR != r ? true : _HandleError();
 }
 
-bool IoCallbackSend::_OnComplete( const int e )
+bool TcpOperationSend::_OnComplete( const int e )
 {
 	if( e )
 	{
@@ -92,7 +92,7 @@ bool IoCallbackSend::_OnComplete( const int e )
 	} );
 }
 
-pair<int, DWORD> IoCallbackSend::_Send( char* const pBuf, const int sz ) const
+pair<int, DWORD> TcpOperationSend::_Send( char* const pBuf, const int sz ) const
 {
 	const auto s = _sessionPtr->GetSocket()->GetValue();
 	auto pCurrentBuf = pBuf;

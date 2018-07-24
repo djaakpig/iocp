@@ -2,7 +2,6 @@
 #include <MSWSock.h>
 #include <algorithm>
 #include "CircularBuffer.h"
-#include "ExtensionTable.h"
 #include "Log.h"
 #include "Socket.h"
 #include "TcpSession.h"
@@ -67,13 +66,6 @@ void TcpSessionService::_CloseAllSessions()
 	{
 		return !_sessionMap.empty();
 	} );
-}
-
-bool TcpSessionService::_LoadExtension( const Socket* const pSocket )
-{
-	_extensionTablePtr = make_shared<ExtensionTable>();
-
-	return _extensionTablePtr->Load( pSocket->GetValue() );
 }
 
 void TcpSessionService::_Remove( const SessionId id )

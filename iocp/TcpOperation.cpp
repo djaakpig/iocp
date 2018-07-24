@@ -1,7 +1,7 @@
-#include "IoCallbackShared.h"
+#include "TcpOperation.h"
 #include "TcpSession.h"
 
-void IoCallbackShared::Clear()
+void TcpOperation::Clear()
 {
 	__super::Clear();
 
@@ -9,7 +9,7 @@ void IoCallbackShared::Clear()
 	_sessionPtr = nullptr;
 }
 
-bool IoCallbackShared::_HandleError()
+bool TcpOperation::_HandleError()
 {
 	const int lastError = WSAGetLastError();
 	if( WSA_IO_PENDING == lastError )

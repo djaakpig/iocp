@@ -1,27 +1,27 @@
-#include "IoCallbackAccept.h"
-#include "ExtensionTable.h"
+#include "TcpOperationAccept.h"
+#include "WinsockExtension.h"
 #include "Socket.h"
 #include "TcpListener.h"
 #include "TcpSession.h"
 
-void IoCallbackAccept::Clear()
+void TcpOperationAccept::Clear()
 {
 	_listenerPtr = nullptr;
 
 	__super::Clear();
 }
 
-void IoCallbackAccept::FillAddrTo( const shared_ptr<ExtensionTable>& extensionTablePtr,
-								   PSOCKADDR* const ppRemoteSockaddr,
-								   PSOCKADDR* const ppLocalSockaddr )
+void TcpOperationAccept::FillAddrTo( const shared_ptr<WinsockExtension>& exPtr,
+									 PSOCKADDR* const ppRemoteSockaddr,
+									 PSOCKADDR* const ppLocalSockaddr )
 {
 	int localSockaddrLen = 0;
 	int remoteSockaddrLen = 0;
 
-	extensionTablePtr->getAcceptExSockaddrs( _buf, 0, SockaddrLen, SockaddrLen, ppLocalSockaddr, &localSockaddrLen, ppRemoteSockaddr, &remoteSockaddrLen );
+	exPtr->getAcceptExSockaddrs( _buf, 0, SockaddrLen, SockaddrLen, ppLocalSockaddr, &localSockaddrLen, ppRemoteSockaddr, &remoteSockaddrLen );
 }
 
-void IoCallbackAccept::OnComplete( const int e )
+void TcpOperationAccept::OnComplete( const int e )
 {
 	const auto r = _OnComplete( e );
 
@@ -31,22 +31,22 @@ void IoCallbackAccept::OnComplete( const int e )
 	Clear();
 }
 
-bool IoCallbackAccept::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
+bool TcpOperationAccept::Post( const shared_ptr<WinsockExtension>& exPtr )
 {
 	DWORD bytesReceived = 0;
-	const auto r = extensionTablePtr->acceptEx( _listenerPtr->GetSocket()->GetValue(),
-												_sessionPtr->GetSocket()->GetValue(),
-												_buf,
-												0,
-												SockaddrLen,
-												SockaddrLen,
-												&bytesReceived,
-												this );
+	const auto r = exPtr->acceptEx( _listenerPtr->GetSocket()->GetValue(),
+									_sessionPtr->GetSocket()->GetValue(),
+									_buf,
+									0,
+									SockaddrLen,
+									SockaddrLen,
+									&bytesReceived,
+									this );
 
 	return r ? true : _HandleError();
 }
 
-bool IoCallbackAccept::_OnComplete( const int e )
+bool TcpOperationAccept::_OnComplete( const int e )
 {
 	if( e )
 		return _Invoke( e, _sessionPtr );

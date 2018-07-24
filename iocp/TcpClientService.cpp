@@ -1,5 +1,5 @@
 #include "TcpClientService.h"
-#include "ExtensionTable.h"
+#include "WinsockExtension.h"
 #include "Log.h"
 #include "Global.h"
 #include "Socket.h"
@@ -23,9 +23,6 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
 		return false;
 
-	if( !_LoadExtension( _pSocket ) )
-		return false;
-
 	auto thisPtr = shared_from_this();
 	const auto connectCallback = bind( &TcpClientService::_OnConnect, this, placeholders::_1, placeholders::_2 );
 
@@ -38,6 +35,9 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 		const auto pSessionSocket = sessionPtr->GetSocket();
 		if( !pSessionSocket->Bind() )
 			continue;
+
+		if( !pSessionSocket->LoadExtension() )
+			return false;
 
 		if( !pSessionSocket->SetNonblock( true ) )
 			continue;

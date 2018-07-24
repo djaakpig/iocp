@@ -1,12 +1,12 @@
 #pragma once
-#include "IoCallbackImpl.hpp"
-#include "IoCallbackFn.h"
+#include "TcpOperationImpl.hpp"
+#include "TcpOperationCallback.h"
 #include "CircularBuffer.h"
 
-class IoCallbackRecv final : public IoCallbackImpl<IoCallbackFnRecv>
+class TcpOperationRecv final : public TcpOperationImpl<TcpOperationCallbackRecv>
 {
 public:
-	explicit IoCallbackRecv( const DWORD capacity );
+	explicit TcpOperationRecv( const DWORD capacity );
 
 	void Clear() override;
 	void OnComplete( const int e ) override;

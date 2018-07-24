@@ -94,14 +94,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CircularBuffer.cpp" />
-    <ClCompile Include="ExtensionTable.cpp" />
-    <ClCompile Include="IoCallbackShared.cpp" />
+    <ClCompile Include="WinsockExtension.cpp" />
+    <ClCompile Include="TcpOperation.cpp" />
     <ClCompile Include="IoCallbackAccept.cpp" />
-    <ClCompile Include="IoCallbackConnect.cpp" />
-    <ClCompile Include="IoCallbackDisconnect.cpp" />
-    <ClCompile Include="IoCallbackError.cpp" />
-    <ClCompile Include="IoCallbackRecv.cpp" />
-    <ClCompile Include="IoCallbackSend.cpp" />
+    <ClCompile Include="TcpOperationConnect.cpp" />
+    <ClCompile Include="TcpOperationDisconnect.cpp" />
+    <ClCompile Include="TcpOperationError.cpp" />
+    <ClCompile Include="TcpOperationRecv.cpp" />
+    <ClCompile Include="TcpOperationSend.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="IoService.cpp" />
     <ClCompile Include="Socket.cpp" />
@@ -114,20 +114,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h" />
-    <ClInclude Include="ExtensionTable.h" />
+    <ClInclude Include="WinsockExtension.h" />
     <ClInclude Include="Global.h" />
-    <ClInclude Include="IoCallbackShared.h" />
-    <ClInclude Include="IoCallbackAccept.h" />
-    <ClInclude Include="IoCallbackConnect.h" />
-    <ClInclude Include="IoCallbackDisconnect.h" />
-    <ClInclude Include="IoCallbackError.h" />
-    <ClInclude Include="IoCallbackFn.h" />
-    <ClInclude Include="IoCallbackImpl.hpp" />
-    <ClInclude Include="IoCallbackRecv.h" />
-    <ClInclude Include="IoCallbackSend.h" />
+    <ClInclude Include="TcpOperation.h" />
+    <ClInclude Include="TcpOperationAccept.h" />
+    <ClInclude Include="TcpOperationConnect.h" />
+    <ClInclude Include="TcpOperationDisconnect.h" />
+    <ClInclude Include="TcpOperationError.h" />
+    <ClInclude Include="TcpOperationCallback.h" />
+    <ClInclude Include="TcpOperationImpl.hpp" />
+    <ClInclude Include="TcpOperationRecv.h" />
+    <ClInclude Include="TcpOperationSend.h" />
     <ClInclude Include="IoService.h" />
     <ClInclude Include="Lock.h" />
-    <ClInclude Include="IoCallback.h" />
+    <ClInclude Include="IoOperation.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="WsaBuf.h" />
     <ClInclude Include="SockaddrIn.h" />

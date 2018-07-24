@@ -1,7 +1,7 @@
 #include "IoService.h"
 #include "Lock.h"
 #include "Log.h"
-#include "IoCallback.h"
+#include "IoOperation.h"
 
 bool IoService::Associate( HANDLE h ) const
 {
@@ -18,12 +18,12 @@ bool IoService::Associate( HANDLE h ) const
 	return _iocpHandle == r;
 }
 
-bool IoService::Post( IoCallback* const pCallback ) const
+bool IoService::Post( IoOperation* const pOperation ) const
 {
-	if( !pCallback )
+	if( !pOperation )
 		return false;
 
-	return TRUE == PostQueuedCompletionStatus( _iocpHandle, 0, NULL, pCallback );
+	return TRUE == PostQueuedCompletionStatus( _iocpHandle, 0, NULL, pOperation );
 }
 
 bool IoService::Start( const DWORD numWorkers )
@@ -77,7 +77,7 @@ void IoService::_Run()
 		if( !pOverlapped )
 			break;
 
-		const auto pCallback = static_cast<IoCallback*>(pOverlapped);
+		const auto pCallback = static_cast<IoOperation*>(pOverlapped);
 		const auto e = r ? ERROR_SUCCESS : WSAGetLastError();
 
 		pCallback->OnComplete( e );

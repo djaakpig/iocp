@@ -5,13 +5,13 @@
 #include <thread>
 using namespace std;
 
-class IoCallback;
+class IoOperation;
 
 class IoService final
 {
 public:
 	bool Associate( HANDLE h ) const;
-	bool Post( IoCallback* const pCallback ) const;
+	bool Post( IoOperation* const pOperation ) const;
 	bool Start( const DWORD numWorkers );
 	void Stop();
 

@@ -1,8 +1,12 @@
 #pragma once
 #include <Winsock2.h>
 #include <utility>
+#include <memory>
+
+using namespace std;
 
 class SockaddrIn;
+class WinsockExtension;
 
 class Socket final
 {
@@ -11,6 +15,10 @@ public:
 	~Socket();
 
 	//	{{GET}}
+	inline shared_ptr<WinsockExtension> GetExtension() const
+	{
+		return _exPtr;
+	}
 	inline HANDLE GetHandle() const
 	{
 		return reinterpret_cast<HANDLE>( _socket );
@@ -25,10 +33,12 @@ public:
 	}
 	//	{{GET}}
 
+	bool Associate( const Socket* const pSocket );
 	bool Bind() const;
 	bool Bind( const SockaddrIn& addr ) const;
 	bool Create( const int type, const int protocol );
 	void Close();
+	bool LoadExtension();
 	inline bool SetNonblock( const bool enable ) const
 	{
 		u_long val = enable;
@@ -50,4 +60,5 @@ public:
 
 private:
 	SOCKET _socket = INVALID_SOCKET;
+	shared_ptr<WinsockExtension> _exPtr;
 };

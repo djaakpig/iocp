@@ -1,19 +1,19 @@
-#include "IoCallbackRecv.h"
+#include "TcpOperationRecv.h"
 #include "Socket.h"
 #include "TcpSession.h"
 
-IoCallbackRecv::IoCallbackRecv( const DWORD capacity ) :
+TcpOperationRecv::TcpOperationRecv( const DWORD capacity ) :
 	_buf( capacity )
 {
 }
 
-void IoCallbackRecv::Clear()
+void TcpOperationRecv::Clear()
 {
 	_buf.Clear();
 	__super::Clear();
 }
 
-void IoCallbackRecv::OnComplete( const int e )
+void TcpOperationRecv::OnComplete( const int e )
 {
 	const auto r = _OnComplete( e );
 
@@ -24,7 +24,7 @@ void IoCallbackRecv::OnComplete( const int e )
 	}
 }
 
-bool IoCallbackRecv::Post()
+bool TcpOperationRecv::Post()
 {
 	DWORD flags = 0;
 	WSABUF wsaBuf{ 0, nullptr };
@@ -33,7 +33,7 @@ bool IoCallbackRecv::Post()
 	return SOCKET_ERROR != r ? true : _HandleError();
 }
 
-bool IoCallbackRecv::_OnComplete( const int e )
+bool TcpOperationRecv::_OnComplete( const int e )
 {
 	if( e )
 		return _Invoke( e, _sessionPtr, _buf );
@@ -57,7 +57,7 @@ bool IoCallbackRecv::_OnComplete( const int e )
 	return _Invoke( r.first, _sessionPtr, _buf );
 }
 
-pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
+pair<int, DWORD> TcpOperationRecv::_Read( char* const pBuf, const int sz ) const
 {
 	const auto s = _sessionPtr->GetSocket()->GetValue();
 	auto pCurrentBuf = pBuf;

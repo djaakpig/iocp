@@ -1,9 +1,16 @@
 #include "Socket.h"
 #include "SockaddrIn.h"
+#include "WinsockExtension.h"
 
 Socket::~Socket()
 {
 	Close();
+}
+
+bool Socket::Associate( const Socket* const pSocket )
+{
+	_exPtr = pSocket->_exPtr;
+	return nullptr != _exPtr;
 }
 
 bool Socket::Bind() const
@@ -31,4 +38,11 @@ void Socket::Close()
 		closesocket( _socket );
 		_socket = INVALID_SOCKET;
 	}
+}
+
+bool Socket::LoadExtension()
+{
+	_exPtr = make_shared<WinsockExtension>();
+
+	return _exPtr->Load( _socket );
 }

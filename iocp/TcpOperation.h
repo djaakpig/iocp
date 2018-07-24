@@ -1,12 +1,12 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoOperation.h"
 #include <atomic>
 #include <memory>
 using namespace std;
 
 class TcpSession;
 
-class IoCallbackShared abstract : public IoCallback, public enable_shared_from_this<IoCallbackShared>
+class TcpOperation abstract : public IoOperation, public enable_shared_from_this<TcpOperation>
 {
 public:
 	//	{{GET}}

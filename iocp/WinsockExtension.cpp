@@ -1,6 +1,6 @@
-#include "ExtensionTable.h"
+#include "WinsockExtension.h"
 
-bool ExtensionTable::Load( SOCKET s )
+bool WinsockExtension::Load( SOCKET s )
 {
 	const auto getExt = [s]( GUID&& id ) -> LPVOID
 	{

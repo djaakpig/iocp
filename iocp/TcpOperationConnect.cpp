@@ -1,10 +1,10 @@
-#include "IoCallbackConnect.h"
+#include "TcpOperationConnect.h"
 #include <WS2tcpip.h>
-#include "ExtensionTable.h"
+#include "WinsockExtension.h"
 #include "Socket.h"
 #include "TcpSession.h"
 
-void IoCallbackConnect::OnComplete( const int e )
+void TcpOperationConnect::OnComplete( const int e )
 {
 	const auto r = _Invoke( e, _sessionPtr );
 
@@ -14,9 +14,9 @@ void IoCallbackConnect::OnComplete( const int e )
 	Clear();
 }
 
-bool IoCallbackConnect::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
+bool TcpOperationConnect::Post( const shared_ptr<WinsockExtension>& exPtr )
 {
-	const auto r = extensionTablePtr->connectEx( _sessionPtr->GetSocket()->GetValue(),
+	const auto r = exPtr->connectEx( _sessionPtr->GetSocket()->GetValue(),
 												 _addr.ToSockAddrPtr(),
 												 _addr.GetSize(),
 												 nullptr,

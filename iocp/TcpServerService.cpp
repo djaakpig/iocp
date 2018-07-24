@@ -1,6 +1,5 @@
 #include "TcpServerService.h"
 #include "Log.h"
-#include "ExtensionTable.h"
 #include "IoService.h"
 #include "Socket.h"
 #include "TcpListener.h"
@@ -15,13 +14,14 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 		return false;
 
 	const auto pListenSocket = _listenerPtr->GetSocket();
-	if( !_LoadExtension( pListenSocket ) )
-		return false;
 
 	if( !GetIoService().Associate( pListenSocket->GetHandle() ) )
 		return false;
 
 	if( !_listenerPtr->Listen( listenAddr ) )
+		return false;
+
+	if( !pListenSocket->LoadExtension() )
 		return false;
 
 	const auto thisPtr = shared_from_this();
@@ -32,6 +32,9 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 		const auto sessionPtr = make_shared<TcpSession>( sessionId );
 
 		if( !sessionPtr->Create( thisPtr ) )
+			continue;
+
+		if( !sessionPtr->GetSocket()->Associate( pListenSocket ) )
 			continue;
 
 		sessionPtr->SetOnAccept( acceptCallback );

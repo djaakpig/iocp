@@ -2,7 +2,7 @@
 #include "Global.h"
 #include "SockaddrIn.h"
 #include "Socket.h"
-#include "ExtensionTable.h"
+#include "WinsockExtension.h"
 #include "TcpSession.h"
 #include "TcpSessionService.h"
 

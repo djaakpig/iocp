@@ -1,12 +1,12 @@
 #pragma once
-#include "IoCallbackImpl.hpp"
-#include "IoCallbackFn.h"
+#include "TcpOperationImpl.hpp"
+#include "TcpOperationCallback.h"
 #include "Lock.h"
 #include <list>
 
 class WsaBuf;
 
-class IoCallbackSend final : public IoCallbackImpl<IoCallbackFn>
+class TcpOperationSend final : public TcpOperationImpl<TcpOperationCallback>
 {
 	using BufferPtrList = list<shared_ptr<WsaBuf>>;
 

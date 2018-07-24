@@ -1,15 +1,15 @@
 #include "TcpSession.h"
 #include "Log.h"
-#include "ExtensionTable.h"
+#include "WinsockExtension.h"
 #include "Global.h"
 #include "Socket.h"
 #include "IoService.h"
-#include "IoCallbackAccept.h"
-#include "IoCallbackConnect.h"
-#include "IoCallbackDisconnect.h"
-#include "IoCallbackError.h"
-#include "IoCallbackRecv.h"
-#include "IoCallbackSend.h"
+#include "TcpOperationAccept.h"
+#include "TcpOperationConnect.h"
+#include "TcpOperationDisconnect.h"
+#include "TcpOperationError.h"
+#include "TcpOperationRecv.h"
+#include "TcpOperationSend.h"
 #include "TcpListener.h"
 #include "TcpSessionService.h"
 
@@ -17,11 +17,11 @@ TcpSession::TcpSession( const SessionId id ) :
 	_id( id )
 {
 	_pSocket = new Socket();
-	_acceptCallback = make_shared<IoCallbackAccept>();
-	_connectCallback = make_shared<IoCallbackConnect>();
-	_disconnectCallback = make_shared<IoCallbackDisconnect>();
-	_recvCallback = make_shared<IoCallbackRecv>( 15 );
-	_sendCallback = make_shared<IoCallbackSend>();
+	_acceptOp = make_shared<TcpOperationAccept>();
+	_connectOp = make_shared<TcpOperationConnect>();
+	_disconnectOp = make_shared<TcpOperationDisconnect>();
+	_recvOp = make_shared<TcpOperationRecv>( 15 );
+	_sendOp = make_shared<TcpOperationSend>();
 }
 
 TcpSession::~TcpSession()
@@ -34,29 +34,29 @@ HANDLE TcpSession::GetHandle() const
 	return _pSocket->GetHandle();
 }
 
-void TcpSession::SetOnAccept( const IoCallbackFn&& fn )
+void TcpSession::SetOnAccept( const TcpOperationCallback&& callback )
 {
-	_acceptCallback->SetFn( move( fn ) );
+	_acceptOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnConnect( const IoCallbackFn&& fn )
+void TcpSession::SetOnConnect( const TcpOperationCallback&& callback )
 {
-	_connectCallback->SetFn( move( fn ) );
+	_connectOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnDisconnect( const IoCallbackFn&& fn )
+void TcpSession::SetOnDisconnect( const TcpOperationCallback&& callback )
 {
-	_disconnectCallback->SetFn( move( fn ) );
+	_disconnectOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnRecv( const IoCallbackFnRecv&& fn )
+void TcpSession::SetOnRecv( const TcpOperationCallbackRecv&& callback )
 {
-	_recvCallback->SetFn( move( fn ) );
+	_recvOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnSend( const IoCallbackFn&& fn )
+void TcpSession::SetOnSend( const TcpOperationCallback&& callback )
 {
-	_sendCallback->SetFn( move( fn ) );
+	_sendOp->SetCallback( move( callback ) );
 }
 
 bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
@@ -64,18 +64,18 @@ bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
 	if( !_pSocket->IsValid() )
 		return false;
 
-	if( _acceptCallback->SetInProgress() )
+	if( _acceptOp->SetInProgress() )
 		return true;
 
-	_acceptCallback->SetSession( shared_from_this() );
-	_acceptCallback->SetListener( listenerPtr );
+	_acceptOp->SetSession( shared_from_this() );
+	_acceptOp->SetListener( listenerPtr );
 
 	_localSockaddr.Clear();
 	_remoteSockaddr.Clear();
 
-	if( !_acceptCallback->Post( _servicePtr->GetExtension() ) )
+	if( !_acceptOp->Post( _pSocket->GetExtension() ) )
 	{
-		_acceptCallback->Clear();
+		_acceptOp->Clear();
 		return false;
 	}
 
@@ -92,15 +92,15 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	if( !_pSocket->IsValid() )
 		return false;
 
-	if( _connectCallback->SetInProgress() )
+	if( _connectOp->SetInProgress() )
 		return true;
 
-	_connectCallback->SetSession( shared_from_this() );
-	_connectCallback->SetAddr( remoteAddr );
+	_connectOp->SetSession( shared_from_this() );
+	_connectOp->SetAddr( remoteAddr );
 
-	if( !_connectCallback->Post( _servicePtr->GetExtension() ) )
+	if( !_connectOp->Post( _pSocket->GetExtension() ) )
 	{
-		_connectCallback->Clear();
+		_connectOp->Clear();
 		return false;
 	}
 
@@ -122,14 +122,14 @@ bool TcpSession::Disconnect()
 	if( !_pSocket->IsValid() )
 		return false;
 
-	if( _disconnectCallback->SetInProgress() )
+	if( _disconnectOp->SetInProgress() )
 		return true;
 
-	_disconnectCallback->SetSession( shared_from_this() );
+	_disconnectOp->SetSession( shared_from_this() );
 
-	if( !_disconnectCallback->Post( _servicePtr->GetExtension() ) )
+	if( !_disconnectOp->Post( _pSocket->GetExtension() ) )
 	{
-		_disconnectCallback->Clear();
+		_disconnectOp->Clear();
 		return false;
 	}
 
@@ -141,22 +141,22 @@ void TcpSession::FillAddr()
 	PSOCKADDR pLocalSockaddr = nullptr;
 	PSOCKADDR pRemoteSockaddr = nullptr;
 
-	_acceptCallback->FillAddrTo( _servicePtr->GetExtension(), &pLocalSockaddr, &pRemoteSockaddr );
+	_acceptOp->FillAddrTo( _pSocket->GetExtension(), &pLocalSockaddr, &pRemoteSockaddr );
 
 	_localSockaddr = *pLocalSockaddr;
 	_remoteSockaddr = *pRemoteSockaddr;
 }
 
-bool TcpSession::PostError( const int lastError, const shared_ptr<IoCallbackShared>& callbackPtr )
+bool TcpSession::PostError( const int lastError, const shared_ptr<TcpOperation>& callbackPtr )
 {
 	LogError( "Error! id:", GetId(), " e:", lastError );
 
 	if( !_servicePtr )
 		return false;
 
-	const auto pErrorCallback = new IoCallbackError();
+	const auto pErrorCallback = new TcpOperationError();
 	pErrorCallback->SetError( lastError );
-	pErrorCallback->SetCallback( callbackPtr );
+	pErrorCallback->SetOperation( callbackPtr );
 
 	if( !_servicePtr->GetIoService().Post( pErrorCallback ) )
 	{
@@ -172,14 +172,14 @@ bool TcpSession::Recv()
 	if( !_pSocket->IsValid() )
 		return false;
 
-	if( _recvCallback->SetInProgress() )
+	if( _recvOp->SetInProgress() )
 		return true;
 
-	_recvCallback->SetSession( shared_from_this() );
+	_recvOp->SetSession( shared_from_this() );
 
-	if( !_recvCallback->Post() )
+	if( !_recvOp->Post() )
 	{
-		_recvCallback->Clear();
+		_recvOp->Clear();
 		return false;
 	}
 
@@ -191,16 +191,16 @@ bool TcpSession::Send( const shared_ptr<WsaBuf>& buf )
 	if( !_pSocket->IsValid() )
 		return false;
 
-	_sendCallback->Enqueue( buf );
+	_sendOp->Enqueue( buf );
 
-	if( _sendCallback->SetInProgress() )
+	if( _sendOp->SetInProgress() )
 		return true;
 
-	_sendCallback->SetSession( shared_from_this() );
+	_sendOp->SetSession( shared_from_this() );
 
-	if( !_sendCallback->Post() )
+	if( !_sendOp->Post() )
 	{
-		_sendCallback->Clear();
+		_sendOp->Clear();
 		return false;
 	}
 

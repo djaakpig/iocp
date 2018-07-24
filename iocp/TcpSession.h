@@ -1,18 +1,19 @@
 #pragma once
 #include "Type.h"
-#include "IoCallbackFn.h"
+#include "TcpOperationCallback.h"
 #include "SockaddrIn.h"
 
-class ExtensionTable;
-class IoCallbackAccept;
-class IoCallbackConnect;
-class IoCallbackDisconnect;
-class IoCallbackRecv;
-class IoCallbackSend;
-class IoCallbackShared;
+class WinsockExtension;
+class TcpOperationAccept;
+class TcpOperationConnect;
+class TcpOperationDisconnect;
+class TcpOperationRecv;
+class TcpOperationSend;
+class TcpOperation;
 class Socket;
 class TcpListener;
 class TcpSessionService;
+class WinsockExtension;
 class WsaBuf;
 
 class TcpSession final : public enable_shared_from_this<TcpSession>
@@ -42,11 +43,11 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	void SetOnAccept( const IoCallbackFn&& fn );
-	void SetOnConnect( const IoCallbackFn&& fn );
-	void SetOnDisconnect( const IoCallbackFn&& fn );
-	void SetOnRecv( const IoCallbackFnRecv&& fn );
-	void SetOnSend( const IoCallbackFn&& fn );
+	void SetOnAccept( const TcpOperationCallback&& callback );
+	void SetOnConnect( const TcpOperationCallback&& callback );
+	void SetOnDisconnect( const TcpOperationCallback&& callback );
+	void SetOnRecv( const TcpOperationCallbackRecv&& callback );
+	void SetOnSend( const TcpOperationCallback&& callback );
 	//	{{SET}}
 
 	bool Accept( const shared_ptr<TcpListener>& listenerPtr );
@@ -55,7 +56,7 @@ public:
 	bool Create( const shared_ptr<TcpSessionService>& servicePtr );
 	bool Disconnect();
 	void FillAddr();
-	bool PostError( const int lastError, const shared_ptr<IoCallbackShared>& callbackPtr );
+	bool PostError( const int lastError, const shared_ptr<TcpOperation>& callbackPtr );
 	bool Recv();
 	bool Send( const shared_ptr<WsaBuf>& buf );
 
@@ -65,9 +66,9 @@ private:
 	Socket* _pSocket = nullptr;
 	SockaddrIn _localSockaddr;
 	SockaddrIn _remoteSockaddr;
-	shared_ptr<IoCallbackAccept> _acceptCallback;
-	shared_ptr<IoCallbackConnect> _connectCallback;
-	shared_ptr<IoCallbackDisconnect> _disconnectCallback;
-	shared_ptr<IoCallbackRecv> _recvCallback;
-	shared_ptr<IoCallbackSend> _sendCallback;
+	shared_ptr<TcpOperationAccept> _acceptOp;
+	shared_ptr<TcpOperationConnect> _connectOp;
+	shared_ptr<TcpOperationDisconnect> _disconnectOp;
+	shared_ptr<TcpOperationRecv> _recvOp;
+	shared_ptr<TcpOperationSend> _sendOp;
 };

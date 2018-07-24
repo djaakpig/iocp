@@ -1,11 +1,11 @@
 #pragma once
-#include "IoCallback.h"
+#include "IoOperation.h"
 #include <memory>
 using namespace std;
 
-class IoCallbackShared;
+class TcpOperation;
 
-class IoCallbackError final : public IoCallback
+class TcpOperationError final : public IoOperation
 {
 public:
 	//	{{SET}}
@@ -13,9 +13,9 @@ public:
 	{
 		_error = e;
 	}
-	inline void SetCallback( const shared_ptr<IoCallbackShared>& callbackPtr )
+	inline void SetOperation( const shared_ptr<TcpOperation>& operationPtr )
 	{
-		_callbackPtr = callbackPtr;
+		_operationPtr = operationPtr;
 	}
 	//	{{SET}}
 
@@ -24,5 +24,5 @@ public:
 
 private:
 	int _error = ERROR_SUCCESS;
-	shared_ptr<IoCallbackShared> _callbackPtr;
+	shared_ptr<TcpOperation> _operationPtr;
 };
