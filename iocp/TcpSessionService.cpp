@@ -53,7 +53,7 @@ void TcpSessionService::_Add( const shared_ptr<TcpSession>& sessionPtr )
 
 void TcpSessionService::_CloseAllSessions()
 {
-	DoExclusive( _lock, [this]()
+	DoExclusive( _lock, [this]
 	{
 		for( const auto& sessionPair : _sessionMap )
 		{
@@ -63,17 +63,17 @@ void TcpSessionService::_CloseAllSessions()
 		}
 	} );
 
-	WaitCondition( chrono::milliseconds( 100 ), [this]()
+	WaitCondition( chrono::milliseconds( 100 ), [this]
 	{
 		return !_sessionMap.empty();
 	} );
 }
 
-bool TcpSessionService::_LoadExtension( const Socket& s )
+bool TcpSessionService::_LoadExtension( const Socket* const pSocket )
 {
 	_extensionTablePtr = make_shared<ExtensionTable>();
 
-	return _extensionTablePtr->Load( s );
+	return _extensionTablePtr->Load( pSocket->GetValue() );
 }
 
 void TcpSessionService::_Remove( const SessionId id )
@@ -91,6 +91,8 @@ void TcpSessionService::_SetCallbackTo( const shared_ptr<TcpSession>& sessionPtr
 
 bool TcpSessionService::_OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
 {
+	LogNormal( "onDisconnect! id:", sessionPtr->GetId() );
+
 	_Remove( sessionPtr->GetId() );
 
 	if( e )

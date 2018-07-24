@@ -18,10 +18,11 @@ class WsaBuf;
 class TcpSession final : public enable_shared_from_this<TcpSession>
 {
 public:
-	TcpSession();
+	explicit TcpSession( const SessionId id );
 	~TcpSession();
 
 	//	{{GET}}
+	HANDLE GetHandle() const;
 	inline SessionId GetId() const
 	{
 		return _id;
@@ -41,10 +42,6 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetId( const SessionId id )
-	{
-		_id = id;
-	}
 	void SetOnAccept( const IoCallbackFn&& fn );
 	void SetOnConnect( const IoCallbackFn&& fn );
 	void SetOnDisconnect( const IoCallbackFn&& fn );
@@ -63,9 +60,9 @@ public:
 	bool Send( const shared_ptr<WsaBuf>& buf );
 
 private:
+	const SessionId _id = 0;
 	shared_ptr<TcpSessionService> _servicePtr;
 	Socket* _pSocket = nullptr;
-	SessionId _id = 0;
 	SockaddrIn _localSockaddr;
 	SockaddrIn _remoteSockaddr;
 	shared_ptr<IoCallbackAccept> _acceptCallback;

@@ -5,16 +5,15 @@
 
 void IoCallbackDisconnect::OnComplete( const int e )
 {
-	_Invoke( e, _sessionPtr );
+	const auto adjustedError = ERROR_NETNAME_DELETED == e ? ERROR_SUCCESS : e;
+
+	_Invoke( adjustedError, _sessionPtr );
 	Clear();
 }
 
 bool IoCallbackDisconnect::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
-	const auto r = extensionTablePtr->disconnectEx( *_sessionPtr->GetSocket(), this, TF_REUSE_SOCKET, 0 );
+	const auto r = extensionTablePtr->disconnectEx( _sessionPtr->GetSocket()->GetValue(), this, TF_REUSE_SOCKET, 0 );
 
-	if( r )
-		return true;
-
-	return _HandleError();
+	return r ? true : _HandleError();
 }

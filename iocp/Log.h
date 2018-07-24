@@ -2,6 +2,8 @@
 #include <iostream>
 #include "Type.h"
 
+void BeginLogLock();
+void EndLogLock();
 ELogLevel GetLogLevel();
 void SetLogLevel( const ELogLevel logLevel );
 
@@ -19,28 +21,36 @@ inline void Log( T&& t )
 }
 
 template<class... Args>
+inline void LogSafety( Args&&... args )
+{
+	BeginLogLock();
+	Log( forward<Args>( args )... );
+	EndLogLock();
+}
+
+template<class... Args>
 inline void LogForce( Args&&... args )
 {
-	Log( "[FORCE] ", forward<Args>( args )... );
+	LogSafety( "[FORCE] ", forward<Args>( args )... );
 }
 
 template<class... Args>
 inline void LogNormal( Args&&... args )
 {
 	if( GetLogLevel() <= ELogLevel::normal )
-		Log( "[NORMAL] ", forward<Args>( args )... );
+		LogSafety( "[NORMAL] ", forward<Args>( args )... );
 }
 
 template<class... Args>
 inline void LogWarning( Args&&... args )
 {
 	if( GetLogLevel() <= ELogLevel::warning )
-		Log( "[WARNING] ", forward<Args>( args )... );
+		LogSafety( "[WARNING] ", forward<Args>( args )... );
 }
 
 template<class... Args>
 inline void LogError( Args&&... args )
 {
 	if( GetLogLevel() <= ELogLevel::error )
-		Log( "[ERROR] ", forward<Args>( args )... );
+		LogSafety( "[ERROR] ", forward<Args>( args )... );
 }

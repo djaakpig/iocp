@@ -11,10 +11,6 @@ class IoCallbackAccept final : public IoCallbackImpl<IoCallbackFn>
 {
 public:
 	//	{{GET}}
-	inline char* GetBuf()
-	{
-		return _buf;
-	}
 	inline DWORD GetSize() const
 	{
 		return sizeof( _buf );
@@ -29,6 +25,9 @@ public:
 	//	{{SET}}
 
 	void Clear() override;
+	void FillAddrTo( const shared_ptr<ExtensionTable>& extensionTablePtr,
+					 PSOCKADDR* const ppRemoteSockaddr,
+					 PSOCKADDR* const ppLocalSockaddr );
 	void OnComplete( const int e ) override;
 	bool Post( const shared_ptr<ExtensionTable>& extensionTablePtr );
 

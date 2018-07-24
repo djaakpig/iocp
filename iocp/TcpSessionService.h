@@ -31,7 +31,7 @@ public:
 	{
 		return _ioService;
 	}
-	inline bool IsInProgress() const
+	inline bool IsInRunning() const
 	{
 		return _inProgress;
 	}
@@ -45,7 +45,7 @@ public:
 protected:
 	void _Add( const shared_ptr<TcpSession>& sessionPtr );
 	void _CloseAllSessions();
-	bool _LoadExtension( const Socket& s );
+	bool _LoadExtension( const Socket* const pSocket );
 	void _Remove( const SessionId id );
 	void _SetCallbackTo( const shared_ptr<TcpSession>& sessionPtr );
 	virtual bool _Start( const SockaddrIn& listenAddr, const DWORD numReserved ) = 0;

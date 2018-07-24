@@ -11,6 +11,16 @@ void IoCallbackAccept::Clear()
 	__super::Clear();
 }
 
+void IoCallbackAccept::FillAddrTo( const shared_ptr<ExtensionTable>& extensionTablePtr,
+								   PSOCKADDR* const ppRemoteSockaddr,
+								   PSOCKADDR* const ppLocalSockaddr )
+{
+	int localSockaddrLen = 0;
+	int remoteSockaddrLen = 0;
+
+	extensionTablePtr->getAcceptExSockaddrs( _buf, 0, SockaddrLen, SockaddrLen, ppLocalSockaddr, &localSockaddrLen, ppRemoteSockaddr, &remoteSockaddrLen );
+}
+
 void IoCallbackAccept::OnComplete( const int e )
 {
 	const auto r = _OnComplete( e );
@@ -24,17 +34,16 @@ void IoCallbackAccept::OnComplete( const int e )
 bool IoCallbackAccept::Post( const shared_ptr<ExtensionTable>& extensionTablePtr )
 {
 	DWORD bytesReceived = 0;
-	const auto r = extensionTablePtr->acceptEx( *_listenerPtr->GetSocket(), *_sessionPtr->GetSocket(), _buf,
+	const auto r = extensionTablePtr->acceptEx( _listenerPtr->GetSocket()->GetValue(),
+												_sessionPtr->GetSocket()->GetValue(),
+												_buf,
 												0,
 												SockaddrLen,
 												SockaddrLen,
 												&bytesReceived,
 												this );
 
-	if( r )
-		return true;
-
-	return _HandleError();
+	return r ? true : _HandleError();
 }
 
 bool IoCallbackAccept::_OnComplete( const int e )

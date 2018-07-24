@@ -1,4 +1,5 @@
 #include "TcpSession.h"
+#include "Log.h"
 #include "ExtensionTable.h"
 #include "Global.h"
 #include "Socket.h"
@@ -12,7 +13,8 @@
 #include "TcpListener.h"
 #include "TcpSessionService.h"
 
-TcpSession::TcpSession()
+TcpSession::TcpSession( const SessionId id ) :
+	_id( id )
 {
 	_pSocket = new Socket();
 	_acceptCallback = make_shared<IoCallbackAccept>();
@@ -25,6 +27,11 @@ TcpSession::TcpSession()
 TcpSession::~TcpSession()
 {
 	SafeDelete( _pSocket );
+}
+
+HANDLE TcpSession::GetHandle() const
+{
+	return _pSocket->GetHandle();
 }
 
 void TcpSession::SetOnAccept( const IoCallbackFn&& fn )
@@ -132,18 +139,9 @@ bool TcpSession::Disconnect()
 void TcpSession::FillAddr()
 {
 	PSOCKADDR pLocalSockaddr = nullptr;
-	int pLocalSockaddrLen = 0;
 	PSOCKADDR pRemoteSockaddr = nullptr;
-	int pRemoteSockaddrLen = 0;
 
-	_servicePtr->GetExtension()->getAcceptExSockaddrs( _acceptCallback->GetBuf(),
-											  0,
-											  SockaddrLen,
-											  SockaddrLen,
-											  &pLocalSockaddr,
-											  &pLocalSockaddrLen,
-											  &pRemoteSockaddr,
-											  &pRemoteSockaddrLen );
+	_acceptCallback->FillAddrTo( _servicePtr->GetExtension(), &pLocalSockaddr, &pRemoteSockaddr );
 
 	_localSockaddr = *pLocalSockaddr;
 	_remoteSockaddr = *pRemoteSockaddr;
@@ -151,6 +149,8 @@ void TcpSession::FillAddr()
 
 bool TcpSession::PostError( const int lastError, const shared_ptr<IoCallbackShared>& callbackPtr )
 {
+	LogError( "Error! id:", GetId(), " e:", lastError );
+
 	if( !_servicePtr )
 		return false;
 

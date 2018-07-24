@@ -1,4 +1,6 @@
 #include "IoService.h"
+#include "Lock.h"
+#include "Log.h"
 #include "IoCallback.h"
 
 bool IoService::Associate( HANDLE h ) const
@@ -6,7 +8,7 @@ bool IoService::Associate( HANDLE h ) const
 	if( !_iocpHandle )
 		return false;
 
-	const auto r = CreateIoCompletionPort( h, _iocpHandle, NULL, 0 );
+	const auto r = CreateIoCompletionPort( h, _iocpHandle, NULL/*reinterpret_cast<ULONG_PTR>(h)*/, 0 );
 	if( !r )
 	{
 		const auto e = WSAGetLastError();
@@ -16,9 +18,12 @@ bool IoService::Associate( HANDLE h ) const
 	return _iocpHandle == r;
 }
 
-bool IoService::Post( LPOVERLAPPED pOverlapped ) const
+bool IoService::Post( IoCallback* const pCallback ) const
 {
-	return TRUE == PostQueuedCompletionStatus( _iocpHandle, 0, NULL, pOverlapped );
+	if( !pCallback )
+		return false;
+
+	return TRUE == PostQueuedCompletionStatus( _iocpHandle, 0, NULL, pCallback );
 }
 
 bool IoService::Start( const DWORD numWorkers )
@@ -29,6 +34,11 @@ bool IoService::Start( const DWORD numWorkers )
 
 	for( DWORD workerId = 0; numWorkers > workerId; ++workerId )
 		_workers.emplace_back( thread( bind( &IoService::_Run, this ) ) );
+
+	WaitCondition( chrono::milliseconds( 100 ), [this]
+	{
+		return _numRunningWorkers < _workers.size();
+	} );
 
 	return true;
 }
@@ -58,6 +68,8 @@ void IoService::_Run()
 	ULONG_PTR cmpletionKey = NULL;
 	LPOVERLAPPED pOverlapped = nullptr;
 
+	++_numRunningWorkers;
+
 	while( true )
 	{
 		const auto r = GetQueuedCompletionStatus( _iocpHandle, &numBytes, &cmpletionKey, &pOverlapped, INFINITE );
@@ -65,9 +77,11 @@ void IoService::_Run()
 		if( !pOverlapped )
 			break;
 
-		const auto pCallback = static_cast<IoCallback*>( pOverlapped );
+		const auto pCallback = static_cast<IoCallback*>(pOverlapped);
 		const auto e = r ? ERROR_SUCCESS : WSAGetLastError();
 
 		pCallback->OnComplete( e );
 	}
+
+	--_numRunningWorkers;
 }

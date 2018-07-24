@@ -10,27 +10,12 @@ public:
 	Socket() = default;
 	~Socket();
 
-	//  {{OPERATOR}}
-	inline operator HANDLE() const
-	{
-		return GetHandle();
-	}
-	inline operator SOCKET() const
-	{
-		return GetSocketHandle();
-	}
-	inline operator bool() const
-	{
-		return IsValid();
-	}
-	//  {{OPERATOR}}
-
 	//	{{GET}}
 	inline HANDLE GetHandle() const
 	{
 		return reinterpret_cast<HANDLE>( _socket );
 	}
-	inline SOCKET GetSocketHandle() const
+	inline SOCKET GetValue() const
 	{
 		return _socket;
 	}
@@ -44,18 +29,19 @@ public:
 	bool Bind( const SockaddrIn& addr ) const;
 	bool Create( const int type, const int protocol );
 	void Close();
-	inline bool SetNonblock( u_long enable ) const
+	inline bool SetNonblock( const bool enable ) const
 	{
-		return SOCKET_ERROR != ioctlsocket( _socket, FIONBIO, &enable );
+		u_long val = enable;
+		return SOCKET_ERROR != ioctlsocket( _socket, FIONBIO, &val );
 	}
-	inline bool SetOptionInt( const int level, const int name, int val ) const
+	inline bool SetOptionInt( const int level, const int name, const int val ) const
 	{
-		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<char*>(&val), sizeof( int ) );
+		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<const char*>(&val), sizeof( int ) );
 	}
 	template<class T>
-	inline bool SetOptionPtr( const int level, const int name, T* const pVal ) const
+	inline bool SetOptionPtr( const int level, const int name, const T* const pVal ) const
 	{
-		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<char*>(pVal), sizeof( T ) );
+		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<const char*>(pVal), sizeof( T ) );
 	}
 	inline bool SetOptionNull( const int level, const int name ) const
 	{

@@ -26,15 +26,11 @@ void IoCallbackRecv::OnComplete( const int e )
 
 bool IoCallbackRecv::Post()
 {
-	const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
 	DWORD flags = 0;
 	WSABUF wsaBuf{ 0, nullptr };
-	const auto r = WSARecv( s, &wsaBuf, 1, nullptr, &flags, this, nullptr );
+	const auto r = WSARecv( _sessionPtr->GetSocket()->GetValue(), &wsaBuf, 1, nullptr, &flags, this, nullptr );
 
-	if( SOCKET_ERROR != r )
-		return true;
-
-	return _HandleError();
+	return SOCKET_ERROR != r ? true : _HandleError();
 }
 
 bool IoCallbackRecv::_OnComplete( const int e )
@@ -63,7 +59,7 @@ bool IoCallbackRecv::_OnComplete( const int e )
 
 pair<int, DWORD> IoCallbackRecv::_Read( char* const pBuf, const int sz ) const
 {
-	const auto s = _sessionPtr->GetSocket()->GetSocketHandle();
+	const auto s = _sessionPtr->GetSocket()->GetValue();
 	auto pCurrentBuf = pBuf;
 	auto remainSize = sz;
 

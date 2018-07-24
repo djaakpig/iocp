@@ -6,7 +6,15 @@ bool ExtensionTable::Load( SOCKET s )
 	{
 		LPVOID ptr = nullptr;
 		DWORD bytesReturned = 0;
-		const auto r = WSAIoctl( s, SIO_GET_EXTENSION_FUNCTION_POINTER, reinterpret_cast<LPVOID>(&id), sizeof( GUID ), static_cast<LPVOID>(&ptr), sizeof( LPVOID ), &bytesReturned, nullptr, nullptr );
+		const auto r = WSAIoctl( s,
+								 SIO_GET_EXTENSION_FUNCTION_POINTER,
+								 reinterpret_cast<LPVOID>(&id),
+								 sizeof( GUID ),
+								 static_cast<LPVOID>(&ptr),
+								 sizeof( LPVOID ),
+								 &bytesReturned,
+								 nullptr,
+								 nullptr );
 		return SOCKET_ERROR == r ? nullptr : ptr;
 	};
 

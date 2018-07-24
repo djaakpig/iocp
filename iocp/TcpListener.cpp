@@ -37,7 +37,7 @@ bool TcpListener::SetContextTo( const Socket* const pChild ) const
 	if( !pChild->SetNonblock( true ) )
 		return false;
 
-	auto listenSocket = _pSocket->GetSocketHandle();
+	auto listenSocket = _pSocket->GetValue();
 
 	return pChild->SetOptionPtr( SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, &listenSocket );
 }
@@ -50,7 +50,7 @@ bool TcpListener::Listen( const SockaddrIn& listenAddr )
 	if( !_pSocket->Bind( listenAddr ) )
 		return false;
 
-	if( SOCKET_ERROR == ::listen( _pSocket->GetSocketHandle(), SOMAXCONN ) )
+	if( SOCKET_ERROR == ::listen( _pSocket->GetValue(), SOMAXCONN ) )
 		return false;
 
 	return true;

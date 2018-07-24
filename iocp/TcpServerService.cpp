@@ -15,10 +15,10 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 		return false;
 
 	const auto pListenSocket = _listenerPtr->GetSocket();
-	if( !_LoadExtension( *pListenSocket ) )
+	if( !_LoadExtension( pListenSocket ) )
 		return false;
 
-	if( !GetIoService().Associate( *pListenSocket ) )
+	if( !GetIoService().Associate( pListenSocket->GetHandle() ) )
 		return false;
 
 	if( !_listenerPtr->Listen( listenAddr ) )
@@ -27,15 +27,14 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 	const auto thisPtr = shared_from_this();
 	const auto acceptCallback = bind( &TcpServerService::_OnAccept, this, placeholders::_1, placeholders::_2 );
 
-	for( DWORD sessionId = 0; numReserved > sessionId && IsInProgress(); ++sessionId )
+	for( DWORD sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId )
 	{
-		const auto sessionPtr = make_shared<TcpSession>();
+		const auto sessionPtr = make_shared<TcpSession>( sessionId );
 
 		if( !sessionPtr->Create( thisPtr ) )
 			continue;
 
-		sessionPtr->SetId( sessionId );
-		sessionPtr->SetOnAccept( move( acceptCallback ) );
+		sessionPtr->SetOnAccept( acceptCallback );
 		_SetCallbackTo( sessionPtr );
 
 		if( !sessionPtr->Accept( _listenerPtr ) )
@@ -58,7 +57,13 @@ bool TcpServerService::_OnAccept( const int e, const shared_ptr<TcpSession>& ses
 		return false;
 	}
 
-	if( !GetIoService().Associate( *sessionPtr->GetSocket() ) )
+	if( !IsInRunning() )
+	{
+		LogWarning( "refuse! id:", sessionPtr->GetId() );
+		return false;
+	}
+
+	if( !GetIoService().Associate( sessionPtr->GetHandle() ) )
 	{
 		LogError( "accept associate fail! id:", sessionPtr->GetId() );
 		return false;
@@ -67,12 +72,6 @@ bool TcpServerService::_OnAccept( const int e, const shared_ptr<TcpSession>& ses
 	if( !sessionPtr->Recv() )
 	{
 		LogError( "first recv fail! id:", sessionPtr->GetId() );
-		return false;
-	}
-
-	if( !IsInProgress() )
-	{
-		LogWarning( "refuse! id:", sessionPtr->GetId() );
 		return false;
 	}
 
@@ -88,7 +87,7 @@ bool TcpServerService::_OnDisconnect( const int e, const shared_ptr<TcpSession>&
 	if( !TcpSessionService::_OnDisconnect( e, sessionPtr ) )
 		return false;
 
-	if( !IsInProgress() )
+	if( !IsInRunning() )
 	{
 		LogWarning( "refuse! id:", sessionPtr->GetId() );
 		return false;
