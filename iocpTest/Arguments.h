@@ -3,6 +3,10 @@
 #include <Type.h>
 using namespace std;
 
+const WORD MinPort = 30000;
+const WORD MaxPort = 30000;
+const DWORD MaxSession = 1000;
+
 class Arguments final
 {
 public:

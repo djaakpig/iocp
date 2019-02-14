@@ -71,7 +71,7 @@ bool TcpClientService::_OnConnect( const int e, const shared_ptr<TcpSession>& se
 		return false;
 	}
 
-	if( !sessionPtr->GetSocket()->SetOptionNull( SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT ) )
+	if( !sessionPtr->GetSocket()->SetOption( SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT ) )
 	{
 		LogError( "UpdateConnectContext fail! id:", sessionPtr->GetId() );
 		return false;

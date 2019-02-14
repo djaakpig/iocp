@@ -53,7 +53,7 @@ public:
 	{
 		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<const char*>(pVal), sizeof( T ) );
 	}
-	inline bool SetOptionNull( const int level, const int name ) const
+	inline bool SetOption( const int level, const int name ) const
 	{
 		return SOCKET_ERROR != setsockopt( _socket, level, name, nullptr, 0 );
 	}
