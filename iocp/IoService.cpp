@@ -38,7 +38,7 @@ bool IoService::Start( const DWORD numWorkers )
 	WaitCondition( chrono::milliseconds( 100 ), [this]
 	{
 		return _numRunningWorkers < _workers.size();
-	} );
+	});
 
 	return true;
 }

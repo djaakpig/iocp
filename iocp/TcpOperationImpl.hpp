@@ -7,9 +7,9 @@ class TcpOperationImpl abstract : public TcpOperation
 {
 public:
 	//	{{SET}}
-	inline void SetCallback( const Callback&& callback )
+	inline void SetCallback( Callback&& callback )
 	{
-		_callback = callback;
+		_callback = move(callback);
 	}
 	//	{{SET}}
 

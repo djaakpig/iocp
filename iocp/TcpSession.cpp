@@ -34,27 +34,27 @@ HANDLE TcpSession::GetHandle() const
 	return _pSocket->GetHandle();
 }
 
-void TcpSession::SetOnAccept( const TcpOperationCallback&& callback )
+void TcpSession::SetOnAccept( TcpOperationCallback&& callback )
 {
 	_acceptOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnConnect( const TcpOperationCallback&& callback )
+void TcpSession::SetOnConnect( TcpOperationCallback&& callback )
 {
 	_connectOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnDisconnect( const TcpOperationCallback&& callback )
+void TcpSession::SetOnDisconnect( TcpOperationCallback&& callback )
 {
 	_disconnectOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnRecv( const TcpOperationCallbackRecv&& callback )
+void TcpSession::SetOnRecv( TcpOperationCallbackRecv&& callback )
 {
 	_recvOp->SetCallback( move( callback ) );
 }
 
-void TcpSession::SetOnSend( const TcpOperationCallback&& callback )
+void TcpSession::SetOnSend( TcpOperationCallback&& callback )
 {
 	_sendOp->SetCallback( move( callback ) );
 }

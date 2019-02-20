@@ -35,20 +35,23 @@ bool TcpOperationSend::_OnComplete( const int e )
 {
 	if( e )
 	{
-		DoExclusive( _lock, [this, e]()
+		DoExclusive( _lock, [this, e]
 		{
 			_Invoke( e, _sessionPtr );
 
 			_bufs.clear();
 			_numSentBytes = 0;
-		} );
+		});
 
 		return false;
 	}
 
 	auto numSentBytes = _numSentBytes;
 	BufferPtrList bufs;
-	DoExclusive( _lock, bind( &BufferPtrList::swap, ref( _bufs ), ref( bufs ) ) );
+	DoExclusive(_lock, [&]
+	{
+		_bufs.swap(bufs);
+	});
 
 	while( !bufs.empty() )
 	{
@@ -89,7 +92,7 @@ bool TcpOperationSend::_OnComplete( const int e )
 		}
 
 		return Post();
-	} );
+	});
 }
 
 pair<int, DWORD> TcpOperationSend::_Send( char* const pBuf, const int sz ) const

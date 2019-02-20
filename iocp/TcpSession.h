@@ -43,11 +43,11 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	void SetOnAccept( const TcpOperationCallback&& callback );
-	void SetOnConnect( const TcpOperationCallback&& callback );
-	void SetOnDisconnect( const TcpOperationCallback&& callback );
-	void SetOnRecv( const TcpOperationCallbackRecv&& callback );
-	void SetOnSend( const TcpOperationCallback&& callback );
+	void SetOnAccept( TcpOperationCallback&& callback );
+	void SetOnConnect( TcpOperationCallback&& callback );
+	void SetOnDisconnect( TcpOperationCallback&& callback );
+	void SetOnRecv( TcpOperationCallbackRecv&& callback );
+	void SetOnSend( TcpOperationCallback&& callback );
 	//	{{SET}}
 
 	bool Accept( const shared_ptr<TcpListener>& listenerPtr );

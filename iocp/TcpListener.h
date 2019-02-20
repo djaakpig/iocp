@@ -6,7 +6,7 @@ class SockaddrIn;
 class Socket;
 class TcpSessionService;
 
-class TcpListener final : public enable_shared_from_this<TcpListener>
+class TcpListener final
 {
 public:
 	TcpListener();

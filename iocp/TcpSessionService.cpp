@@ -18,7 +18,7 @@ void TcpSessionService::Broadcast( const shared_ptr<WsaBuf>& buf )
 	for_each( _sessionMap.begin(), _sessionMap.end(), [&buf]( const auto& sessionPair )
 	{
 		sessionPair.second->Send( buf );
-	} );
+	});
 }
 
 shared_ptr<TcpSession> TcpSessionService::Find( const SessionId id )
@@ -60,12 +60,12 @@ void TcpSessionService::_CloseAllSessions()
 			sessionPtr->Disconnect();
 			sessionPtr->Close();
 		}
-	} );
+	});
 
 	WaitCondition( chrono::milliseconds( 100 ), [this]
 	{
 		return !_sessionMap.empty();
-	} );
+	});
 }
 
 void TcpSessionService::_Remove( const SessionId id )
