@@ -14,7 +14,7 @@ protected:
 	void _Stop() override;
 
 	//	{{CALLBACK}}
-	virtual bool _OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr );
+	virtual bool _OnConnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr );
 	//	{{CALLBACK}}
 
 private:

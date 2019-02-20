@@ -17,13 +17,13 @@ bool Arguments::Load( const int argc, char** args )
 	const auto rawPort = static_cast<WORD>( atoi( args[5] ) );
 	const auto rawNumSessions = static_cast<DWORD>( atoi( args[6] ) );
 
-	_logLevel = max<ELogLevel>( min<ELogLevel>( ELogLevel::disable, rawLogLevel ), ELogLevel::normal );
+	_logLevel = std::max<ELogLevel>(std::min<ELogLevel>( ELogLevel::disable, rawLogLevel ), ELogLevel::normal );
 	_serverMode = ( 0 == _stricmp( args[2], "s" ) );
 	_serviceName = _serverMode ? "SERVER" : "CLIENT";
-	_numWorkers = min<DWORD>( thread::hardware_concurrency() * 2, max<DWORD>( 1, rawNumWorkers ) );
+	_numWorkers = std::min<DWORD>(std::thread::hardware_concurrency() * 2, std::max<DWORD>( 1, rawNumWorkers ) );
 	_ip = args[4];
-	_port = min<WORD>( MaxPort, max<WORD>( MinPort, rawPort ) );
-	_numSessions = min<DWORD>( MaxSession, max<DWORD>( 1, rawNumSessions ) );
+	_port = std::min<WORD>( MaxPort, std::max<WORD>( MinPort, rawPort ) );
+	_numSessions = std::min<DWORD>( MaxSession, std::max<DWORD>( 1, rawNumSessions ) );
 
 	_addr.SetIP( _ip );
 	_addr.SetPort( _port );
@@ -31,9 +31,9 @@ bool Arguments::Load( const int argc, char** args )
 	return true;
 }
 
-string Arguments::ToTitle() const
+std::string Arguments::ToTitle() const
 {
-	stringstream ss;
+	std::stringstream ss;
 	ss << "[" << _serviceName << "] IP:" << _ip << ", PORT:" << _port << ", NumSessions:" << _numSessions;
 	return ss.str();
 }

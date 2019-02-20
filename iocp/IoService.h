@@ -3,7 +3,6 @@
 #include <atomic>
 #include <list>
 #include <thread>
-using namespace std;
 
 class IoOperation;
 
@@ -20,6 +19,6 @@ private:
 
 private:
 	HANDLE _iocpHandle = nullptr;
-	list<thread> _workers;
-	atomic_size_t _numRunningWorkers;
+	std::list<std::thread> _workers;
+	std::atomic_size_t _numRunningWorkers;
 };

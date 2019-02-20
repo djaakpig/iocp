@@ -14,7 +14,7 @@ public:
 
 private:
 	bool _OnComplete( const int e );
-	pair<int, DWORD> _Read( char* const pBuf, const int sz ) const;
+	std::pair<int, DWORD> _Read( char* const pBuf, const int sz ) const;
 
 private:
 	CircularBuffer _buf;

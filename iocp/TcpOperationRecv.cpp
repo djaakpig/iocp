@@ -39,7 +39,7 @@ bool TcpOperationRecv::_OnComplete( const int e )
 		return _Invoke( e, _sessionPtr, _buf );
 
 	WSABUF wsaBuf;
-	pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
+	std::pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
 
 	while( _buf.BeginWrite( wsaBuf ) )
 	{
@@ -57,7 +57,7 @@ bool TcpOperationRecv::_OnComplete( const int e )
 	return _Invoke( r.first, _sessionPtr, _buf );
 }
 
-pair<int, DWORD> TcpOperationRecv::_Read( char* const pBuf, const int sz ) const
+std::pair<int, DWORD> TcpOperationRecv::_Read( char* const pBuf, const int sz ) const
 {
 	const auto s = _sessionPtr->GetSocket()->GetValue();
 	auto pCurrentBuf = pBuf;

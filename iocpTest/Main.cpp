@@ -24,20 +24,20 @@ int main( int argc, char** args )
 
 	if( ioService.Start( arguments.GetNumWorkers() ) )
 	{
-		shared_ptr<TcpSessionService> servicePtr;
+		std::shared_ptr<TcpSessionService> servicePtr;
 
 		if( arguments.IsServerMode() )
-			servicePtr = make_shared<EchoServer>( ioService );
+			servicePtr = std::make_shared<EchoServer>( ioService );
 		else
-			servicePtr = make_shared<EchoClient>( ioService );
+			servicePtr = std::make_shared<EchoClient>( ioService );
 
 		if( servicePtr->Start( arguments.GetAddr(), arguments.GetNumSessions() ) )
 		{
-			cout << "[Press ENTER if you want to stop...]" << endl;
+			std::cout << "[Press ENTER if you want to stop...]" << std::endl;
 
 			getchar();
 
-			cout << "[Stop...]" << endl;
+			std::cout << "[Stop...]" << std::endl;
 		}
 
 		servicePtr->Stop();

@@ -12,10 +12,10 @@ protected:
 	void _Stop() override;
 
 	//	{{CALLBACK}}
-	virtual bool _OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr );
-	bool _OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr ) override;
+	virtual bool _OnAccept( const int e, const std::shared_ptr<TcpSession>& sessionPtr );
+	bool _OnDisconnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr ) override;
 	//	{{CALLBACK}}
 
 private:
-	shared_ptr<TcpListener> _listenerPtr;
+	std::shared_ptr<TcpListener> _listenerPtr;
 };

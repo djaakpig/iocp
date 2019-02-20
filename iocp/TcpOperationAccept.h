@@ -18,23 +18,23 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetListener( const shared_ptr<TcpListener>& listenerPtr )
+	inline void SetListener( const std::shared_ptr<TcpListener>& listenerPtr )
 	{
 		_listenerPtr = listenerPtr;
 	}
 	//	{{SET}}
 
 	void Clear() override;
-	void FillAddrTo( const shared_ptr<WinsockExtension>& exPtr,
+	void FillAddrTo( const std::shared_ptr<WinsockExtension>& exPtr,
 					 PSOCKADDR* const ppRemoteSockaddr,
 					 PSOCKADDR* const ppLocalSockaddr );
 	void OnComplete( const int e ) override;
-	bool Post( const shared_ptr<WinsockExtension>& exPtr );
+	bool Post( const std::shared_ptr<WinsockExtension>& exPtr );
 
 private:
 	bool _OnComplete( const int e );
 
 private:
-	shared_ptr<TcpListener> _listenerPtr;
+	std::shared_ptr<TcpListener> _listenerPtr;
 	char _buf[SockaddrLen * 2];
 };

@@ -1,24 +1,23 @@
 #pragma once
 #include <shared_mutex>
-using namespace std;
 
 template <class Fn, class... Args>
-inline auto DoShared( shared_mutex& m, Fn&& fn, Args&&... args )
+inline auto DoShared( std::shared_mutex& m, Fn&& fn, Args&&... args )
 {
-	const shared_lock<shared_mutex> s( m );
+	const std::shared_lock<std::shared_mutex> s( m );
 	return fn( args... );
 }
 
 template <class Mutex, class Fn, class... Args>
 inline auto DoExclusive( Mutex& m, Fn&& fn, Args&&... args )
 {
-	const unique_lock<Mutex> s( m );
+	const std::unique_lock<Mutex> s( m );
 	return fn( args... );
 }
 
 template<class Fn, class... Args>
-inline void WaitCondition( const chrono::milliseconds& sleepTime, Fn&& fn, Args&&... args )
+inline void WaitCondition( const std::chrono::milliseconds& sleepTime, Fn&& fn, Args&&... args )
 {
 	while( fn( args... ) )
-		this_thread::sleep_for( sleepTime );
+		std::this_thread::sleep_for( sleepTime );
 }

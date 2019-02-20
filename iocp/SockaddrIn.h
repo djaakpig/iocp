@@ -1,7 +1,6 @@
 #pragma once
 #include <WS2tcpip.h>
 #include <string>
-using namespace std;
 
 class SockaddrIn final
 {
@@ -11,7 +10,7 @@ public:
 		Clear();
 		_addr.sin_family = AF_INET;
 	}
-	SockaddrIn( const string& ip, const WORD port )
+	SockaddrIn( const std::string& ip, const WORD port )
 	{
 		Clear();
 		_addr.sin_family = AF_INET;
@@ -29,7 +28,7 @@ public:
 	//	{{OPERATOR}}
 
 	//	{{GET}}
-	inline string GetIP() const
+	inline std::string GetIP() const
 	{
 		char ipBuffer[15 + 1];
 		return inet_ntop( AF_INET, const_cast<PIN_ADDR>( &_addr.sin_addr ), ipBuffer, sizeof( ipBuffer ) );
@@ -53,7 +52,7 @@ public:
 	//	{{GET}}
 
 	//	{{SET}}
-	inline void SetIP( const string& ip )
+	inline void SetIP( const std::string& ip )
 	{
 		inet_pton( AF_INET, ip.c_str(), &_addr.sin_addr );
 	}

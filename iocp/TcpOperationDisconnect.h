@@ -8,5 +8,5 @@ class TcpOperationDisconnect final : public TcpOperationImpl<TcpOperationCallbac
 {
 public:
 	void OnComplete( const int e ) override;
-	bool Post( const shared_ptr<WinsockExtension>& exPtr );
+	bool Post( const std::shared_ptr<WinsockExtension>& exPtr );
 };

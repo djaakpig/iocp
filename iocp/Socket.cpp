@@ -42,7 +42,7 @@ void Socket::Close()
 
 bool Socket::LoadExtension()
 {
-	_exPtr = make_shared<WinsockExtension>();
+	_exPtr = std::make_shared<WinsockExtension>();
 
 	return _exPtr->Load( _socket );
 }

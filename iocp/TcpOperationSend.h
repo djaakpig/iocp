@@ -8,19 +8,19 @@ class WsaBuf;
 
 class TcpOperationSend final : public TcpOperationImpl<TcpOperationCallback>
 {
-	using BufferPtrList = list<shared_ptr<WsaBuf>>;
+	using BufferPtrList = std::list<std::shared_ptr<WsaBuf>>;
 
 public:
-	void Enqueue( const shared_ptr<WsaBuf>& buf );
+	void Enqueue( const std::shared_ptr<WsaBuf>& buf );
 	void OnComplete( const int e ) override;
 	bool Post();
 
 private:
 	bool _OnComplete( const int e );
-	pair<int, DWORD> _Send( char* const pBuf, const int sz ) const;
+	std::pair<int, DWORD> _Send( char* const pBuf, const int sz ) const;
 
 private:
-	mutex _lock;
+	std::mutex _lock;
 	BufferPtrList _bufs;
 	DWORD _numSentBytes = 0;
 };

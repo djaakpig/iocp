@@ -3,8 +3,6 @@
 #include <utility>
 #include <memory>
 
-using namespace std;
-
 class SockaddrIn;
 class WinsockExtension;
 
@@ -15,7 +13,7 @@ public:
 	~Socket();
 
 	//	{{GET}}
-	inline shared_ptr<WinsockExtension> GetExtension() const
+	inline std::shared_ptr<WinsockExtension> GetExtension() const
 	{
 		return _exPtr;
 	}
@@ -60,5 +58,5 @@ public:
 
 private:
 	SOCKET _socket = INVALID_SOCKET;
-	shared_ptr<WinsockExtension> _exPtr;
+	std::shared_ptr<WinsockExtension> _exPtr;
 };

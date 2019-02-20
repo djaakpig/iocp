@@ -11,7 +11,7 @@ void TcpOperationAccept::Clear()
 	__super::Clear();
 }
 
-void TcpOperationAccept::FillAddrTo( const shared_ptr<WinsockExtension>& exPtr,
+void TcpOperationAccept::FillAddrTo( const std::shared_ptr<WinsockExtension>& exPtr,
 									 PSOCKADDR* const ppRemoteSockaddr,
 									 PSOCKADDR* const ppLocalSockaddr )
 {
@@ -31,7 +31,7 @@ void TcpOperationAccept::OnComplete( const int e )
 	Clear();
 }
 
-bool TcpOperationAccept::Post( const shared_ptr<WinsockExtension>& exPtr )
+bool TcpOperationAccept::Post( const std::shared_ptr<WinsockExtension>& exPtr )
 {
 	DWORD bytesReceived = 0;
 	const auto r = exPtr->acceptEx( _listenerPtr->GetSocket()->GetValue(),

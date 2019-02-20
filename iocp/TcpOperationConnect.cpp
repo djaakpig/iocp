@@ -14,15 +14,15 @@ void TcpOperationConnect::OnComplete( const int e )
 	Clear();
 }
 
-bool TcpOperationConnect::Post( const shared_ptr<WinsockExtension>& exPtr )
+bool TcpOperationConnect::Post( const std::shared_ptr<WinsockExtension>& exPtr )
 {
 	const auto r = exPtr->connectEx( _sessionPtr->GetSocket()->GetValue(),
-												 _addr.ToSockAddrPtr(),
-												 _addr.GetSize(),
-												 nullptr,
-												 0,
-												 nullptr,
-												 this );
+									 _addr.ToSockAddrPtr(),
+									 _addr.GetSize(),
+									 nullptr,
+									 0,
+									 nullptr,
+									 this );
 
 	return r ? true : _HandleError();
 }

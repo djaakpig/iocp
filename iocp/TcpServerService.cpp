@@ -8,7 +8,7 @@
 
 bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numReserved )
 {
-	_listenerPtr = make_shared<TcpListener>();
+	_listenerPtr = std::make_shared<TcpListener>();
 
 	if( !_listenerPtr->Create() )
 		return false;
@@ -25,11 +25,11 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 		return false;
 
 	const auto thisPtr = shared_from_this();
-	const auto acceptCallback = bind( &TcpServerService::_OnAccept, this, placeholders::_1, placeholders::_2 );
+	const auto acceptCallback = bind( &TcpServerService::_OnAccept, this, std::placeholders::_1, std::placeholders::_2 );
 
 	for( DWORD sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId )
 	{
-		const auto sessionPtr = make_shared<TcpSession>( sessionId );
+		const auto sessionPtr = std::make_shared<TcpSession>( sessionId );
 
 		if( !sessionPtr->Create( thisPtr ) )
 			continue;
@@ -52,7 +52,7 @@ void TcpServerService::_Stop()
 	_listenerPtr->Close();
 }
 
-bool TcpServerService::_OnAccept( const int e, const shared_ptr<TcpSession>& sessionPtr )
+bool TcpServerService::_OnAccept( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
 {
 	if( e )
 	{
@@ -85,7 +85,7 @@ bool TcpServerService::_OnAccept( const int e, const shared_ptr<TcpSession>& ses
 	return true;
 }
 
-bool TcpServerService::_OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
+bool TcpServerService::_OnDisconnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
 {
 	if( !TcpSessionService::_OnDisconnect( e, sessionPtr ) )
 		return false;

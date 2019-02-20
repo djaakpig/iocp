@@ -11,9 +11,9 @@ TcpSessionService::TcpSessionService( const IoService& ioService ) :
 {
 }
 
-void TcpSessionService::Broadcast( const shared_ptr<WsaBuf>& buf )
+void TcpSessionService::Broadcast( const std::shared_ptr<WsaBuf>& buf )
 {
-	const shared_lock<shared_mutex> s( _lock );
+	const std::shared_lock<std::shared_mutex> s( _lock );
 
 	for_each( _sessionMap.begin(), _sessionMap.end(), [&buf]( const auto& sessionPair )
 	{
@@ -21,9 +21,9 @@ void TcpSessionService::Broadcast( const shared_ptr<WsaBuf>& buf )
 	});
 }
 
-shared_ptr<TcpSession> TcpSessionService::Find( const SessionId id )
+std::shared_ptr<TcpSession> TcpSessionService::Find( const SessionId id )
 {
-	const shared_lock<shared_mutex> s( _lock );
+	const std::shared_lock<std::shared_mutex> s( _lock );
 
 	const auto iter = _sessionMap.find( id );
 	return _sessionMap.end() != iter ? iter->second : nullptr;
@@ -44,10 +44,10 @@ void TcpSessionService::Stop()
 	_Stop();
 }
 
-void TcpSessionService::_Add( const shared_ptr<TcpSession>& sessionPtr )
+void TcpSessionService::_Add( const std::shared_ptr<TcpSession>& sessionPtr )
 {
-	const unique_lock<shared_mutex> l( _lock );
-	_sessionMap.emplace( make_pair( sessionPtr->GetId(), sessionPtr ) );
+	const std::unique_lock<std::shared_mutex> l( _lock );
+	_sessionMap.emplace( std::make_pair( sessionPtr->GetId(), sessionPtr ) );
 }
 
 void TcpSessionService::_CloseAllSessions()
@@ -62,7 +62,7 @@ void TcpSessionService::_CloseAllSessions()
 		}
 	});
 
-	WaitCondition( chrono::milliseconds( 100 ), [this]
+	WaitCondition( std::chrono::milliseconds( 100 ), [this]
 	{
 		return !_sessionMap.empty();
 	});
@@ -70,18 +70,18 @@ void TcpSessionService::_CloseAllSessions()
 
 void TcpSessionService::_Remove( const SessionId id )
 {
-	const unique_lock<shared_mutex> l( _lock );
+	const std::unique_lock<std::shared_mutex> l( _lock );
 	_sessionMap.erase( id );
 }
 
-void TcpSessionService::_SetCallbackTo( const shared_ptr<TcpSession>& sessionPtr )
+void TcpSessionService::_SetCallbackTo( const std::shared_ptr<TcpSession>& sessionPtr )
 {
-	sessionPtr->SetOnDisconnect( bind( &TcpSessionService::_OnDisconnect, this, placeholders::_1, placeholders::_2 ) );
-	sessionPtr->SetOnRecv( bind( &TcpSessionService::_OnRecv, this, placeholders::_1, placeholders::_2, placeholders::_3 ) );
-	sessionPtr->SetOnSend( bind( &TcpSessionService::_OnSend, this, placeholders::_1, placeholders::_2 ) );
+	sessionPtr->SetOnDisconnect( bind( &TcpSessionService::_OnDisconnect, this, std::placeholders::_1, std::placeholders::_2 ) );
+	sessionPtr->SetOnRecv( bind( &TcpSessionService::_OnRecv, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
+	sessionPtr->SetOnSend( bind( &TcpSessionService::_OnSend, this, std::placeholders::_1, std::placeholders::_2 ) );
 }
 
-bool TcpSessionService::_OnDisconnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
+bool TcpSessionService::_OnDisconnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
 {
 	LogNormal( "onDisconnect! id:", sessionPtr->GetId() );
 
@@ -96,7 +96,7 @@ bool TcpSessionService::_OnDisconnect( const int e, const shared_ptr<TcpSession>
 	return true;
 }
 
-bool TcpSessionService::_OnRecv( const int e, const shared_ptr<TcpSession>& sessionPtr, CircularBuffer& buf )
+bool TcpSessionService::_OnRecv( const int e, const std::shared_ptr<TcpSession>& sessionPtr, CircularBuffer& buf )
 {
 	if( e )
 	{
@@ -128,14 +128,15 @@ bool TcpSessionService::_OnRecv( const int e, const shared_ptr<TcpSession>& sess
 
 		buf.EndRead( wsaBuf.len );
 
-		if( !_OnPacket( sessionPtr, { packetLength - sizeof( PacketLength ), wsaBuf.buf + sizeof( PacketLength ) } ) )
+		const WSABUF packet{ packetLength - sizeof(PacketLength), wsaBuf.buf + sizeof(PacketLength) };
+		if( !_OnPacket( sessionPtr, packet ) )
 			return false;
 	}
 
 	return true;
 }
 
-bool TcpSessionService::_OnSend( const int e, const shared_ptr<TcpSession>& sessionPtr )
+bool TcpSessionService::_OnSend( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
 {
 	if( e )
 	{

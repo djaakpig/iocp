@@ -1,9 +1,8 @@
 #pragma once
 #include <WinSock2.h>
 #include <memory>
-using namespace std;
 
-class WsaBuf final : public enable_shared_from_this<WsaBuf>
+class WsaBuf final : public std::enable_shared_from_this<WsaBuf>
 {
 public:
 	WsaBuf();

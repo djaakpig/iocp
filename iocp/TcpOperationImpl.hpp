@@ -17,7 +17,7 @@ protected:
 	template<class... Args>
 	inline bool _Invoke( Args&&... args )
 	{
-		return _callback ? _callback( forward<Args>( args )... ) : false;
+		return _callback ? _callback( std::forward<Args>( args )... ) : false;
 	}
 
 private:

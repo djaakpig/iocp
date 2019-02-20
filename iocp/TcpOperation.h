@@ -2,11 +2,10 @@
 #include "IoOperation.h"
 #include <atomic>
 #include <memory>
-using namespace std;
 
 class TcpSession;
 
-class TcpOperation abstract : public IoOperation, public enable_shared_from_this<TcpOperation>
+class TcpOperation abstract : public IoOperation, public std::enable_shared_from_this<TcpOperation>
 {
 public:
 	//	{{GET}}
@@ -25,7 +24,7 @@ public:
 	{
 		return _inProgress.exchange( true );
 	}
-	inline void SetSession( const shared_ptr<TcpSession>& sessionPtr )
+	inline void SetSession( const std::shared_ptr<TcpSession>& sessionPtr )
 	{
 		_sessionPtr = sessionPtr;
 	}
@@ -37,8 +36,8 @@ protected:
 	bool _HandleError();
 
 protected:
-	shared_ptr<TcpSession> _sessionPtr;
+	std::shared_ptr<TcpSession> _sessionPtr;
 
 private:
-	atomic_bool _inProgress = false;
+	std::atomic_bool _inProgress = false;
 };

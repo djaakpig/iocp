@@ -17,11 +17,11 @@ TcpSession::TcpSession( const SessionId id ) :
 	_id( id )
 {
 	_pSocket = new Socket();
-	_acceptOp = make_shared<TcpOperationAccept>();
-	_connectOp = make_shared<TcpOperationConnect>();
-	_disconnectOp = make_shared<TcpOperationDisconnect>();
-	_recvOp = make_shared<TcpOperationRecv>( 15 );
-	_sendOp = make_shared<TcpOperationSend>();
+	_acceptOp = std::make_shared<TcpOperationAccept>();
+	_connectOp = std::make_shared<TcpOperationConnect>();
+	_disconnectOp = std::make_shared<TcpOperationDisconnect>();
+	_recvOp = std::make_shared<TcpOperationRecv>( 15 );
+	_sendOp = std::make_shared<TcpOperationSend>();
 }
 
 TcpSession::~TcpSession()
@@ -59,7 +59,7 @@ void TcpSession::SetOnSend( TcpOperationCallback&& callback )
 	_sendOp->SetCallback( move( callback ) );
 }
 
-bool TcpSession::Accept( const shared_ptr<TcpListener>& listenerPtr )
+bool TcpSession::Accept( const std::shared_ptr<TcpListener>& listenerPtr )
 {
 	if( !_pSocket->IsValid() )
 		return false;
@@ -107,7 +107,7 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	return true;
 }
 
-bool TcpSession::Create( const shared_ptr<TcpSessionService>& servicePtr )
+bool TcpSession::Create( const std::shared_ptr<TcpSessionService>& servicePtr )
 {
 	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
 		return false;
@@ -147,7 +147,7 @@ void TcpSession::FillAddr()
 	_remoteSockaddr = *pRemoteSockaddr;
 }
 
-bool TcpSession::PostError( const int lastError, const shared_ptr<TcpOperation>& callbackPtr )
+bool TcpSession::PostError( const int lastError, const std::shared_ptr<TcpOperation>& callbackPtr )
 {
 	LogError( "Error! id:", GetId(), " e:", lastError );
 
@@ -186,7 +186,7 @@ bool TcpSession::Recv()
 	return true;
 }
 
-bool TcpSession::Send( const shared_ptr<WsaBuf>& buf )
+bool TcpSession::Send( const std::shared_ptr<WsaBuf>& buf )
 {
 	if( !_pSocket->IsValid() )
 		return false;

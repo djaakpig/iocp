@@ -16,7 +16,7 @@ class TcpSessionService;
 class WinsockExtension;
 class WsaBuf;
 
-class TcpSession final : public enable_shared_from_this<TcpSession>
+class TcpSession final : public std::enable_shared_from_this<TcpSession>
 {
 public:
 	explicit TcpSession( const SessionId id );
@@ -50,25 +50,25 @@ public:
 	void SetOnSend( TcpOperationCallback&& callback );
 	//	{{SET}}
 
-	bool Accept( const shared_ptr<TcpListener>& listenerPtr );
+	bool Accept( const std::shared_ptr<TcpListener>& listenerPtr );
 	void Close();
 	bool Connect( const SockaddrIn& remoteAddr );
-	bool Create( const shared_ptr<TcpSessionService>& servicePtr );
+	bool Create( const std::shared_ptr<TcpSessionService>& servicePtr );
 	bool Disconnect();
 	void FillAddr();
-	bool PostError( const int lastError, const shared_ptr<TcpOperation>& callbackPtr );
+	bool PostError( const int lastError, const std::shared_ptr<TcpOperation>& callbackPtr );
 	bool Recv();
-	bool Send( const shared_ptr<WsaBuf>& buf );
+	bool Send( const std::shared_ptr<WsaBuf>& buf );
 
 private:
 	const SessionId _id = 0;
-	shared_ptr<TcpSessionService> _servicePtr;
+	std::shared_ptr<TcpSessionService> _servicePtr;
 	Socket* _pSocket = nullptr;
 	SockaddrIn _localSockaddr;
 	SockaddrIn _remoteSockaddr;
-	shared_ptr<TcpOperationAccept> _acceptOp;
-	shared_ptr<TcpOperationConnect> _connectOp;
-	shared_ptr<TcpOperationDisconnect> _disconnectOp;
-	shared_ptr<TcpOperationRecv> _recvOp;
-	shared_ptr<TcpOperationSend> _sendOp;
+	std::shared_ptr<TcpOperationAccept> _acceptOp;
+	std::shared_ptr<TcpOperationConnect> _connectOp;
+	std::shared_ptr<TcpOperationDisconnect> _disconnectOp;
+	std::shared_ptr<TcpOperationRecv> _recvOp;
+	std::shared_ptr<TcpOperationSend> _sendOp;
 };

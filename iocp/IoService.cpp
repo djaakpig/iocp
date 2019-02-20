@@ -33,9 +33,9 @@ bool IoService::Start( const DWORD numWorkers )
 		return false;
 
 	for( DWORD workerId = 0; numWorkers > workerId; ++workerId )
-		_workers.emplace_back( thread( bind( &IoService::_Run, this ) ) );
+		_workers.emplace_back(std::thread( std::bind( &IoService::_Run, this ) ) );
 
-	WaitCondition( chrono::milliseconds( 100 ), [this]
+	WaitCondition( std::chrono::milliseconds( 100 ), [this]
 	{
 		return _numRunningWorkers < _workers.size();
 	});

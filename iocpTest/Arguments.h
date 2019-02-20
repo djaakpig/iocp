@@ -1,7 +1,6 @@
 #pragma once
 #include <SockaddrIn.h>
 #include <Type.h>
-using namespace std;
 
 const WORD MinPort = 30000;
 const WORD MaxPort = 30000;
@@ -27,7 +26,7 @@ public:
 	{
 		return _numWorkers;
 	}
-	inline const string& GetServiceName() const
+	inline const std::string& GetServiceName() const
 	{
 		return _serviceName;
 	}
@@ -38,14 +37,14 @@ public:
 	//	{{GET}}
 
 	bool Load( const int argc, char** args );
-	string ToTitle() const;
+	std::string ToTitle() const;
 
 private:
 	ELogLevel _logLevel = ELogLevel::normal;
 	bool _serverMode = false;
-	string _serviceName = "Unknown";
+	std::string _serviceName = "Unknown";
 	DWORD _numWorkers = 4;
-	string _ip = "0.0.0.0";
+	std::string _ip = "0.0.0.0";
 	WORD _port = 0;
 	SockaddrIn _addr;
 	DWORD _numSessions = 1;

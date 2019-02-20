@@ -16,7 +16,7 @@ public:
 	//	{{SET}}
 
 	void OnComplete( const int e ) override;
-	bool Post( const shared_ptr<WinsockExtension>& exPtr );
+	bool Post( const std::shared_ptr<WinsockExtension>& exPtr );
 
 private:
 	SockaddrIn _addr;

@@ -3,9 +3,9 @@
 #include "TcpSession.h"
 #include "WsaBuf.h"
 
-void TcpOperationSend::Enqueue( const shared_ptr<WsaBuf>& buf )
+void TcpOperationSend::Enqueue( const std::shared_ptr<WsaBuf>& buf )
 {
-	const unique_lock<mutex> l( _lock );
+	const std::unique_lock<std::mutex> l( _lock );
 	_bufs.emplace_back( buf );
 }
 
@@ -95,7 +95,7 @@ bool TcpOperationSend::_OnComplete( const int e )
 	});
 }
 
-pair<int, DWORD> TcpOperationSend::_Send( char* const pBuf, const int sz ) const
+std::pair<int, DWORD> TcpOperationSend::_Send( char* const pBuf, const int sz ) const
 {
 	const auto s = _sessionPtr->GetSocket()->GetValue();
 	auto pCurrentBuf = pBuf;

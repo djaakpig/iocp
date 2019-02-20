@@ -1,7 +1,6 @@
 #pragma once
 #include "IoOperation.h"
 #include <memory>
-using namespace std;
 
 class TcpOperation;
 
@@ -13,7 +12,7 @@ public:
 	{
 		_error = e;
 	}
-	inline void SetOperation( const shared_ptr<TcpOperation>& operationPtr )
+	inline void SetOperation( const std::shared_ptr<TcpOperation>& operationPtr )
 	{
 		_operationPtr = operationPtr;
 	}
@@ -24,5 +23,5 @@ public:
 
 private:
 	int _error = ERROR_SUCCESS;
-	shared_ptr<TcpOperation> _operationPtr;
+	std::shared_ptr<TcpOperation> _operationPtr;
 };

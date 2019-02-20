@@ -5,7 +5,7 @@
 
 ELogLevel LogLevel = ELogLevel::normal;
 #ifdef LOG_SAFETY
-mutex LogLock;
+std::mutex LogLock;
 #endif
 
 void BeginLogLock()

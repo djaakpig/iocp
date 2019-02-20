@@ -49,7 +49,7 @@ void WsaBuf::CopyFrom( const char* const pBuf, const DWORD len )
 void WsaBuf::Move( const DWORD srcOffset, const DWORD dstOffset, const DWORD len )
 {
 	if( _buf.buf )
-		memmove( _buf.buf + dstOffset, _buf.buf + srcOffset, min<DWORD>( len, _buf.len - dstOffset ) );
+		memmove( _buf.buf + dstOffset, _buf.buf + srcOffset, std::min<DWORD>( len, _buf.len - dstOffset ) );
 }
 
 void WsaBuf::_Clone( const char* const pBuf, const DWORD len )

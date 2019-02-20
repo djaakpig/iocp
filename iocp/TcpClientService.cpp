@@ -24,11 +24,11 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 		return false;
 
 	auto thisPtr = shared_from_this();
-	const auto connectCallback = bind( &TcpClientService::_OnConnect, this, placeholders::_1, placeholders::_2 );
+	const auto connectCallback = bind( &TcpClientService::_OnConnect, this, std::placeholders::_1, std::placeholders::_2 );
 
 	for( DWORD sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId )
 	{
-		const auto sessionPtr = make_shared<TcpSession>( sessionId );
+		const auto sessionPtr = std::make_shared<TcpSession>( sessionId );
 		if( !sessionPtr->Create( thisPtr ) )
 			continue;
 
@@ -63,7 +63,7 @@ void TcpClientService::_Stop()
 		_pSocket->Close();
 }
 
-bool TcpClientService::_OnConnect( const int e, const shared_ptr<TcpSession>& sessionPtr )
+bool TcpClientService::_OnConnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
 {
 	if( e )
 	{
