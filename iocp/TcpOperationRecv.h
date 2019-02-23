@@ -1,21 +1,22 @@
 #pragma once
-#include "TcpOperationImpl.hpp"
-#include "TcpOperationCallback.h"
+#include "TcpOperation.h"
 #include "CircularBuffer.h"
 
-class TcpOperationRecv final : public TcpOperationImpl<TcpOperationCallbackRecv>
+class TcpOperationRecv final : public TcpOperation
 {
-public:
-	explicit TcpOperationRecv( const DWORD capacity );
+private:
+	CircularBuffer _buf;
 
+public:
+	explicit TcpOperationRecv(const uint32_t capacity);
+
+	bool BeginRead(WSABUF& wsaBuf);
 	void Clear() override;
-	void OnComplete( const int e ) override;
+	void EndRead(const uint32_t numReadBytes);
+	void OnComplete(const int32_t e) override;
 	bool Post();
 
 private:
-	bool _OnComplete( const int e );
-	std::pair<int, DWORD> _Read( char* const pBuf, const int sz ) const;
-
-private:
-	CircularBuffer _buf;
+	bool _OnComplete(const int32_t e);
+	auto _Read(WSABUF& wsaBuf) const->std::pair<int32_t, uint32_t>;
 };

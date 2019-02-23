@@ -8,18 +8,21 @@ class WinsockExtension;
 
 class Socket final
 {
+private:
+	SOCKET _socket = INVALID_SOCKET;
+	std::shared_ptr<WinsockExtension> _extension;
+
 public:
 	Socket() = default;
 	~Socket();
 
-	//	{{GET}}
-	inline std::shared_ptr<WinsockExtension> GetExtension() const
+	inline auto GetExtension() const->std::shared_ptr<WinsockExtension>
 	{
-		return _exPtr;
+		return _extension;
 	}
 	inline HANDLE GetHandle() const
 	{
-		return reinterpret_cast<HANDLE>( _socket );
+		return reinterpret_cast<HANDLE>(_socket);
 	}
 	inline SOCKET GetValue() const
 	{
@@ -29,34 +32,30 @@ public:
 	{
 		return INVALID_SOCKET != _socket;
 	}
-	//	{{GET}}
 
-	bool Associate( const Socket* const pSocket );
-	bool Bind() const;
-	bool Bind( const SockaddrIn& addr ) const;
-	bool Create( const int type, const int protocol );
-	void Close();
-	bool LoadExtension();
-	inline bool SetNonblock( const bool enable ) const
+	inline bool SetNonblock(const bool enable) const
 	{
 		u_long val = enable;
-		return SOCKET_ERROR != ioctlsocket( _socket, FIONBIO, &val );
+		return SOCKET_ERROR != ioctlsocket(_socket, FIONBIO, &val);
 	}
-	inline bool SetOptionInt( const int level, const int name, const int val ) const
+	inline bool SetOptionInt(const int32_t level, const int32_t name, const int32_t val) const
 	{
-		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<const char*>(&val), sizeof( int ) );
+		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<const char*>(&val), sizeof(int32_t));
 	}
 	template<class T>
-	inline bool SetOptionPtr( const int level, const int name, const T* const pVal ) const
+	inline bool SetOptionPtr(const int32_t level, const int32_t name, const T* const pVal) const
 	{
-		return SOCKET_ERROR != setsockopt( _socket, level, name, reinterpret_cast<const char*>(pVal), sizeof( T ) );
+		return SOCKET_ERROR != setsockopt(_socket, level, name, reinterpret_cast<const char*>(pVal), sizeof(T));
 	}
-	inline bool SetOption( const int level, const int name ) const
+	inline bool SetOption(const int32_t level, const int32_t name) const
 	{
-		return SOCKET_ERROR != setsockopt( _socket, level, name, nullptr, 0 );
+		return SOCKET_ERROR != setsockopt(_socket, level, name, nullptr, 0);
 	}
 
-private:
-	SOCKET _socket = INVALID_SOCKET;
-	std::shared_ptr<WinsockExtension> _exPtr;
+	bool Associate(const Socket& socket);
+	bool Bind() const;
+	bool Bind(const SockaddrIn& addr) const;
+	bool Create(const int32_t type, const int32_t protocol);
+	void Close();
+	bool LoadExtension();
 };

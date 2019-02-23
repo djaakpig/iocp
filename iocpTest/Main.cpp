@@ -1,37 +1,37 @@
-#pragma comment(lib, "ws2_32.lib") 
-#pragma comment(lib, "mswsock.lib") 
-#pragma comment(lib, "iocp.lib") 
-
 #include <WinsockStarter.h>
-#include <IoService.h>
+#include <ThreadPool.h>
 #include <Log.h>
 #include "Arguments.h"
 #include "EchoServer.h"
 #include "EchoClient.h"
 
-int main( int argc, char** args )
+#pragma comment(lib, "ws2_32.lib") 
+#pragma comment(lib, "mswsock.lib") 
+#pragma comment(lib, "iocp.lib") 
+
+int main(int argc, char** args)
 {
 	Arguments arguments;
 
-	if( !arguments.Load( argc, args ) )
+	if(!arguments.Load(argc, args))
 		return 1;
 
-	SetConsoleTitleA( arguments.ToTitle().c_str() );
-	SetLogLevel( arguments.GetLogLevel() );
+	SetConsoleTitleA(arguments.ToTitle().c_str());
+	SetLogLevel(arguments.GetLogLevel());
 
 	WinsockStarter wsStarter;
-	IoService ioService;
+	ThreadPool threadPool;
 
-	if( ioService.Start( arguments.GetNumWorkers() ) )
+	if(threadPool.Start(arguments.GetNumWorkers()))
 	{
-		std::shared_ptr<TcpSessionService> servicePtr;
+		std::shared_ptr<TcpSessionService> service;
 
-		if( arguments.IsServerMode() )
-			servicePtr = std::make_shared<EchoServer>( ioService );
+		if(arguments.IsServerMode())
+			service = std::make_shared<EchoServer>(threadPool);
 		else
-			servicePtr = std::make_shared<EchoClient>( ioService );
+			service = std::make_shared<EchoClient>(threadPool);
 
-		if( servicePtr->Start( arguments.GetAddr(), arguments.GetNumSessions() ) )
+		if(service->Start(arguments.GetAddr(), arguments.GetNumSessions()))
 		{
 			std::cout << "[Press ENTER if you want to stop...]" << std::endl;
 
@@ -40,10 +40,10 @@ int main( int argc, char** args )
 			std::cout << "[Stop...]" << std::endl;
 		}
 
-		servicePtr->Stop();
+		service->Stop();
 	}
 
-	ioService.Stop();
+	threadPool.Stop();
 
 	return 0;
 }

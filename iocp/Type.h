@@ -1,7 +1,7 @@
 #pragma once
-#include <Windows.h>
+#include <stdint.h>
 
-enum class ELogLevel : int
+enum class ELogLevel : int32_t
 {
 	normal = 0,
 	warning = 1,
@@ -9,5 +9,5 @@ enum class ELogLevel : int
 	disable = 3,
 };
 
-using PacketLength = DWORD;
-using SessionId = DWORD;
+using PacketLength = uint32_t;
+using SessionId = uint32_t;

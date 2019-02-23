@@ -1,43 +1,46 @@
 #pragma once
-#include "IoOperation.h"
 #include <atomic>
-#include <memory>
+#include "Operation.h"
+#include "TcpOperationCallback.h"
 
-class TcpSession;
-
-class TcpOperation abstract : public IoOperation, public std::enable_shared_from_this<TcpOperation>
+class TcpOperation abstract : public Operation, public std::enable_shared_from_this<TcpOperation>
 {
+protected:
+	std::shared_ptr<TcpSession> _session;
+
+private:
+	std::atomic_bool _inProgress = false;
+	TcpOperationCallback _callback;
+
 public:
-	//	{{GET}}
 	inline bool IsInProgress() const
 	{
 		return _inProgress;
 	}
-	//	{{GET}}
-
-	//	{{SET}}
 	inline void ResetInProgress()
 	{
 		_inProgress = false;
 	}
 	inline bool SetInProgress()
 	{
-		return _inProgress.exchange( true );
+		return _inProgress.exchange(true);
 	}
-	inline void SetSession( const std::shared_ptr<TcpSession>& sessionPtr )
+	inline void SetCallback(TcpOperationCallback&& callback)
 	{
-		_sessionPtr = sessionPtr;
+		_callback = std::move(callback);
 	}
-	//	{{SET}}
+	inline void SetSession(const std::shared_ptr<TcpSession>& session)
+	{
+		_session = session;
+	}
 
 	virtual void Clear();
 
 protected:
+	inline bool _Invoke(const int32_t e, const std::shared_ptr<TcpSession>& session) const
+	{
+		return _callback ? _callback(e, session) : false;
+	}
+
 	bool _HandleError();
-
-protected:
-	std::shared_ptr<TcpSession> _sessionPtr;
-
-private:
-	std::atomic_bool _inProgress = false;
 };

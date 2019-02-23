@@ -6,34 +6,34 @@
 #include "Socket.h"
 #include "TcpSession.h"
 
-TcpSessionService::TcpSessionService( const IoService& ioService ) :
-	_ioService( ioService )
+TcpSessionService::TcpSessionService(const ThreadPool& threadPool) :
+	_threadPool(threadPool)
 {
 }
 
-void TcpSessionService::Broadcast( const std::shared_ptr<WsaBuf>& buf )
+void TcpSessionService::Broadcast(const std::shared_ptr<WsaBuf>& buf)
 {
-	const std::shared_lock<std::shared_mutex> s( _lock );
+	const std::shared_lock<std::shared_mutex> s(_lock);
 
-	for_each( _sessionMap.begin(), _sessionMap.end(), [&buf]( const auto& sessionPair )
+	for_each(_sessionMap.begin(), _sessionMap.end(), [&buf](const auto& sessionPair)
 	{
-		sessionPair.second->Send( buf );
+		sessionPair.second->Send(buf);
 	});
 }
 
-std::shared_ptr<TcpSession> TcpSessionService::Find( const SessionId id )
+auto TcpSessionService::Find(const SessionId id)->std::shared_ptr<TcpSession>
 {
-	const std::shared_lock<std::shared_mutex> s( _lock );
+	const std::shared_lock<std::shared_mutex> s(_lock);
 
-	const auto iter = _sessionMap.find( id );
+	const auto iter = _sessionMap.find(id);
 	return _sessionMap.end() != iter ? iter->second : nullptr;
 }
 
-bool TcpSessionService::Start( const SockaddrIn& listenAddr, const DWORD numReserved )
+bool TcpSessionService::Start(const SockaddrIn& listenAddr, const uint32_t numReserved)
 {
 	_inProgress = true;
 
-	return _Start( listenAddr, numReserved );
+	return _Start(listenAddr, numReserved);
 }
 
 void TcpSessionService::Stop()
@@ -44,17 +44,17 @@ void TcpSessionService::Stop()
 	_Stop();
 }
 
-void TcpSessionService::_Add( const std::shared_ptr<TcpSession>& sessionPtr )
+void TcpSessionService::_Add(const std::shared_ptr<TcpSession>& session)
 {
-	const std::unique_lock<std::shared_mutex> l( _lock );
-	_sessionMap.emplace( std::make_pair( sessionPtr->GetId(), sessionPtr ) );
+	const std::unique_lock<std::shared_mutex> l(_lock);
+	_sessionMap.emplace(std::make_pair(session->GetId(), session));
 }
 
 void TcpSessionService::_CloseAllSessions()
 {
-	DoExclusive( _lock, [this]
+	DoExclusive(_lock, [this]
 	{
-		for( const auto& sessionPair : _sessionMap )
+		for(const auto& sessionPair : _sessionMap)
 		{
 			const auto& sessionPtr = sessionPair.second;
 			sessionPtr->Disconnect();
@@ -62,85 +62,85 @@ void TcpSessionService::_CloseAllSessions()
 		}
 	});
 
-	WaitCondition( std::chrono::milliseconds( 100 ), [this]
+	WaitCondition(std::chrono::milliseconds(100), [this]
 	{
 		return !_sessionMap.empty();
 	});
 }
 
-void TcpSessionService::_Remove( const SessionId id )
+void TcpSessionService::_Remove(const SessionId id)
 {
-	const std::unique_lock<std::shared_mutex> l( _lock );
-	_sessionMap.erase( id );
+	const std::unique_lock<std::shared_mutex> l(_lock);
+	_sessionMap.erase(id);
 }
 
-void TcpSessionService::_SetCallbackTo( const std::shared_ptr<TcpSession>& sessionPtr )
+void TcpSessionService::_SetCallbackTo(const std::shared_ptr<TcpSession>& session)
 {
-	sessionPtr->SetOnDisconnect( bind( &TcpSessionService::_OnDisconnect, this, std::placeholders::_1, std::placeholders::_2 ) );
-	sessionPtr->SetOnRecv( bind( &TcpSessionService::_OnRecv, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
-	sessionPtr->SetOnSend( bind( &TcpSessionService::_OnSend, this, std::placeholders::_1, std::placeholders::_2 ) );
+	session->SetOnDisconnect(std::bind(&TcpSessionService::_OnDisconnect, this, std::placeholders::_1, std::placeholders::_2));
+	session->SetOnRecv(std::bind(&TcpSessionService::_OnRecv, this, std::placeholders::_1, std::placeholders::_2));
+	session->SetOnSend(std::bind(&TcpSessionService::_OnSend, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-bool TcpSessionService::_OnDisconnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
+bool TcpSessionService::_OnDisconnect(const int32_t e, const std::shared_ptr<TcpSession>& session)
 {
-	LogNormal( "onDisconnect! id:", sessionPtr->GetId() );
+	LogNormal("onDisconnect! id:", session->GetId());
 
-	_Remove( sessionPtr->GetId() );
+	_Remove(session->GetId());
 
-	if( e )
+	if(e)
 	{
-		LogError( "disconnect fail! id:", sessionPtr->GetId(), " error:", e );
+		LogError("disconnect fail! id:", session->GetId(), " error:", e);
 		return false;
 	}
 
 	return true;
 }
 
-bool TcpSessionService::_OnRecv( const int e, const std::shared_ptr<TcpSession>& sessionPtr, CircularBuffer& buf )
+bool TcpSessionService::_OnRecv(const int32_t e, const std::shared_ptr<TcpSession>& session)
 {
-	if( e )
+	if(e)
 	{
-		LogError( "recv fail! id:", sessionPtr->GetId(), " error:", e );
+		LogError("recv fail! id:", session->GetId(), " error:", e);
 		return false;
 	}
 
-	WSABUF wsaBuf{ 0, nullptr };
+	WSABUF wsaBuf{0, nullptr};
 
-	while( true )
+	while(true)
 	{
-		wsaBuf.len = sizeof( PacketLength );
+		wsaBuf.len = sizeof(PacketLength);
 
-		if( !buf.BeginRead( wsaBuf ) )
+		if(!session->BeginRead(wsaBuf))
 			break;
 
-		const auto packetLength = *reinterpret_cast<PacketLength*>( wsaBuf.buf );
+		const auto packetLength = *reinterpret_cast<PacketLength*>(wsaBuf.buf);
 
-		if( sizeof( PacketLength ) >= packetLength )
+		if(sizeof(PacketLength) >= packetLength)
 		{
-			LogError( "too small! id:", sessionPtr->GetId(), " length:", packetLength );
+			LogError("too small! id:", session->GetId(), " length:", packetLength);
 			return false;
 		}
 
 		wsaBuf.len = packetLength;
 
-		if( !buf.BeginRead( wsaBuf ) )
+		if(!session->BeginRead(wsaBuf))
 			break;
 
-		buf.EndRead( wsaBuf.len );
+		session->EndRead(wsaBuf.len);
 
-		const WSABUF packet{ packetLength - sizeof(PacketLength), wsaBuf.buf + sizeof(PacketLength) };
-		if( !_OnPacket( sessionPtr, packet ) )
+		const WSABUF packet{packetLength - sizeof(PacketLength), wsaBuf.buf + sizeof(PacketLength)};
+		if(!_OnPacket(session, packet))
 			return false;
 	}
 
 	return true;
 }
 
-bool TcpSessionService::_OnSend( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
+bool TcpSessionService::_OnSend(const int32_t e, const std::shared_ptr<TcpSession>& session)
 {
-	if( e )
+	if(e)
 	{
-		LogError( "send fail! id:", sessionPtr->GetId(), " error:", e );
+		LogError("send fail! id:", session->GetId(), " error:", e);
 		return false;
 	}
 

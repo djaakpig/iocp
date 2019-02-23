@@ -2,36 +2,34 @@
 #include <WinSock2.h>
 #include <memory>
 
-class WsaBuf final : public std::enable_shared_from_this<WsaBuf>
+class WsaBuf final
 {
+private:
+	WSABUF _buf;
+
 public:
 	WsaBuf();
-	explicit WsaBuf( const DWORD len );
-	explicit WsaBuf( const WSABUF& buf );
-	WsaBuf( const char* const pBuf, const DWORD len );
+	explicit WsaBuf(const uint32_t len);
+	explicit WsaBuf(const WSABUF& buf);
+	WsaBuf(const char* const pBuf, const uint32_t len);
 	~WsaBuf();
 
-	//	{{GET}}
-	inline const WSABUF& Get() const
+	inline auto Get() const->const WSABUF&
 	{
 		return _buf;
 	}
-	inline WSABUF* operator ->()
+	inline auto operator ->()->WSABUF*
 	{
 		return &_buf;
 	}
-	inline const WSABUF* operator ->() const
+	inline auto operator ->() const->const WSABUF*
 	{
 		return &_buf;
 	}
-	//	{{GET}}
 
-	void CopyFrom( const char* const pBuf, const DWORD len );
-	void Move( const DWORD srcOffset, const DWORD dstOffset, const DWORD len );
-
-private:
-	void _Clone( const char* const pBuf, const DWORD len );
+	void CopyFrom(const char* const pBuf, const uint32_t len);
+	void Move(const uint32_t srcOffset, const uint32_t dstOffset, const uint32_t len);
 
 private:
-	WSABUF _buf;
+	void _Clone(const char* const pBuf, const uint32_t len);
 };

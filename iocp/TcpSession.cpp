@@ -3,7 +3,7 @@
 #include "WinsockExtension.h"
 #include "Global.h"
 #include "Socket.h"
-#include "IoService.h"
+#include "ThreadPool.h"
 #include "TcpOperationAccept.h"
 #include "TcpOperationConnect.h"
 #include "TcpOperationDisconnect.h"
@@ -11,69 +11,68 @@
 #include "TcpOperationRecv.h"
 #include "TcpOperationSend.h"
 #include "TcpListener.h"
-#include "TcpSessionService.h"
 
-TcpSession::TcpSession( const SessionId id ) :
-	_id( id )
+TcpSession::TcpSession(const SessionId id, const ThreadPool& threadPool) :
+	_id(id),
+	_threadPool(threadPool)
 {
-	_pSocket = new Socket();
+	_socket = std::make_unique<Socket>();
 	_acceptOp = std::make_shared<TcpOperationAccept>();
 	_connectOp = std::make_shared<TcpOperationConnect>();
 	_disconnectOp = std::make_shared<TcpOperationDisconnect>();
-	_recvOp = std::make_shared<TcpOperationRecv>( 15 );
+	_recvOp = std::make_shared<TcpOperationRecv>(15);
 	_sendOp = std::make_shared<TcpOperationSend>();
 }
 
 TcpSession::~TcpSession()
 {
-	SafeDelete( _pSocket );
 }
 
 HANDLE TcpSession::GetHandle() const
 {
-	return _pSocket->GetHandle();
+	return _socket->GetHandle();
 }
 
-void TcpSession::SetOnAccept( TcpOperationCallback&& callback )
+void TcpSession::SetOnAccept(TcpOperationCallback&& callback)
 {
-	_acceptOp->SetCallback( move( callback ) );
+	_acceptOp->SetCallback(std::move(callback));
 }
 
-void TcpSession::SetOnConnect( TcpOperationCallback&& callback )
+void TcpSession::SetOnConnect(TcpOperationCallback&& callback)
 {
-	_connectOp->SetCallback( move( callback ) );
+	_connectOp->SetCallback(std::move(callback));
 }
 
-void TcpSession::SetOnDisconnect( TcpOperationCallback&& callback )
+void TcpSession::SetOnDisconnect(TcpOperationCallback&& callback)
 {
-	_disconnectOp->SetCallback( move( callback ) );
+	_disconnectOp->SetCallback(std::move(callback));
 }
 
-void TcpSession::SetOnRecv( TcpOperationCallbackRecv&& callback )
+void TcpSession::SetOnRecv(TcpOperationCallback&& callback)
 {
-	_recvOp->SetCallback( move( callback ) );
+	_recvOp->SetCallback(std::move(callback));
 }
 
-void TcpSession::SetOnSend( TcpOperationCallback&& callback )
+void TcpSession::SetOnSend(TcpOperationCallback&& callback)
 {
-	_sendOp->SetCallback( move( callback ) );
+	_sendOp->SetCallback(std::move(callback));
 }
 
-bool TcpSession::Accept( const std::shared_ptr<TcpListener>& listenerPtr )
+bool TcpSession::Accept(const std::shared_ptr<TcpListener>& listener)
 {
-	if( !_pSocket->IsValid() )
+	if(!_socket->IsValid())
 		return false;
 
-	if( _acceptOp->SetInProgress() )
+	if(_acceptOp->SetInProgress())
 		return true;
 
-	_acceptOp->SetSession( shared_from_this() );
-	_acceptOp->SetListener( listenerPtr );
+	_acceptOp->SetSession(shared_from_this());
+	_acceptOp->SetListener(listener);
 
 	_localSockaddr.Clear();
 	_remoteSockaddr.Clear();
 
-	if( !_acceptOp->Post( _pSocket->GetExtension() ) )
+	if(!_acceptOp->Post(_socket->GetExtension()))
 	{
 		_acceptOp->Clear();
 		return false;
@@ -82,23 +81,28 @@ bool TcpSession::Accept( const std::shared_ptr<TcpListener>& listenerPtr )
 	return true;
 }
 
-void TcpSession::Close()
+bool TcpSession::BeginRead(WSABUF& wsaBuf) const
 {
-	_pSocket->Close();
+	return _recvOp->BeginRead(wsaBuf);
 }
 
-bool TcpSession::Connect( const SockaddrIn& remoteAddr )
+void TcpSession::Close()
 {
-	if( !_pSocket->IsValid() )
+	_socket->Close();
+}
+
+bool TcpSession::Connect(const SockaddrIn& remoteAddr)
+{
+	if(!_socket->IsValid())
 		return false;
 
-	if( _connectOp->SetInProgress() )
+	if(_connectOp->SetInProgress())
 		return true;
 
-	_connectOp->SetSession( shared_from_this() );
-	_connectOp->SetAddr( remoteAddr );
+	_connectOp->SetSession(shared_from_this());
+	_connectOp->SetAddr(remoteAddr);
 
-	if( !_connectOp->Post( _pSocket->GetExtension() ) )
+	if(!_connectOp->Post(_socket->GetExtension()))
 	{
 		_connectOp->Clear();
 		return false;
@@ -107,27 +111,35 @@ bool TcpSession::Connect( const SockaddrIn& remoteAddr )
 	return true;
 }
 
-bool TcpSession::Create( const std::shared_ptr<TcpSessionService>& servicePtr )
+bool TcpSession::CopyContextFrom(const Socket& source) const
 {
-	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
+	if(!_socket->SetNonblock(true))
 		return false;
 
-	_servicePtr = servicePtr;
+	const auto sourceSocket = source.GetValue();
+
+	return _socket->SetOptionPtr(SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, &sourceSocket);
+}
+
+bool TcpSession::Create()
+{
+	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))
+		return false;
 
 	return true;
 }
 
 bool TcpSession::Disconnect()
 {
-	if( !_pSocket->IsValid() )
+	if(!_socket->IsValid())
 		return false;
 
-	if( _disconnectOp->SetInProgress() )
+	if(_disconnectOp->SetInProgress())
 		return true;
 
-	_disconnectOp->SetSession( shared_from_this() );
+	_disconnectOp->SetSession(shared_from_this());
 
-	if( !_disconnectOp->Post( _pSocket->GetExtension() ) )
+	if(!_disconnectOp->Post(_socket->GetExtension()))
 	{
 		_disconnectOp->Clear();
 		return false;
@@ -136,48 +148,49 @@ bool TcpSession::Disconnect()
 	return true;
 }
 
+void TcpSession::EndRead(const uint32_t numReadBytes) const
+{
+	_recvOp->EndRead(numReadBytes);
+}
+
 void TcpSession::FillAddr()
 {
 	PSOCKADDR pLocalSockaddr = nullptr;
 	PSOCKADDR pRemoteSockaddr = nullptr;
 
-	_acceptOp->FillAddrTo( _pSocket->GetExtension(), &pLocalSockaddr, &pRemoteSockaddr );
+	_acceptOp->FillAddrTo(_socket->GetExtension(), &pLocalSockaddr, &pRemoteSockaddr);
 
 	_localSockaddr = *pLocalSockaddr;
 	_remoteSockaddr = *pRemoteSockaddr;
 }
 
-bool TcpSession::PostError( const int lastError, const std::shared_ptr<TcpOperation>& callbackPtr )
+bool TcpSession::PostError(const int32_t lastError, const std::shared_ptr<TcpOperation>& operation)
 {
-	LogError( "Error! id:", GetId(), " e:", lastError );
+	LogError("Error! id:", GetId(), " e:", lastError);
 
-	if( !_servicePtr )
+	auto errorCallback = std::make_unique< TcpOperationError>();
+	errorCallback->SetError(lastError);
+	errorCallback->SetOperation(operation);
+
+	if(!_threadPool.Post(errorCallback.get()))
 		return false;
 
-	const auto pErrorCallback = new TcpOperationError();
-	pErrorCallback->SetError( lastError );
-	pErrorCallback->SetOperation( callbackPtr );
-
-	if( !_servicePtr->GetIoService().Post( pErrorCallback ) )
-	{
-		pErrorCallback->Clear();
-		return false;
-	}
+	errorCallback.release();
 
 	return true;
 }
 
 bool TcpSession::Recv()
 {
-	if( !_pSocket->IsValid() )
+	if(!_socket->IsValid())
 		return false;
 
-	if( _recvOp->SetInProgress() )
+	if(_recvOp->SetInProgress())
 		return true;
 
-	_recvOp->SetSession( shared_from_this() );
+	_recvOp->SetSession(shared_from_this());
 
-	if( !_recvOp->Post() )
+	if(!_recvOp->Post())
 	{
 		_recvOp->Clear();
 		return false;
@@ -186,19 +199,19 @@ bool TcpSession::Recv()
 	return true;
 }
 
-bool TcpSession::Send( const std::shared_ptr<WsaBuf>& buf )
+bool TcpSession::Send(const std::shared_ptr<WsaBuf>& buf)
 {
-	if( !_pSocket->IsValid() )
+	if(!_socket->IsValid())
 		return false;
 
-	_sendOp->Enqueue( buf );
+	_sendOp->Enqueue(buf);
 
-	if( _sendOp->SetInProgress() )
+	if(_sendOp->SetInProgress())
 		return true;
 
-	_sendOp->SetSession( shared_from_this() );
+	_sendOp->SetSession(shared_from_this());
 
-	if( !_sendOp->Post() )
+	if(!_sendOp->Post())
 	{
 		_sendOp->Clear();
 		return false;

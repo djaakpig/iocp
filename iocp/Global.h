@@ -1,9 +1,9 @@
 #pragma once
 
 template<typename T>
-inline void SafeDelete( T*& pSingle )
+inline void SafeDelete(T*& pSingle)
 {
-	if( pSingle )
+	if(pSingle)
 	{
 		delete pSingle;
 		pSingle = nullptr;
@@ -11,9 +11,9 @@ inline void SafeDelete( T*& pSingle )
 }
 
 template<typename T>
-inline void SafeDeleteArray( T*& pArray )
+inline void SafeDeleteArray(T*& pArray)
 {
-	if( pArray )
+	if(pArray)
 	{
 		delete[] pArray;
 		pArray = nullptr;

@@ -1,29 +1,24 @@
 #pragma once
-#include "TcpOperationCallback.h"
-#include <string>
+#include <memory>
 
 class SockaddrIn;
 class Socket;
-class TcpSessionService;
 
 class TcpListener final
 {
+private:
+	std::unique_ptr<Socket> _socket;
+
 public:
 	TcpListener();
 	~TcpListener();
 
-	//	{{GET}}
-	inline Socket* GetSocket() const
+	inline auto GetSocket() const->const std::unique_ptr<Socket>&
 	{
-		return _pSocket;
+		return _socket;
 	}
-	//	{{GET}}
 
 	bool Create();
 	void Close();
-	bool SetContextTo( const Socket* const pChild ) const;
-	bool Listen( const SockaddrIn& listenAddr );
-
-private:
-	Socket* _pSocket = nullptr;
+	bool Listen(const SockaddrIn& listenAddr);
 };

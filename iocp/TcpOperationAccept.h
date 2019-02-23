@@ -1,40 +1,30 @@
 #pragma once
-#include "TcpOperationImpl.hpp"
-#include "TcpOperationCallback.h"
-
-const DWORD SockaddrLen = sizeof( SOCKADDR_IN ) + 16;
+#include "TcpOperation.h"
 
 class WinsockExtension;
 class TcpListener;
 
-class TcpOperationAccept final : public TcpOperationImpl<TcpOperationCallback>
-{
-public:
-	//	{{GET}}
-	inline DWORD GetSize() const
-	{
-		return sizeof( _buf );
-	}
-	//	{{GET}}
+const uint32_t SockaddrLen = sizeof(SOCKADDR_IN) + 16;
 
-	//	{{SET}}
-	inline void SetListener( const std::shared_ptr<TcpListener>& listenerPtr )
+class TcpOperationAccept final : public TcpOperation
+{
+private:
+	std::shared_ptr<TcpListener> _listener;
+	char _buf[SockaddrLen * 2];
+
+public:
+	inline void SetListener(const std::shared_ptr<TcpListener>& listener)
 	{
-		_listenerPtr = listenerPtr;
+		_listener = listener;
 	}
-	//	{{SET}}
 
 	void Clear() override;
-	void FillAddrTo( const std::shared_ptr<WinsockExtension>& exPtr,
-					 PSOCKADDR* const ppRemoteSockaddr,
-					 PSOCKADDR* const ppLocalSockaddr );
-	void OnComplete( const int e ) override;
-	bool Post( const std::shared_ptr<WinsockExtension>& exPtr );
+	void FillAddrTo(const std::shared_ptr<WinsockExtension>& extension,
+					PSOCKADDR* const ppRemoteSockaddr,
+					PSOCKADDR* const ppLocalSockaddr);
+	void OnComplete(const int32_t e) override;
+	bool Post(const std::shared_ptr<WinsockExtension>& exPtr);
 
 private:
-	bool _OnComplete( const int e );
-
-private:
-	std::shared_ptr<TcpListener> _listenerPtr;
-	char _buf[SockaddrLen * 2];
+	bool _OnComplete(const int32_t e);
 };

@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IoService.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Socket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -24,9 +21,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IoCallbackAccept.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TcpClientService.cpp">
@@ -65,11 +59,14 @@
     <ClCompile Include="WinsockExtension.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpOperationAccept.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IoService.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -112,12 +109,6 @@
     <ClInclude Include="WsaBuf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IoOperation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TcpOperation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TcpOperationError.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,13 +127,19 @@
     <ClInclude Include="TcpOperationSend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TcpOperationCallback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TcpOperationImpl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WinsockExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Operation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpOperationCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

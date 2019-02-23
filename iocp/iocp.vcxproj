@@ -96,14 +96,14 @@
     <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="WinsockExtension.cpp" />
     <ClCompile Include="TcpOperation.cpp" />
-    <ClCompile Include="IoCallbackAccept.cpp" />
+    <ClCompile Include="TcpOperationAccept.cpp" />
     <ClCompile Include="TcpOperationConnect.cpp" />
     <ClCompile Include="TcpOperationDisconnect.cpp" />
     <ClCompile Include="TcpOperationError.cpp" />
     <ClCompile Include="TcpOperationRecv.cpp" />
     <ClCompile Include="TcpOperationSend.cpp" />
     <ClCompile Include="Log.cpp" />
-    <ClCompile Include="IoService.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="TcpClientService.cpp" />
     <ClCompile Include="TcpListener.cpp" />
@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h" />
+    <ClInclude Include="TcpOperationCallback.h" />
     <ClInclude Include="WinsockExtension.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="TcpOperation.h" />
@@ -121,13 +122,11 @@
     <ClInclude Include="TcpOperationConnect.h" />
     <ClInclude Include="TcpOperationDisconnect.h" />
     <ClInclude Include="TcpOperationError.h" />
-    <ClInclude Include="TcpOperationCallback.h" />
-    <ClInclude Include="TcpOperationImpl.hpp" />
     <ClInclude Include="TcpOperationRecv.h" />
     <ClInclude Include="TcpOperationSend.h" />
-    <ClInclude Include="IoService.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Lock.h" />
-    <ClInclude Include="IoOperation.h" />
+    <ClInclude Include="Operation.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="WsaBuf.h" />
     <ClInclude Include="SockaddrIn.h" />

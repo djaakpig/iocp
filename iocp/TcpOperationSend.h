@@ -1,26 +1,25 @@
 #pragma once
-#include "TcpOperationImpl.hpp"
-#include "TcpOperationCallback.h"
+#include "TcpOperation.h"
 #include "Lock.h"
 #include <list>
 
 class WsaBuf;
 
-class TcpOperationSend final : public TcpOperationImpl<TcpOperationCallback>
+class TcpOperationSend final : public TcpOperation
 {
 	using BufferPtrList = std::list<std::shared_ptr<WsaBuf>>;
-
-public:
-	void Enqueue( const std::shared_ptr<WsaBuf>& buf );
-	void OnComplete( const int e ) override;
-	bool Post();
-
-private:
-	bool _OnComplete( const int e );
-	std::pair<int, DWORD> _Send( char* const pBuf, const int sz ) const;
 
 private:
 	std::mutex _lock;
 	BufferPtrList _bufs;
-	DWORD _numSentBytes = 0;
+	uint32_t _numSentBytes = 0;
+
+public:
+	void Enqueue(const std::shared_ptr<WsaBuf>& buf);
+	void OnComplete(const int32_t e) override;
+	bool Post();
+
+private:
+	bool _OnComplete(const int32_t e);
+	auto _Send(char* const pBuf, const int32_t sz) const->std::pair<int32_t, uint32_t>;
 };

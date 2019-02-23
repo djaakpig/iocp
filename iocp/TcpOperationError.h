@@ -1,27 +1,25 @@
 #pragma once
-#include "IoOperation.h"
+#include "Operation.h"
 #include <memory>
 
 class TcpOperation;
 
-class TcpOperationError final : public IoOperation
+class TcpOperationError final : public Operation
 {
+private:
+	int32_t _error = ERROR_SUCCESS;
+	std::shared_ptr<TcpOperation> _operation;
+
 public:
-	//	{{SET}}
-	inline void SetError( const int e )
+	inline void SetError(const int32_t e)
 	{
 		_error = e;
 	}
-	inline void SetOperation( const std::shared_ptr<TcpOperation>& operationPtr )
+	inline void SetOperation(const std::shared_ptr<TcpOperation>& operation)
 	{
-		_operationPtr = operationPtr;
+		_operation = operation;
 	}
-	//	{{SET}}
 
 	void Clear() override;
-	void OnComplete( const int ) override;
-
-private:
-	int _error = ERROR_SUCCESS;
-	std::shared_ptr<TcpOperation> _operationPtr;
+	void OnComplete(const int32_t) override;
 };

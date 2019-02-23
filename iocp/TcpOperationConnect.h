@@ -1,23 +1,20 @@
 #pragma once
-#include "TcpOperationImpl.hpp"
-#include "TcpOperationCallback.h"
+#include "TcpOperation.h"
 #include "SockaddrIn.h"
 
 class WinsockExtension;
 
-class TcpOperationConnect final : public TcpOperationImpl<TcpOperationCallback>
+class TcpOperationConnect final : public TcpOperation
 {
+private:
+	SockaddrIn _addr;
+
 public:
-	//	{{SET}}
-	inline void SetAddr( const SockaddrIn& addr )
+	inline void SetAddr(const SockaddrIn& addr)
 	{
 		_addr = addr;
 	}
-	//	{{SET}}
 
-	void OnComplete( const int e ) override;
-	bool Post( const std::shared_ptr<WinsockExtension>& exPtr );
-
-private:
-	SockaddrIn _addr;
+	void OnComplete(const int32_t e) override;
+	bool Post(const std::shared_ptr<WinsockExtension>& exPtr);
 };

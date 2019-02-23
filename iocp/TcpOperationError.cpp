@@ -8,8 +8,8 @@ void TcpOperationError::Clear()
 	delete this;
 }
 
-void TcpOperationError::OnComplete( const int )
+void TcpOperationError::OnComplete(const int32_t)
 {
-	_operationPtr->OnComplete( _error );
+	_operation->OnComplete(_error);
 	Clear();
 }

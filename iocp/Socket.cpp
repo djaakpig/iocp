@@ -7,42 +7,41 @@ Socket::~Socket()
 	Close();
 }
 
-bool Socket::Associate( const Socket* const pSocket )
+bool Socket::Associate(const Socket& socket)
 {
-	_exPtr = pSocket->_exPtr;
-	return nullptr != _exPtr;
+	_extension = socket._extension;
+	return nullptr != _extension;
 }
 
 bool Socket::Bind() const
 {
 	static const SockaddrIn addr;
-	return Bind( addr );
+	return Bind(addr);
 }
 
-bool Socket::Bind( const SockaddrIn& addr ) const
+bool Socket::Bind(const SockaddrIn& addr) const
 {
-	const auto r = ::bind( _socket, addr.ToSockAddrPtr(), addr.GetSize() );
+	const auto r = ::bind(_socket, addr.ToSockAddrPtr(), addr.GetSize());
 	return SOCKET_ERROR != r;
 }
 
-bool Socket::Create( const int type, const int protocol )
+bool Socket::Create(const int32_t type, const int32_t protocol)
 {
-	_socket = WSASocket( AF_INET, type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED );
+	_socket = WSASocket(AF_INET, type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
 	return IsValid();
 }
 
 void Socket::Close()
 {
-	if( IsValid() )
+	if(IsValid())
 	{
-		closesocket( _socket );
+		closesocket(_socket);
 		_socket = INVALID_SOCKET;
 	}
 }
 
 bool Socket::LoadExtension()
 {
-	_exPtr = std::make_shared<WinsockExtension>();
-
-	return _exPtr->Load( _socket );
+	_extension = std::make_shared<WinsockExtension>();
+	return _extension->Load(_socket);
 }

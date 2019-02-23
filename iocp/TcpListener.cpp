@@ -2,26 +2,23 @@
 #include "Global.h"
 #include "SockaddrIn.h"
 #include "Socket.h"
-#include "WinsockExtension.h"
 #include "TcpSession.h"
-#include "TcpSessionService.h"
 
 TcpListener::TcpListener()
 {
-	_pSocket = new Socket();
+	_socket = std::make_unique<Socket>();
 }
 
 TcpListener::~TcpListener()
 {
-	SafeDelete( _pSocket );
 }
 
 bool TcpListener::Create()
 {
-	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
+	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))
 		return false;
 
-	if( !_pSocket->SetOptionInt( SOL_SOCKET, SO_REUSEADDR, TRUE ) )
+	if(!_socket->SetOptionInt(SOL_SOCKET, SO_REUSEADDR, TRUE))
 		return false;
 
 	return true;
@@ -29,28 +26,18 @@ bool TcpListener::Create()
 
 void TcpListener::Close()
 {
-	_pSocket->Close();
+	_socket->Close();
 }
 
-bool TcpListener::SetContextTo( const Socket* const pChild ) const
+bool TcpListener::Listen(const SockaddrIn& listenAddr)
 {
-	if( !pChild->SetNonblock( true ) )
+	if(!_socket->IsValid())
 		return false;
 
-	auto listenSocket = _pSocket->GetValue();
-
-	return pChild->SetOptionPtr( SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, &listenSocket );
-}
-
-bool TcpListener::Listen( const SockaddrIn& listenAddr )
-{
-	if( !_pSocket->IsValid() )
+	if(!_socket->Bind(listenAddr))
 		return false;
 
-	if( !_pSocket->Bind( listenAddr ) )
-		return false;
-
-	if( SOCKET_ERROR == ::listen( _pSocket->GetValue(), SOMAXCONN ) )
+	if(SOCKET_ERROR == ::listen(_socket->GetValue(), SOMAXCONN))
 		return false;
 
 	return true;

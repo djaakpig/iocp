@@ -2,9 +2,14 @@
 #include "Socket.h"
 #include "TcpSession.h"
 
-TcpOperationRecv::TcpOperationRecv( const DWORD capacity ) :
-	_buf( capacity )
+TcpOperationRecv::TcpOperationRecv(const uint32_t capacity) :
+	_buf(capacity)
 {
+}
+
+bool TcpOperationRecv::BeginRead(WSABUF& wsaBuf)
+{
+	return _buf.BeginRead(wsaBuf);
 }
 
 void TcpOperationRecv::Clear()
@@ -13,13 +18,18 @@ void TcpOperationRecv::Clear()
 	__super::Clear();
 }
 
-void TcpOperationRecv::OnComplete( const int e )
+void TcpOperationRecv::EndRead(const uint32_t numReadBytes)
 {
-	const auto r = _OnComplete( e );
+	_buf.EndRead(numReadBytes);
+}
 
-	if( !r || !Post() )
+void TcpOperationRecv::OnComplete(const int32_t e)
+{
+	const auto r = _OnComplete(e);
+
+	if(!r || !Post())
 	{
-		_sessionPtr->Disconnect();
+		_session->Disconnect();
 		Clear();
 	}
 }
@@ -27,61 +37,58 @@ void TcpOperationRecv::OnComplete( const int e )
 bool TcpOperationRecv::Post()
 {
 	DWORD flags = 0;
-	WSABUF wsaBuf{ 0, nullptr };
-	const auto r = WSARecv( _sessionPtr->GetSocket()->GetValue(), &wsaBuf, 1, nullptr, &flags, this, nullptr );
+	WSABUF wsaBuf{0, nullptr};
+	const auto r = WSARecv(_session->GetSocket()->GetValue(), &wsaBuf, 1, nullptr, &flags, this, nullptr);
 
 	return SOCKET_ERROR != r ? true : _HandleError();
 }
 
-bool TcpOperationRecv::_OnComplete( const int e )
+bool TcpOperationRecv::_OnComplete(const int32_t e)
 {
-	if( e )
-		return _Invoke( e, _sessionPtr, _buf );
+	if(e)
+		return _Invoke(e, _session);
 
 	WSABUF wsaBuf;
-	std::pair<int, DWORD> r{ ERROR_SUCCESS, 0 };
+	std::pair<int32_t, uint32_t> r{ERROR_SUCCESS, 0};
 
-	while( _buf.BeginWrite( wsaBuf ) )
+	while(ERROR_SUCCESS == r.first && _buf.BeginWrite(wsaBuf))
 	{
-		r = _Read( wsaBuf.buf, wsaBuf.len );
+		r = _Read(wsaBuf);
 
-		if( 0 == r.second )
+		if(0 == r.second)
 			break;
 
-		_buf.EndWrite( r.second );
-
-		if( r.first )
-			break;
+		_buf.EndWrite(r.second);
 	}
 
-	return _Invoke( r.first, _sessionPtr, _buf );
+	return _Invoke(r.first, _session);
 }
 
-std::pair<int, DWORD> TcpOperationRecv::_Read( char* const pBuf, const int sz ) const
+auto TcpOperationRecv::_Read(WSABUF& wsaBuf) const->std::pair<int32_t, uint32_t>
 {
-	const auto s = _sessionPtr->GetSocket()->GetValue();
-	auto pCurrentBuf = pBuf;
-	auto remainSize = sz;
+	const auto s = _session->GetSocket()->GetValue();
+	auto pCurrentBuf = wsaBuf.buf;
+	auto remainSize = wsaBuf.len;
 
-	while( 0 < remainSize )
+	while(0 < remainSize)
 	{
-		const auto r = ::recv( s, pCurrentBuf, remainSize, 0 );
+		const auto r = ::recv(s, pCurrentBuf, remainSize, 0);
 
-		if( 0 == r )
-			return{ WSAECONNRESET, sz - remainSize };
+		if(0 == r)
+			return{WSAECONNRESET, wsaBuf.len - remainSize};
 
-		if( SOCKET_ERROR == r )
+		if(SOCKET_ERROR == r)
 		{
 			const auto lastError = WSAGetLastError();
-			if( WSAEWOULDBLOCK == lastError )
+			if(WSAEWOULDBLOCK == lastError)
 				break;
 
-			return{ lastError, sz - remainSize };
+			return{lastError, wsaBuf.len - remainSize};
 		}
 
 		pCurrentBuf += r;
 		remainSize -= r;
 	}
 
-	return{ ERROR_SUCCESS, sz - remainSize };
+	return{ERROR_SUCCESS, wsaBuf.len - remainSize};
 }

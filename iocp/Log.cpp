@@ -10,16 +10,16 @@ std::mutex LogLock;
 
 void BeginLogLock()
 {
-	#ifdef LOG_SAFETY
+#ifdef LOG_SAFETY
 	LogLock.lock();
-	#endif
+#endif
 }
 
 void EndLogLock()
 {
-	#ifdef LOG_SAFETY
+#ifdef LOG_SAFETY
 	LogLock.unlock();
-	#endif
+#endif
 }
 
 ELogLevel GetLogLevel()
@@ -27,7 +27,7 @@ ELogLevel GetLogLevel()
 	return LogLevel;
 }
 
-void SetLogLevel( const ELogLevel logLevel )
+void SetLogLevel(const ELogLevel logLevel)
 {
 	LogLevel = logLevel;
 }

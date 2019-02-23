@@ -1,9 +1,10 @@
 #pragma once
 #include "Type.h"
-#include "TcpOperationCallback.h"
 #include "SockaddrIn.h"
+#include "TcpOperationCallback.h"
 
 class WinsockExtension;
+class ThreadPool;
 class TcpOperationAccept;
 class TcpOperationConnect;
 class TcpOperationDisconnect;
@@ -12,58 +13,14 @@ class TcpOperationSend;
 class TcpOperation;
 class Socket;
 class TcpListener;
-class TcpSessionService;
-class WinsockExtension;
 class WsaBuf;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>
 {
-public:
-	explicit TcpSession( const SessionId id );
-	~TcpSession();
-
-	//	{{GET}}
-	HANDLE GetHandle() const;
-	inline SessionId GetId() const
-	{
-		return _id;
-	}
-	inline Socket* GetSocket() const
-	{
-		return _pSocket;
-	}
-	inline const SockaddrIn& GetLocalAddr() const
-	{
-		return _localSockaddr;
-	}
-	inline const SockaddrIn& GetRemoteAddr() const
-	{
-		return _remoteSockaddr;
-	}
-	//	{{GET}}
-
-	//	{{SET}}
-	void SetOnAccept( TcpOperationCallback&& callback );
-	void SetOnConnect( TcpOperationCallback&& callback );
-	void SetOnDisconnect( TcpOperationCallback&& callback );
-	void SetOnRecv( TcpOperationCallbackRecv&& callback );
-	void SetOnSend( TcpOperationCallback&& callback );
-	//	{{SET}}
-
-	bool Accept( const std::shared_ptr<TcpListener>& listenerPtr );
-	void Close();
-	bool Connect( const SockaddrIn& remoteAddr );
-	bool Create( const std::shared_ptr<TcpSessionService>& servicePtr );
-	bool Disconnect();
-	void FillAddr();
-	bool PostError( const int lastError, const std::shared_ptr<TcpOperation>& callbackPtr );
-	bool Recv();
-	bool Send( const std::shared_ptr<WsaBuf>& buf );
-
 private:
 	const SessionId _id = 0;
-	std::shared_ptr<TcpSessionService> _servicePtr;
-	Socket* _pSocket = nullptr;
+	const ThreadPool& _threadPool;
+	std::unique_ptr<Socket> _socket;
 	SockaddrIn _localSockaddr;
 	SockaddrIn _remoteSockaddr;
 	std::shared_ptr<TcpOperationAccept> _acceptOp;
@@ -71,4 +28,45 @@ private:
 	std::shared_ptr<TcpOperationDisconnect> _disconnectOp;
 	std::shared_ptr<TcpOperationRecv> _recvOp;
 	std::shared_ptr<TcpOperationSend> _sendOp;
+
+public:
+	TcpSession(const SessionId id, const ThreadPool& threadPool);
+	~TcpSession();
+
+	HANDLE GetHandle() const;
+	inline SessionId GetId() const
+	{
+		return _id;
+	}
+	inline auto GetSocket() const->const std::unique_ptr<Socket>&
+	{
+		return _socket;
+	}
+	inline auto GetLocalAddr() const->const SockaddrIn&
+	{
+		return _localSockaddr;
+	}
+	inline auto GetRemoteAddr() const->const SockaddrIn&
+	{
+		return _remoteSockaddr;
+	}
+
+	void SetOnAccept(TcpOperationCallback&& callback);
+	void SetOnConnect(TcpOperationCallback&& callback);
+	void SetOnDisconnect(TcpOperationCallback&& callback);
+	void SetOnRecv(TcpOperationCallback&& callback);
+	void SetOnSend(TcpOperationCallback&& callback);
+
+	bool Accept(const std::shared_ptr<TcpListener>& listener);
+	bool BeginRead(WSABUF& wsaBuf) const;
+	void Close();
+	bool Connect(const SockaddrIn& remoteAddr);
+	bool CopyContextFrom(const Socket& source) const;
+	bool Create();
+	bool Disconnect();
+	void EndRead(const uint32_t numReadBytes) const;
+	void FillAddr();
+	bool PostError(const int32_t lastError, const std::shared_ptr<TcpOperation>& operation);
+	bool Recv();
+	bool Send(const std::shared_ptr<WsaBuf>& buf);
 };

@@ -3,55 +3,52 @@
 #include "Log.h"
 #include "Global.h"
 #include "Socket.h"
-#include "IoService.h"
+#include "ThreadPool.h"
 #include "TcpSession.h"
-#include "WsaBuf.h"
 
-TcpClientService::TcpClientService( const IoService& ioService ) :
-	TcpSessionService( ioService )
+TcpClientService::TcpClientService(const ThreadPool& threadPool) :
+	TcpSessionService(threadPool)
 {
-	_pSocket = new Socket();
+	_socket = std::make_unique<Socket>();
 }
 
 TcpClientService::~TcpClientService()
 {
-	SafeDelete( _pSocket );
 }
 
-bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numReserved )
+bool TcpClientService::_Start(const SockaddrIn& remoteAddr, const uint32_t numReserved)
 {
-	if( !_pSocket->Create( SOCK_STREAM, IPPROTO_TCP ) )
+	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))
 		return false;
 
-	auto thisPtr = shared_from_this();
-	const auto connectCallback = bind( &TcpClientService::_OnConnect, this, std::placeholders::_1, std::placeholders::_2 );
+	const auto connectCallback = std::bind(&TcpClientService::_OnConnect, this, std::placeholders::_1, std::placeholders::_2);
 
-	for( DWORD sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId )
+	for(uint32_t sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId)
 	{
-		const auto sessionPtr = std::make_shared<TcpSession>( sessionId );
-		if( !sessionPtr->Create( thisPtr ) )
+		const auto session = std::make_shared<TcpSession>(sessionId, _threadPool);
+		if(!session->Create())
 			continue;
 
-		const auto pSessionSocket = sessionPtr->GetSocket();
-		if( !pSessionSocket->Bind() )
+		const auto& sessionSocket = session->GetSocket();
+		if(!sessionSocket->Bind())
 			continue;
 
-		if( !pSessionSocket->LoadExtension() )
+		if(!sessionSocket->LoadExtension())
 			return false;
 
-		if( !pSessionSocket->SetNonblock( true ) )
+		if(!sessionSocket->SetNonblock(true))
 			continue;
 
-		if( !GetIoService().Associate( pSessionSocket->GetHandle() ) )
+		if(!_threadPool.Associate(sessionSocket->GetHandle()))
 			continue;
 
-		sessionPtr->SetOnConnect( connectCallback );
-		_SetCallbackTo( sessionPtr );
+		session->SetOnConnect(connectCallback);
+		_SetCallbackTo(session);
 
-		if( !sessionPtr->Connect( remoteAddr ) )
+		if(!session->Connect(remoteAddr))
 			continue;
 
-		_Add( sessionPtr );
+		_Add(session);
 	}
 
 	return true;
@@ -59,31 +56,30 @@ bool TcpClientService::_Start( const SockaddrIn& remoteAddr, const DWORD numRese
 
 void TcpClientService::_Stop()
 {
-	if( _pSocket )
-		_pSocket->Close();
+	_socket->Close();
 }
 
-bool TcpClientService::_OnConnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
+bool TcpClientService::_OnConnect(const int32_t e, const std::shared_ptr<TcpSession>& session)
 {
-	if( e )
+	if(e)
 	{
-		LogError( "connect fail! id:", sessionPtr->GetId(), ", error:", e );
+		LogError("connect fail! id:", session->GetId(), ", error:", e);
 		return false;
 	}
 
-	if( !sessionPtr->GetSocket()->SetOption( SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT ) )
+	if(!session->GetSocket()->SetOption(SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT))
 	{
-		LogError( "UpdateConnectContext fail! id:", sessionPtr->GetId() );
+		LogError("UpdateConnectContext fail! id:", session->GetId());
 		return false;
 	}
 
-	if( !sessionPtr->Recv() )
+	if(!session->Recv())
 	{
-		LogError( "first recv fail! id:", sessionPtr->GetId() );
+		LogError("first recv fail! id:", session->GetId());
 		return false;
 	}
 
-	LogNormal( "connect! id:", sessionPtr->GetId() );
+	LogNormal("connect! id:", session->GetId());
 
 	return true;
 }

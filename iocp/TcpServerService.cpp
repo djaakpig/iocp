@@ -1,47 +1,45 @@
 #include "TcpServerService.h"
 #include "Log.h"
-#include "IoService.h"
+#include "ThreadPool.h"
 #include "Socket.h"
 #include "TcpListener.h"
 #include "TcpSession.h"
-#include "WsaBuf.h"
 
-bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numReserved )
+bool TcpServerService::_Start(const SockaddrIn& listenAddr, const uint32_t numReserved)
 {
-	_listenerPtr = std::make_shared<TcpListener>();
+	_listener = std::make_shared<TcpListener>();
 
-	if( !_listenerPtr->Create() )
+	if(!_listener->Create())
 		return false;
 
-	const auto pListenSocket = _listenerPtr->GetSocket();
+	const auto& listenSocket = _listener->GetSocket();
 
-	if( !GetIoService().Associate( pListenSocket->GetHandle() ) )
+	if(!_threadPool.Associate(listenSocket->GetHandle()))
 		return false;
 
-	if( !_listenerPtr->Listen( listenAddr ) )
+	if(!_listener->Listen(listenAddr))
 		return false;
 
-	if( !pListenSocket->LoadExtension() )
+	if(!listenSocket->LoadExtension())
 		return false;
 
-	const auto thisPtr = shared_from_this();
-	const auto acceptCallback = bind( &TcpServerService::_OnAccept, this, std::placeholders::_1, std::placeholders::_2 );
+	const auto acceptCallback = bind(&TcpServerService::_OnAccept, this, std::placeholders::_1, std::placeholders::_2);
 
-	for( DWORD sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId )
+	for(uint32_t sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId)
 	{
-		const auto sessionPtr = std::make_shared<TcpSession>( sessionId );
+		const auto session = std::make_shared<TcpSession>(sessionId, _threadPool);
 
-		if( !sessionPtr->Create( thisPtr ) )
+		if(!session->Create())
 			continue;
 
-		if( !sessionPtr->GetSocket()->Associate( pListenSocket ) )
+		if(!session->GetSocket()->Associate(*listenSocket))
 			continue;
 
-		sessionPtr->SetOnAccept( acceptCallback );
-		_SetCallbackTo( sessionPtr );
+		session->SetOnAccept(acceptCallback);
+		_SetCallbackTo(session);
 
-		if( !sessionPtr->Accept( _listenerPtr ) )
-			sessionPtr->Close();
+		if(!session->Accept(_listener))
+			session->Close();
 	}
 
 	return true;
@@ -49,52 +47,52 @@ bool TcpServerService::_Start( const SockaddrIn& listenAddr, const DWORD numRese
 
 void TcpServerService::_Stop()
 {
-	_listenerPtr->Close();
+	_listener->Close();
 }
 
-bool TcpServerService::_OnAccept( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
+bool TcpServerService::_OnAccept(const int32_t e, const std::shared_ptr<TcpSession>& session)
 {
-	if( e )
+	if(e)
 	{
-		LogError( "accept fail!  id:", sessionPtr->GetId(), ", error:", e );
+		LogError("accept fail!  id:", session->GetId(), ", error:", e);
 		return false;
 	}
 
-	if( !IsInRunning() )
+	if(!IsInRunning())
 	{
-		LogWarning( "refuse! id:", sessionPtr->GetId() );
+		LogWarning("refuse! id:", session->GetId());
 		return false;
 	}
 
-	if( !GetIoService().Associate( sessionPtr->GetHandle() ) )
+	if(!_threadPool.Associate(session->GetHandle()))
 	{
-		LogError( "accept associate fail! id:", sessionPtr->GetId() );
+		LogError("accept associate fail! id:", session->GetId());
 		return false;
 	}
 
-	if( !sessionPtr->Recv() )
+	if(!session->Recv())
 	{
-		LogError( "first recv fail! id:", sessionPtr->GetId() );
+		LogError("first recv fail! id:", session->GetId());
 		return false;
 	}
 
-	_Add( sessionPtr );
+	_Add(session);
 
-	LogNormal( "accept! id:", sessionPtr->GetId() );
+	LogNormal("accept! id:", session->GetId());
 
 	return true;
 }
 
-bool TcpServerService::_OnDisconnect( const int e, const std::shared_ptr<TcpSession>& sessionPtr )
+bool TcpServerService::_OnDisconnect(const int32_t e, const std::shared_ptr<TcpSession>& session)
 {
-	if( !TcpSessionService::_OnDisconnect( e, sessionPtr ) )
+	if(!TcpSessionService::_OnDisconnect(e, session))
 		return false;
 
-	if( !IsInRunning() )
+	if(!IsInRunning())
 	{
-		LogWarning( "refuse! id:", sessionPtr->GetId() );
+		LogWarning("refuse! id:", session->GetId());
 		return false;
 	}
 
-	return sessionPtr->Accept( _listenerPtr );
+	return session->Accept(_listener);
 }

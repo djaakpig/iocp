@@ -4,25 +4,25 @@
 #include "Socket.h"
 #include "TcpSession.h"
 
-void TcpOperationConnect::OnComplete( const int e )
+void TcpOperationConnect::OnComplete(const int32_t e)
 {
-	const auto r = _Invoke( e, _sessionPtr );
+	const auto r = _Invoke(e, _session);
 
-	if( !r )
-		_sessionPtr->Disconnect();
+	if(!r)
+		_session->Disconnect();
 
 	Clear();
 }
 
-bool TcpOperationConnect::Post( const std::shared_ptr<WinsockExtension>& exPtr )
+bool TcpOperationConnect::Post(const std::shared_ptr<WinsockExtension>& extension)
 {
-	const auto r = exPtr->connectEx( _sessionPtr->GetSocket()->GetValue(),
-									 _addr.ToSockAddrPtr(),
-									 _addr.GetSize(),
-									 nullptr,
-									 0,
-									 nullptr,
-									 this );
+	const auto r = extension->connectEx(_session->GetSocket()->GetValue(),
+										_addr.ToSockAddrPtr(),
+										_addr.GetSize(),
+										nullptr,
+										0,
+										nullptr,
+										this);
 
 	return r ? true : _HandleError();
 }

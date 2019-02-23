@@ -1,12 +1,11 @@
 #pragma once
-#include "TcpOperationImpl.hpp"
-#include "TcpOperationCallback.h"
+#include "TcpOperation.h"
 
 class WinsockExtension;
 
-class TcpOperationDisconnect final : public TcpOperationImpl<TcpOperationCallback>
+class TcpOperationDisconnect final : public TcpOperation
 {
 public:
-	void OnComplete( const int e ) override;
-	bool Post( const std::shared_ptr<WinsockExtension>& exPtr );
+	void OnComplete(const int32_t e) override;
+	bool Post(const std::shared_ptr<WinsockExtension>& extension);
 };

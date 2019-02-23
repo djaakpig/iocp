@@ -1,14 +1,18 @@
 #pragma once
-#include <WinSock2.h>
 #include "WsaBuf.h"
 
 class CircularBuffer final
 {
-public:
-	explicit CircularBuffer( const DWORD capacity );
+private:
+	WsaBuf _buf;
+	uint32_t _positionToWrite = 0;
+	uint32_t _positionToRead = 0;
+	uint32_t _size = 0;
 
-	//	{{GET}}
-	inline bool IsNotEnough( const DWORD needBytes ) const
+public:
+	explicit CircularBuffer(const uint32_t capacity);
+
+	inline bool IsNotEnough(const uint32_t needBytes) const
 	{
 		return _size < needBytes;
 	}
@@ -16,24 +20,17 @@ public:
 	{
 		return _buf->len <= _size;
 	}
-	inline DWORD GetSize() const
+	inline uint32_t GetSize() const
 	{
 		return _size;
 	}
-	//	{{GET}}
 
-	bool BeginRead( WSABUF& wsaBuf );
-	bool BeginWrite( WSABUF& wsaBuf ) const;
-	void EndRead( const DWORD numReadBytes );
-	void EndWrite( const DWORD numWrittenBytes );
+	bool BeginRead(WSABUF& wsaBuf);
+	bool BeginWrite(WSABUF& wsaBuf) const;
+	void EndRead(const uint32_t numReadBytes);
+	void EndWrite(const uint32_t numWrittenBytes);
 	void Clear();
 
 private:
 	void _DoLinearize();
-
-private:
-	WsaBuf _buf;
-	DWORD _positionToWrite = 0;
-	DWORD _positionToRead = 0;
-	DWORD _size = 0;
 };
