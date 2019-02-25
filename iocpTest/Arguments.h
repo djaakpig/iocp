@@ -23,15 +23,15 @@ public:
 	{
 		return _addr;
 	}
-	inline ELogLevel GetLogLevel() const
+	inline auto GetLogLevel() const->ELogLevel
 	{
 		return _logLevel;
 	}
-	inline uint32_t GetNumSessions() const
+	inline auto GetNumSessions() const->uint32_t
 	{
 		return _numSessions;
 	}
-	inline uint32_t GetNumWorkers() const
+	inline auto GetNumWorkers() const->uint32_t
 	{
 		return _numWorkers;
 	}
@@ -45,5 +45,5 @@ public:
 	}
 
 	bool Load(const int32_t argc, char** args);
-	std::string ToTitle() const;
+	auto ToTitle() const->std::string;
 };

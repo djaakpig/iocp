@@ -20,29 +20,29 @@ public:
 		SetPort(port);
 	}
 
-	inline const SockaddrIn& operator = (const SOCKADDR& addr)
+	inline auto operator = (const SOCKADDR& addr)->const SockaddrIn&
 	{
 		memcpy(&_addr, &addr, sizeof(SOCKADDR));
 		return *this;
 	}
-	inline std::string GetIP() const
+	inline auto GetIP() const->std::string
 	{
 		char ipBuffer[15 + 1];
 		return inet_ntop(AF_INET, const_cast<PIN_ADDR>(&_addr.sin_addr), ipBuffer, sizeof(ipBuffer));
 	}
-	inline uint16_t GetPort() const
+	inline auto GetPort() const->uint16_t
 	{
 		return ntohs(_addr.sin_port);
 	}
-	inline uint32_t GetSize() const
+	inline auto GetSize() const->uint32_t
 	{
 		return sizeof(SOCKADDR_IN);
 	}
-	inline SOCKADDR* ToSockAddrPtr()
+	inline auto ToSockAddrPtr()->SOCKADDR*
 	{
 		return reinterpret_cast<SOCKADDR*>(&_addr);
 	}
-	inline const SOCKADDR* ToSockAddrPtr() const
+	inline auto ToSockAddrPtr() const->const SOCKADDR*
 	{
 		return reinterpret_cast<const SOCKADDR*>(&_addr);
 	}

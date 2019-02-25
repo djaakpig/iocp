@@ -31,7 +31,7 @@ bool Arguments::Load(const int32_t argc, char** args)
 	return true;
 }
 
-std::string Arguments::ToTitle() const
+auto Arguments::ToTitle() const->std::string
 {
 	std::stringstream ss;
 	ss << "[" << _serviceName << "] IP:" << _ip << ", PORT:" << _port << ", NumSessions:" << _numSessions;

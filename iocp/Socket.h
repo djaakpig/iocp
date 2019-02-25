@@ -20,11 +20,11 @@ public:
 	{
 		return _extension;
 	}
-	inline HANDLE GetHandle() const
+	inline auto GetHandle() const->HANDLE
 	{
 		return reinterpret_cast<HANDLE>(_socket);
 	}
-	inline SOCKET GetValue() const
+	inline auto GetValue() const->SOCKET
 	{
 		return _socket;
 	}

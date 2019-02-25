@@ -16,6 +16,7 @@ private:
 public:
 	ThreadPool() = default;
 	~ThreadPool() = default;
+
 	bool Associate(HANDLE h) const;
 	bool Post(Operation* const pOperation) const;
 	bool Start(const uint32_t numWorkers);

@@ -168,7 +168,7 @@ bool TcpSession::PostError(const int32_t lastError, const std::shared_ptr<TcpOpe
 {
 	LogError("Error! id:", GetId(), " e:", lastError);
 
-	auto errorCallback = std::make_unique< TcpOperationError>();
+	auto errorCallback = std::make_unique<TcpOperationError>();
 	errorCallback->SetError(lastError);
 	errorCallback->SetOperation(operation);
 

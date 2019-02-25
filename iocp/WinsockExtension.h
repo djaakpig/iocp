@@ -11,5 +11,8 @@ public:
 	LPFN_GETACCEPTEXSOCKADDRS getAcceptExSockaddrs = nullptr;
 
 public:
+	WinsockExtension() = default;
+	~WinsockExtension() = default;
+
 	bool Load(SOCKET s);
 };
