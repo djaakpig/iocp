@@ -53,7 +53,7 @@ bool TcpOperationAccept::_OnComplete(const int32_t e)
 	if(e)
 		return _Invoke(e, _session);
 
-	if(!_session->CopyContextFrom(*_listener->GetSocket()))
+	if(!_session->CopyContextFrom(_listener->GetSocket()))
 		return _Invoke(WSAGetLastError(), _session);
 
 	_session->FillAddr();

@@ -9,7 +9,6 @@
 TcpClientService::TcpClientService(const ThreadPool& threadPool) :
 	TcpSessionService(threadPool)
 {
-	_socket = std::make_unique<Socket>();
 }
 
 TcpClientService::~TcpClientService()
@@ -18,9 +17,6 @@ TcpClientService::~TcpClientService()
 
 bool TcpClientService::_Start(const SockaddrIn& remoteAddr, const uint32_t numReserved)
 {
-	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))
-		return false;
-
 	const auto connectCallback = std::bind(&TcpClientService::_OnConnect, this, std::placeholders::_1, std::placeholders::_2);
 
 	for(uint32_t sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId)
@@ -56,7 +52,6 @@ bool TcpClientService::_Start(const SockaddrIn& remoteAddr, const uint32_t numRe
 
 void TcpClientService::_Stop()
 {
-	_socket->Close();
 }
 
 bool TcpClientService::_OnConnect(const int32_t e, const std::shared_ptr<TcpSession>& session)

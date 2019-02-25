@@ -1,13 +1,8 @@
 #pragma once
 #include "TcpSessionService.h"
 
-class Socket;
-
 class TcpClientService abstract : public TcpSessionService
 {
-private:
-	std::unique_ptr<Socket> _socket;
-
 public:
 	explicit TcpClientService(const ThreadPool& threadPool);
 	virtual ~TcpClientService();

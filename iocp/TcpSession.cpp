@@ -111,12 +111,12 @@ bool TcpSession::Connect(const SockaddrIn& remoteAddr)
 	return true;
 }
 
-bool TcpSession::CopyContextFrom(const Socket& source) const
+bool TcpSession::CopyContextFrom(const std::unique_ptr<Socket>& source) const
 {
 	if(!_socket->SetNonblock(true))
 		return false;
 
-	const auto sourceSocket = source.GetValue();
+	const auto sourceSocket = source->GetValue();
 
 	return _socket->SetOptionPtr(SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, &sourceSocket);
 }

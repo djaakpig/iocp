@@ -61,7 +61,7 @@ public:
 	bool BeginRead(WSABUF& wsaBuf) const;
 	void Close();
 	bool Connect(const SockaddrIn& remoteAddr);
-	bool CopyContextFrom(const Socket& source) const;
+	bool CopyContextFrom(const std::unique_ptr<Socket>& source) const;
 	bool Create();
 	bool Disconnect();
 	void EndRead(const uint32_t numReadBytes) const;

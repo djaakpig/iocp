@@ -13,14 +13,17 @@ WsaBuf::WsaBuf(const uint32_t len)
 	_buf.len = len;
 }
 
-WsaBuf::WsaBuf(const WSABUF& buf)
+WsaBuf::WsaBuf(const WSABUF& buf) : WsaBuf(buf.buf, buf.len)
 {
-	_Clone(buf.buf, buf.len);
 }
 
 WsaBuf::WsaBuf(const char* const pBuf, const uint32_t len)
 {
-	_Clone(pBuf, len);
+	_buf.buf = reinterpret_cast<char*>(malloc(len + sizeof(PacketLength)));
+	_buf.len = len + sizeof(PacketLength);
+	memcpy(_buf.buf + sizeof(PacketLength), pBuf, len);
+
+	*reinterpret_cast<PacketLength*>(_buf.buf) = _buf.len;
 }
 
 WsaBuf::~WsaBuf()
@@ -50,13 +53,4 @@ void WsaBuf::Move(const uint32_t srcOffset, const uint32_t dstOffset, const uint
 {
 	if(_buf.buf)
 		memmove(_buf.buf + dstOffset, _buf.buf + srcOffset, std::min<uint32_t>(len, _buf.len - dstOffset));
-}
-
-void WsaBuf::_Clone(const char* const pBuf, const uint32_t len)
-{
-	_buf.buf = reinterpret_cast<char*>(malloc(len + sizeof(PacketLength)));
-	_buf.len = len + sizeof(PacketLength);
-	memcpy(_buf.buf + sizeof(PacketLength), pBuf, len);
-
-	*reinterpret_cast<PacketLength*>(_buf.buf) = _buf.len;
 }

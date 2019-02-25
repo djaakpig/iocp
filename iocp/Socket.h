@@ -52,7 +52,7 @@ public:
 		return SOCKET_ERROR != setsockopt(_socket, level, name, nullptr, 0);
 	}
 
-	bool Associate(const Socket& socket);
+	bool Associate(const std::unique_ptr<Socket>& socket);
 	bool Bind() const;
 	bool Bind(const SockaddrIn& addr) const;
 	bool Create(const int32_t type, const int32_t protocol);

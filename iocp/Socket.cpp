@@ -7,9 +7,9 @@ Socket::~Socket()
 	Close();
 }
 
-bool Socket::Associate(const Socket& socket)
+bool Socket::Associate(const std::unique_ptr<Socket>& socket)
 {
-	_extension = socket._extension;
+	_extension = socket->_extension;
 	return nullptr != _extension;
 }
 

@@ -29,7 +29,4 @@ public:
 
 	void CopyFrom(const char* const pBuf, const uint32_t len);
 	void Move(const uint32_t srcOffset, const uint32_t dstOffset, const uint32_t len);
-
-private:
-	void _Clone(const char* const pBuf, const uint32_t len);
 };
