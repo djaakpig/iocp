@@ -65,14 +65,14 @@ void ThreadPool::Stop()
 void ThreadPool::_Run()
 {
 	DWORD numBytes = 0;
-	ULONG_PTR cmpletionKey = NULL;
+	ULONG_PTR completionKey = NULL;
 	LPOVERLAPPED pOverlapped = nullptr;
 
 	++_numRunningWorkers;
 
 	while(true)
 	{
-		const auto r = GetQueuedCompletionStatus(_iocpHandle, &numBytes, &cmpletionKey, &pOverlapped, INFINITE);
+		const auto r = GetQueuedCompletionStatus(_iocpHandle, &numBytes, &completionKey, &pOverlapped, INFINITE);
 
 		if(!pOverlapped)
 			break;
