@@ -17,7 +17,7 @@ bool EchoClient::_OnConnect(const int32_t e, const std::shared_ptr<TcpSession>& 
 
 bool EchoClient::_OnPacket(const std::shared_ptr<TcpSession>& sessionPtr, const WSABUF& buf)
 {
-	LogNormal("received packet! id:", sessionPtr->GetId(), ", len:", buf.len, ", msg:", std::string(buf.buf, buf.len));
+	LogNormal("received packet! id:", sessionPtr->GetId(), ", len:", buf.len, ", msg:", std::string{buf.buf, buf.len});
 
 	return true;
 }
