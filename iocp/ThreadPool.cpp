@@ -2,6 +2,7 @@
 #include "Lock.h"
 #include "Log.h"
 #include "Operation.h"
+using namespace std::chrono;
 
 bool ThreadPool::Associate(HANDLE h) const
 {
@@ -35,7 +36,7 @@ bool ThreadPool::Start(const uint32_t numWorkers)
 	for(uint32_t workerId = 0; numWorkers > workerId; ++workerId)
 		_workers.emplace_back(std::thread(std::bind(&ThreadPool::_Run, this)));
 
-	WaitCondition(std::chrono::milliseconds(100), [this]
+	WaitCondition(100ms, [this]
 	{
 		return _numRunningWorkers < _workers.size();
 	});

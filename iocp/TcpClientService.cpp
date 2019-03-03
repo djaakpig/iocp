@@ -17,8 +17,7 @@ TcpClientService::~TcpClientService()
 
 bool TcpClientService::_Start(const SockaddrIn& remoteAddr, const uint32_t numReserved)
 {
-	const auto connectCallback = std::bind(&TcpClientService::_OnConnect, this, std::placeholders::_1, std::placeholders::_2);
-
+	const auto thisPtr = std::static_pointer_cast<TcpClientService>(shared_from_this());
 	for(uint32_t sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId)
 	{
 		const auto session = std::make_shared<TcpSession>(sessionId, _threadPool);
@@ -38,7 +37,7 @@ bool TcpClientService::_Start(const SockaddrIn& remoteAddr, const uint32_t numRe
 		if(!_threadPool.Associate(sessionSocket->GetHandle()))
 			continue;
 
-		session->SetOnConnect(connectCallback);
+		session->SetOnConnect([thisPtr](const auto e, const auto& session) {return thisPtr->_OnConnect(e, session); });
 		_SetCallbackTo(session);
 
 		if(!session->Connect(remoteAddr))

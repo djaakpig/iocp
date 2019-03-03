@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Socket.h"
 #include "TcpSession.h"
+using namespace std::chrono;
 
 TcpSessionService::TcpSessionService(const ThreadPool& threadPool) :
 	_threadPool(threadPool)
@@ -62,7 +63,7 @@ void TcpSessionService::_CloseAllSessions()
 		}
 	});
 
-	WaitCondition(std::chrono::milliseconds(100), [this]
+	WaitCondition(100ms, [this]
 	{
 		return !_sessionMap.empty();
 	});
@@ -76,9 +77,10 @@ void TcpSessionService::_Remove(const SessionId id)
 
 void TcpSessionService::_SetCallbackTo(const std::shared_ptr<TcpSession>& session)
 {
-	session->SetOnDisconnect(std::bind(&TcpSessionService::_OnDisconnect, this, std::placeholders::_1, std::placeholders::_2));
-	session->SetOnRecv(std::bind(&TcpSessionService::_OnRecv, this, std::placeholders::_1, std::placeholders::_2));
-	session->SetOnSend(std::bind(&TcpSessionService::_OnSend, this, std::placeholders::_1, std::placeholders::_2));
+	const auto thisPtr = shared_from_this();
+	session->SetOnDisconnect([thisPtr](const auto e, const auto& session) {return thisPtr->_OnDisconnect(e, session); });
+	session->SetOnRecv([thisPtr](const auto e, const auto& session) {return thisPtr->_OnRecv(e, session); });
+	session->SetOnSend([thisPtr](const auto e, const auto& session) {return thisPtr->_OnSend(e, session); });
 }
 
 bool TcpSessionService::_OnDisconnect(const int32_t e, const std::shared_ptr<TcpSession>& session)

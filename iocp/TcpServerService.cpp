@@ -23,8 +23,7 @@ bool TcpServerService::_Start(const SockaddrIn& listenAddr, const uint32_t numRe
 	if(!listenSocket->LoadExtension())
 		return false;
 
-	const auto acceptCallback = std::bind(&TcpServerService::_OnAccept, this, std::placeholders::_1, std::placeholders::_2);
-
+	const auto thisPtr = std::static_pointer_cast<TcpServerService>(shared_from_this());
 	for(uint32_t sessionId = 0; numReserved > sessionId && IsInRunning(); ++sessionId)
 	{
 		const auto session = std::make_shared<TcpSession>(sessionId, _threadPool);
@@ -35,7 +34,7 @@ bool TcpServerService::_Start(const SockaddrIn& listenAddr, const uint32_t numRe
 		if(!session->GetSocket()->Associate(listenSocket))
 			continue;
 
-		session->SetOnAccept(acceptCallback);
+		session->SetOnAccept([thisPtr](const auto e, const auto& session) {return thisPtr->_OnAccept(e, session); });
 		_SetCallbackTo(session);
 
 		if(!session->Accept(_listener))

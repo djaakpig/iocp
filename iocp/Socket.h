@@ -58,4 +58,5 @@ public:
 	bool Create(const int32_t type, const int32_t protocol);
 	void Close();
 	bool LoadExtension();
+	bool UseKeepAlive(const uint32_t keepAliveTime, const uint32_t keepAliveInterval) const;
 };

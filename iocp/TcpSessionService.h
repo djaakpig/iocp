@@ -12,7 +12,7 @@ class SockaddrIn;
 class TcpSession;
 class WsaBuf;
 
-class TcpSessionService abstract
+class TcpSessionService abstract : public std::enable_shared_from_this<TcpSessionService>
 {
 	using TcpSessionPtrMap = std::unordered_map<SessionId, std::shared_ptr<TcpSession>>;
 

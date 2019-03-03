@@ -126,6 +126,9 @@ bool TcpSession::Create()
 	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))
 		return false;
 
+	if(!_socket->UseKeepAlive(5000, 1000))
+		return false;
+
 	return true;
 }
 
