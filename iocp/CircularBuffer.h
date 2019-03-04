@@ -4,7 +4,7 @@
 class CircularBuffer final
 {
 private:
-	WsaBuf _buf;
+	WsaBuf _buf{};
 	uint32_t _positionToWrite = 0;
 	uint32_t _positionToRead = 0;
 	uint32_t _size = 0;
@@ -20,7 +20,7 @@ public:
 	{
 		return _buf->len <= _size;
 	}
-	inline uint32_t GetSize() const
+	inline auto GetSize() const->uint32_t
 	{
 		return _size;
 	}

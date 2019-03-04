@@ -1,10 +1,8 @@
 #include "CircularBuffer.h"
 #include "Global.h"
 
-thread_local WsaBuf RecvBufForLinearize;
-
 CircularBuffer::CircularBuffer(const uint32_t capacity) :
-	_buf(capacity)
+	_buf{capacity}
 {
 }
 
@@ -58,6 +56,7 @@ void CircularBuffer::Clear()
 
 void CircularBuffer::_DoLinearize()
 {
+	thread_local WsaBuf RecvBufForLinearize{};
 	const auto readSize = _buf->len - _positionToRead;
 
 	RecvBufForLinearize.CopyFrom(_buf->buf + _positionToRead, readSize);

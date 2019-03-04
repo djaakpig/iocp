@@ -3,7 +3,7 @@
 
 bool WinsockExtension::Load(SOCKET s)
 {
-	const auto getExt = [s](GUID&& id) -> LPVOID
+	const auto getExt = [s](GUID&& id)->LPVOID
 	{
 		LPVOID ptr = nullptr;
 		DWORD bytesReturned = 0;

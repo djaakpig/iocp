@@ -34,7 +34,12 @@ bool ThreadPool::Start(const uint32_t numWorkers)
 		return false;
 
 	for(uint32_t workerId = 0; numWorkers > workerId; ++workerId)
-		_workers.emplace_back(std::thread(std::bind(&ThreadPool::_Run, this)));
+	{
+		_workers.emplace_back(std::thread{[this]
+		{
+			this->_Run();
+		}});
+	}
 
 	WaitCondition(100ms, [this]
 	{

@@ -7,7 +7,7 @@ class WinsockExtension;
 class TcpOperationConnect final : public TcpOperation
 {
 private:
-	SockaddrIn _addr;
+	SockaddrIn _addr{};
 
 public:
 	inline void SetAddr(const SockaddrIn& addr)

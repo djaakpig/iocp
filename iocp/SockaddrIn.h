@@ -6,7 +6,7 @@
 class SockaddrIn final
 {
 private:
-	SOCKADDR_IN _addr;
+	SOCKADDR_IN _addr{};
 
 public:
 	SockaddrIn()

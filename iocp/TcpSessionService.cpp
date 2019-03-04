@@ -8,13 +8,13 @@
 using namespace std::chrono;
 
 TcpSessionService::TcpSessionService(const ThreadPool& threadPool) :
-	_threadPool(threadPool)
+	_threadPool{threadPool}
 {
 }
 
 void TcpSessionService::Broadcast(const std::shared_ptr<WsaBuf>& buf)
 {
-	const std::shared_lock<std::shared_mutex> s(_lock);
+	const std::shared_lock<std::shared_mutex> s{_lock};
 
 	for_each(_sessionMap.begin(), _sessionMap.end(), [&buf](const auto& sessionPair)
 	{
@@ -24,7 +24,7 @@ void TcpSessionService::Broadcast(const std::shared_ptr<WsaBuf>& buf)
 
 auto TcpSessionService::Find(const SessionId id)->std::shared_ptr<TcpSession>
 {
-	const std::shared_lock<std::shared_mutex> s(_lock);
+	const std::shared_lock<std::shared_mutex> s{_lock};
 
 	const auto iter = _sessionMap.find(id);
 	return _sessionMap.end() != iter ? iter->second : nullptr;
@@ -47,7 +47,7 @@ void TcpSessionService::Stop()
 
 void TcpSessionService::_Add(const std::shared_ptr<TcpSession>& session)
 {
-	const std::unique_lock<std::shared_mutex> l(_lock);
+	const std::unique_lock<std::shared_mutex> l{_lock};
 	_sessionMap.emplace(std::make_pair(session->GetId(), session));
 }
 
@@ -71,16 +71,25 @@ void TcpSessionService::_CloseAllSessions()
 
 void TcpSessionService::_Remove(const SessionId id)
 {
-	const std::unique_lock<std::shared_mutex> l(_lock);
+	const std::unique_lock<std::shared_mutex> l{_lock};
 	_sessionMap.erase(id);
 }
 
 void TcpSessionService::_SetCallbackTo(const std::shared_ptr<TcpSession>& session)
 {
 	const auto thisPtr = shared_from_this();
-	session->SetOnDisconnect([thisPtr](const auto e, const auto& session) {return thisPtr->_OnDisconnect(e, session); });
-	session->SetOnRecv([thisPtr](const auto e, const auto& session) {return thisPtr->_OnRecv(e, session); });
-	session->SetOnSend([thisPtr](const auto e, const auto& session) {return thisPtr->_OnSend(e, session); });
+	session->SetOnDisconnect([thisPtr](const auto e, const auto& session)
+	{
+		return thisPtr->_OnDisconnect(e, session);
+	});
+	session->SetOnRecv([thisPtr](const auto e, const auto& session)
+	{
+		return thisPtr->_OnRecv(e, session);
+	});
+	session->SetOnSend([thisPtr](const auto e, const auto& session)
+	{
+		return thisPtr->_OnSend(e, session);
+	});
 }
 
 bool TcpSessionService::_OnDisconnect(const int32_t e, const std::shared_ptr<TcpSession>& session)

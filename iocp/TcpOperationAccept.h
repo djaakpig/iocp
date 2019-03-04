@@ -9,7 +9,7 @@ const uint32_t SockaddrLen = sizeof(SOCKADDR_IN) + 16;
 class TcpOperationAccept final : public TcpOperation
 {
 private:
-	std::shared_ptr<TcpListener> _listener;
+	std::shared_ptr<TcpListener> _listener{};
 	char _buf[SockaddrLen * 2];
 
 public:

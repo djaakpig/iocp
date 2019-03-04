@@ -10,7 +10,7 @@ class Socket final
 {
 private:
 	SOCKET _socket = INVALID_SOCKET;
-	std::shared_ptr<WinsockExtension> _extension;
+	std::shared_ptr<WinsockExtension> _extension{};
 
 public:
 	Socket() = default;

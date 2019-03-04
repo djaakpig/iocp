@@ -13,8 +13,8 @@
 #include "TcpListener.h"
 
 TcpSession::TcpSession(const SessionId id, const ThreadPool& threadPool) :
-	_id(id),
-	_threadPool(threadPool)
+	_id{id},
+	_threadPool{threadPool}
 {
 	_socket = std::make_unique<Socket>();
 	_acceptOp = std::make_shared<TcpOperationAccept>();
@@ -24,10 +24,6 @@ TcpSession::TcpSession(const SessionId id, const ThreadPool& threadPool) :
 	_sendOp = std::make_shared<TcpOperationSend>();
 }
 
-TcpSession::~TcpSession()
-{
-}
-
 HANDLE TcpSession::GetHandle() const
 {
 	return _socket->GetHandle();
@@ -35,27 +31,27 @@ HANDLE TcpSession::GetHandle() const
 
 void TcpSession::SetOnAccept(TcpOperationCallback&& callback)
 {
-	_acceptOp->SetCallback(std::move(callback));
+	_acceptOp->SetCallback(std::forward<TcpOperationCallback>(callback));
 }
 
 void TcpSession::SetOnConnect(TcpOperationCallback&& callback)
 {
-	_connectOp->SetCallback(std::move(callback));
+	_connectOp->SetCallback(std::forward<TcpOperationCallback>(callback));
 }
 
 void TcpSession::SetOnDisconnect(TcpOperationCallback&& callback)
 {
-	_disconnectOp->SetCallback(std::move(callback));
+	_disconnectOp->SetCallback(std::forward<TcpOperationCallback>(callback));
 }
 
 void TcpSession::SetOnRecv(TcpOperationCallback&& callback)
 {
-	_recvOp->SetCallback(std::move(callback));
+	_recvOp->SetCallback(std::forward<TcpOperationCallback>(callback));
 }
 
 void TcpSession::SetOnSend(TcpOperationCallback&& callback)
 {
-	_sendOp->SetCallback(std::move(callback));
+	_sendOp->SetCallback(std::forward<TcpOperationCallback>(callback));
 }
 
 bool TcpSession::Accept(const std::shared_ptr<TcpListener>& listener)

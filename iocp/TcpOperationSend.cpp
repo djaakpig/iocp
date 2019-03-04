@@ -5,7 +5,7 @@
 
 void TcpOperationSend::Enqueue(const std::shared_ptr<WsaBuf>& buf)
 {
-	const std::unique_lock<std::mutex> l(_lock);
+	const std::unique_lock<std::mutex> l{_lock};
 	_bufs.emplace_back(buf);
 }
 
@@ -47,7 +47,7 @@ bool TcpOperationSend::_OnComplete(const int32_t e)
 	}
 
 	auto numSentBytes = _numSentBytes;
-	BufferPtrList bufs;
+	BufferPtrList bufs{};
 	DoExclusive(_lock, [&]
 	{
 		_bufs.swap(bufs);

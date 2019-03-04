@@ -10,8 +10,8 @@ class ThreadPool final
 {
 private:
 	HANDLE _iocpHandle = nullptr;
-	std::list<std::thread> _workers;
-	std::atomic_size_t _numRunningWorkers;
+	std::list<std::thread> _workers{};
+	std::atomic_size_t _numRunningWorkers{0};
 
 public:
 	ThreadPool() = default;

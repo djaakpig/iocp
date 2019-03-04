@@ -9,10 +9,6 @@ TcpListener::TcpListener()
 	_socket = std::make_unique<Socket>();
 }
 
-TcpListener::~TcpListener()
-{
-}
-
 bool TcpListener::Create()
 {
 	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))

@@ -16,7 +16,7 @@ bool Socket::Associate(const std::unique_ptr<Socket>& socket)
 
 bool Socket::Bind() const
 {
-	static const SockaddrIn addr;
+	static const SockaddrIn addr{};
 	return Bind(addr);
 }
 
@@ -50,7 +50,7 @@ bool Socket::LoadExtension()
 bool Socket::UseKeepAlive(const uint32_t keepAliveTime, const uint32_t keepAliveInterval) const
 {
 	DWORD bytesReturned = 0;
-	tcp_keepalive tcpKeepAlive{ TRUE, keepAliveTime, keepAliveInterval };
+	tcp_keepalive tcpKeepAlive{TRUE, keepAliveTime, keepAliveInterval};
 	const auto r = WSAIoctl(_socket, SIO_KEEPALIVE_VALS, &tcpKeepAlive, sizeof(tcp_keepalive), nullptr, 0, &bytesReturned, nullptr, nullptr);
 	return SOCKET_ERROR != r;
 }

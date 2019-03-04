@@ -7,11 +7,11 @@ class Socket;
 class TcpListener final
 {
 private:
-	std::unique_ptr<Socket> _socket;
+	std::unique_ptr<Socket> _socket{};
 
 public:
 	TcpListener();
-	~TcpListener();
+	~TcpListener() = default;
 
 	inline auto GetSocket() const->const std::unique_ptr<Socket>&
 	{

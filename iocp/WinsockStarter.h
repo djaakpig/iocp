@@ -5,7 +5,7 @@ class WinsockStarter final
 {
 private:
 	bool _available = false;
-	WSADATA _wsaData;
+	WSADATA _wsaData{};
 
 public:
 	WinsockStarter()

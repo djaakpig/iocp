@@ -3,7 +3,7 @@
 #include "TcpSession.h"
 
 TcpOperationRecv::TcpOperationRecv(const uint32_t capacity) :
-	_buf(capacity)
+	_buf{capacity}
 {
 }
 
@@ -48,7 +48,7 @@ bool TcpOperationRecv::_OnComplete(const int32_t e)
 	if(e)
 		return _Invoke(e, _session);
 
-	WSABUF wsaBuf;
+	WSABUF wsaBuf{};
 	std::pair<int32_t, uint32_t> r{ERROR_SUCCESS, 0};
 
 	while(ERROR_SUCCESS == r.first && _buf.BeginWrite(wsaBuf))

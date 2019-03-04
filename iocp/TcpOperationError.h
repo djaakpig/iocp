@@ -8,7 +8,7 @@ class TcpOperationError final : public Operation
 {
 private:
 	int32_t _error = ERROR_SUCCESS;
-	std::shared_ptr<TcpOperation> _operation;
+	std::shared_ptr<TcpOperation> _operation{};
 
 public:
 	inline void SetError(const int32_t e)

@@ -8,7 +8,7 @@ class TcpServerService abstract : public TcpSessionService
 	using TcpSessionService::TcpSessionService;
 
 private:
-	std::shared_ptr<TcpListener> _listener;
+	std::shared_ptr<TcpListener> _listener{};
 
 protected:
 	bool _Start(const SockaddrIn& listenAddr, const uint32_t numReserved) override;

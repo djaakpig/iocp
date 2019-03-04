@@ -18,7 +18,7 @@ class TcpSessionService abstract : public std::enable_shared_from_this<TcpSessio
 
 protected:
 	const ThreadPool& _threadPool;
-	std::shared_mutex _lock;
+	std::shared_mutex _lock{};
 
 private:
 	std::atomic_bool _inProgress = true;

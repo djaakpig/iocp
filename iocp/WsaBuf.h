@@ -5,7 +5,7 @@
 class WsaBuf final
 {
 private:
-	WSABUF _buf;
+	WSABUF _buf{};
 
 public:
 	WsaBuf();

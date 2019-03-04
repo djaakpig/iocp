@@ -2,9 +2,9 @@
 #include <algorithm>
 #include "Type.h"
 
-WsaBuf::WsaBuf()
+WsaBuf::WsaBuf() :
+	_buf{0, nullptr}
 {
-	_buf = {0, nullptr};
 }
 
 WsaBuf::WsaBuf(const uint32_t len)
@@ -13,7 +13,8 @@ WsaBuf::WsaBuf(const uint32_t len)
 	_buf.len = len;
 }
 
-WsaBuf::WsaBuf(const WSABUF& buf) : WsaBuf(buf.buf, buf.len)
+WsaBuf::WsaBuf(const WSABUF& buf) :
+	WsaBuf{buf.buf, buf.len}
 {
 }
 
