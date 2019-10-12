@@ -10,8 +10,8 @@ class TcpOperationSend final : public TcpOperation
 	using BufferPtrList = std::list<std::shared_ptr<WsaBuf>>;
 
 private:
-	std::mutex _lock{};
-	BufferPtrList _bufs{};
+	std::mutex _lock;
+	BufferPtrList _bufs;
 	uint32_t _numSentBytes = 0;
 
 public:

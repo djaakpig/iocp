@@ -5,24 +5,27 @@ class WinsockStarter final
 {
 private:
 	bool _available = false;
-	WSADATA _wsaData{};
+	WSADATA _wsaData;
 
 public:
 	WinsockStarter()
 	{
 		const auto versionRequired = MAKEWORD(2, 2);
-		if(0 == WSAStartup(versionRequired, &_wsaData))
+
+		if(0 == ::WSAStartup(versionRequired, &_wsaData))
 		{
 			_available = _wsaData.wVersion == versionRequired;
 		}
 	}
 	~WinsockStarter()
 	{
-		WSACleanup();
+		::WSACleanup();
 	}
 
+	#pragma region getters
 	inline bool Available() const
 	{
 		return _available;
 	}
+	#pragma endregion
 };

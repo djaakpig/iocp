@@ -8,9 +8,10 @@ class TcpOperationError final : public Operation
 {
 private:
 	int32_t _error = ERROR_SUCCESS;
-	std::shared_ptr<TcpOperation> _operation{};
+	std::shared_ptr<TcpOperation> _operation;
 
 public:
+	#pragma region setters
 	inline void SetError(const int32_t e)
 	{
 		_error = e;
@@ -19,6 +20,7 @@ public:
 	{
 		_operation = operation;
 	}
+	#pragma endregion
 
 	void Clear() override;
 	void OnComplete(const int32_t) override;

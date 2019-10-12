@@ -27,6 +27,7 @@ auto TcpSessionService::Find(const SessionId id)->std::shared_ptr<TcpSession>
 	const std::shared_lock<std::shared_mutex> s{_lock};
 
 	const auto iter = _sessionMap.find(id);
+
 	return _sessionMap.end() != iter ? iter->second : nullptr;
 }
 
@@ -48,6 +49,7 @@ void TcpSessionService::Stop()
 void TcpSessionService::_Add(const std::shared_ptr<TcpSession>& session)
 {
 	const std::unique_lock<std::shared_mutex> l{_lock};
+
 	_sessionMap.emplace(std::make_pair(session->GetId(), session));
 }
 
@@ -72,12 +74,14 @@ void TcpSessionService::_CloseAllSessions()
 void TcpSessionService::_Remove(const SessionId id)
 {
 	const std::unique_lock<std::shared_mutex> l{_lock};
+
 	_sessionMap.erase(id);
 }
 
 void TcpSessionService::_SetCallbackTo(const std::shared_ptr<TcpSession>& session)
 {
 	const auto thisPtr = shared_from_this();
+
 	session->SetOnDisconnect([thisPtr](const auto e, const auto& session)
 	{
 		return thisPtr->_OnDisconnect(e, session);
@@ -101,6 +105,7 @@ bool TcpSessionService::_OnDisconnect(const int32_t e, const std::shared_ptr<Tcp
 	if(e)
 	{
 		LogError("disconnect fail! id:", session->GetId(), " error:", e);
+
 		return false;
 	}
 
@@ -112,6 +117,7 @@ bool TcpSessionService::_OnRecv(const int32_t e, const std::shared_ptr<TcpSessio
 	if(e)
 	{
 		LogError("recv fail! id:", session->GetId(), " error:", e);
+
 		return false;
 	}
 
@@ -122,26 +128,34 @@ bool TcpSessionService::_OnRecv(const int32_t e, const std::shared_ptr<TcpSessio
 		wsaBuf.len = sizeof(PacketLength);
 
 		if(!session->BeginRead(wsaBuf))
+		{
 			break;
+		}
 
 		const auto packetLength = *reinterpret_cast<PacketLength*>(wsaBuf.buf);
 
 		if(sizeof(PacketLength) >= packetLength)
 		{
 			LogError("too small! id:", session->GetId(), " length:", packetLength);
+
 			return false;
 		}
 
 		wsaBuf.len = packetLength;
 
 		if(!session->BeginRead(wsaBuf))
+		{
 			break;
+		}
 
 		session->EndRead(wsaBuf.len);
 
 		const WSABUF packet{packetLength - sizeof(PacketLength), wsaBuf.buf + sizeof(PacketLength)};
+
 		if(!_OnPacket(session, packet))
+		{
 			return false;
+		}
 	}
 
 	return true;
@@ -152,6 +166,7 @@ bool TcpSessionService::_OnSend(const int32_t e, const std::shared_ptr<TcpSessio
 	if(e)
 	{
 		LogError("send fail! id:", session->GetId(), " error:", e);
+
 		return false;
 	}
 

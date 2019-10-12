@@ -19,5 +19,7 @@ template<class Fn, class... Args>
 inline void WaitCondition(const std::chrono::milliseconds& sleepTime, Fn&& fn, Args&&... args)
 {
 	while(fn(args...))
+	{
 		std::this_thread::sleep_for(sleepTime);
+	}
 }

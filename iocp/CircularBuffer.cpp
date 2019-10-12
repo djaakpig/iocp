@@ -9,15 +9,21 @@ CircularBuffer::CircularBuffer(const uint32_t capacity) :
 bool CircularBuffer::BeginRead(WSABUF& wsaBuf)
 {
 	if(0 == wsaBuf.len)
+	{
 		return false;
+	}
 
 	if(IsNotEnough(wsaBuf.len))
+	{
 		return false;
+	}
 
 	const auto bufLimit = _positionToRead > _positionToWrite ? _buf->len : _positionToWrite;
 
 	if(bufLimit - _positionToRead < wsaBuf.len)
+	{
 		_DoLinearize();
+	}
 
 	wsaBuf.buf = _buf->buf + _positionToRead;
 
@@ -27,9 +33,12 @@ bool CircularBuffer::BeginRead(WSABUF& wsaBuf)
 bool CircularBuffer::BeginWrite(WSABUF& wsaBuf) const
 {
 	if(IsFull())
+	{
 		return false;
+	}
 
 	const auto bufLimit = _positionToRead > _positionToWrite ? _positionToRead : _buf->len;
+
 	wsaBuf = {bufLimit - _positionToWrite, _buf->buf + _positionToWrite};
 
 	return true;
@@ -56,7 +65,7 @@ void CircularBuffer::Clear()
 
 void CircularBuffer::_DoLinearize()
 {
-	thread_local WsaBuf RecvBufForLinearize{};
+	thread_local WsaBuf RecvBufForLinearize;
 	const auto readSize = _buf->len - _positionToRead;
 
 	RecvBufForLinearize.CopyFrom(_buf->buf + _positionToRead, readSize);

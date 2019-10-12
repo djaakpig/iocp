@@ -4,7 +4,7 @@
 class CircularBuffer final
 {
 private:
-	WsaBuf _buf{};
+	WsaBuf _buf;
 	uint32_t _positionToWrite = 0;
 	uint32_t _positionToRead = 0;
 	uint32_t _size = 0;
@@ -12,6 +12,7 @@ private:
 public:
 	explicit CircularBuffer(const uint32_t capacity);
 
+	#pragma region getters
 	inline bool IsNotEnough(const uint32_t needBytes) const
 	{
 		return _size < needBytes;
@@ -24,6 +25,7 @@ public:
 	{
 		return _size;
 	}
+	#pragma endregion
 
 	bool BeginRead(WSABUF& wsaBuf);
 	bool BeginWrite(WSABUF& wsaBuf) const;

@@ -24,7 +24,7 @@ TcpSession::TcpSession(const SessionId id, const ThreadPool& threadPool) :
 	_sendOp = std::make_shared<TcpOperationSend>();
 }
 
-HANDLE TcpSession::GetHandle() const
+auto TcpSession::GetHandle() const->HANDLE
 {
 	return _socket->GetHandle();
 }
@@ -57,10 +57,14 @@ void TcpSession::SetOnSend(TcpOperationCallback&& callback)
 bool TcpSession::Accept(const std::shared_ptr<TcpListener>& listener)
 {
 	if(!_socket->IsValid())
+	{
 		return false;
+	}
 
 	if(_acceptOp->SetInProgress())
+	{
 		return true;
+	}
 
 	_acceptOp->SetSession(shared_from_this());
 	_acceptOp->SetListener(listener);
@@ -71,6 +75,7 @@ bool TcpSession::Accept(const std::shared_ptr<TcpListener>& listener)
 	if(!_acceptOp->Post(_socket->GetExtension()))
 	{
 		_acceptOp->Clear();
+
 		return false;
 	}
 
@@ -90,10 +95,14 @@ void TcpSession::Close()
 bool TcpSession::Connect(const SockaddrIn& remoteAddr)
 {
 	if(!_socket->IsValid())
+	{
 		return false;
+	}
 
 	if(_connectOp->SetInProgress())
+	{
 		return true;
+	}
 
 	_connectOp->SetSession(shared_from_this());
 	_connectOp->SetAddr(remoteAddr);
@@ -101,6 +110,7 @@ bool TcpSession::Connect(const SockaddrIn& remoteAddr)
 	if(!_connectOp->Post(_socket->GetExtension()))
 	{
 		_connectOp->Clear();
+
 		return false;
 	}
 
@@ -110,7 +120,9 @@ bool TcpSession::Connect(const SockaddrIn& remoteAddr)
 bool TcpSession::CopyContextFrom(const std::unique_ptr<Socket>& source) const
 {
 	if(!_socket->SetNonblock(true))
+	{
 		return false;
+	}
 
 	const auto sourceSocket = source->GetValue();
 
@@ -120,10 +132,14 @@ bool TcpSession::CopyContextFrom(const std::unique_ptr<Socket>& source) const
 bool TcpSession::Create()
 {
 	if(!_socket->Create(SOCK_STREAM, IPPROTO_TCP))
+	{
 		return false;
+	}
 
 	if(!_socket->UseKeepAlive(5000, 1000))
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -131,16 +147,21 @@ bool TcpSession::Create()
 bool TcpSession::Disconnect()
 {
 	if(!_socket->IsValid())
+	{
 		return false;
+	}
 
 	if(_disconnectOp->SetInProgress())
+	{
 		return true;
+	}
 
 	_disconnectOp->SetSession(shared_from_this());
 
 	if(!_disconnectOp->Post(_socket->GetExtension()))
 	{
 		_disconnectOp->Clear();
+
 		return false;
 	}
 
@@ -172,7 +193,9 @@ bool TcpSession::PostError(const int32_t lastError, const std::shared_ptr<TcpOpe
 	errorCallback->SetOperation(operation);
 
 	if(!_threadPool.Post(errorCallback.get()))
+	{
 		return false;
+	}
 
 	errorCallback.release();
 
@@ -182,16 +205,21 @@ bool TcpSession::PostError(const int32_t lastError, const std::shared_ptr<TcpOpe
 bool TcpSession::Recv()
 {
 	if(!_socket->IsValid())
+	{
 		return false;
+	}
 
 	if(_recvOp->SetInProgress())
+	{
 		return true;
+	}
 
 	_recvOp->SetSession(shared_from_this());
 
 	if(!_recvOp->Post())
 	{
 		_recvOp->Clear();
+
 		return false;
 	}
 
@@ -201,18 +229,23 @@ bool TcpSession::Recv()
 bool TcpSession::Send(const std::shared_ptr<WsaBuf>& buf)
 {
 	if(!_socket->IsValid())
+	{
 		return false;
+	}
 
 	_sendOp->Enqueue(buf);
 
 	if(_sendOp->SetInProgress())
+	{
 		return true;
+	}
 
 	_sendOp->SetSession(shared_from_this());
 
 	if(!_sendOp->Post())
 	{
 		_sendOp->Clear();
+
 		return false;
 	}
 

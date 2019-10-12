@@ -14,5 +14,6 @@ void TcpOperationDisconnect::OnComplete(const int32_t e)
 bool TcpOperationDisconnect::Post(const std::shared_ptr<WinsockExtension>& extension)
 {
 	const auto r = extension->disconnectEx(_session->GetSocket()->GetValue(), this, TF_REUSE_SOCKET, 0);
+
 	return r ? true : _HandleError();
 }

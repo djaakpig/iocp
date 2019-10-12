@@ -10,12 +10,13 @@ class Socket final
 {
 private:
 	SOCKET _socket = INVALID_SOCKET;
-	std::shared_ptr<WinsockExtension> _extension{};
+	std::shared_ptr<WinsockExtension> _extension;
 
 public:
 	Socket() = default;
 	~Socket();
 
+	#pragma region getters
 	inline auto GetExtension() const->std::shared_ptr<WinsockExtension>
 	{
 		return _extension;
@@ -32,7 +33,9 @@ public:
 	{
 		return INVALID_SOCKET != _socket;
 	}
+	#pragma endregion
 
+	#pragma region setters
 	inline bool SetNonblock(const bool enable) const
 	{
 		u_long val = enable;
@@ -51,6 +54,7 @@ public:
 	{
 		return SOCKET_ERROR != setsockopt(_socket, level, name, nullptr, 0);
 	}
+	#pragma endregion
 
 	bool Associate(const std::unique_ptr<Socket>& socket);
 	bool Bind() const;

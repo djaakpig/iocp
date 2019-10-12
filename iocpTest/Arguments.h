@@ -2,9 +2,11 @@
 #include <Type.h>
 #include <SockaddrIn.h>
 
+#pragma region constants
 const uint16_t MinPort = 30000;
 const uint16_t MaxPort = 30000;
 const uint32_t MaxSession = 1000;
+#pragma endregion
 
 class Arguments final
 {
@@ -19,6 +21,7 @@ private:
 	uint32_t _numSessions = 1;
 
 public:
+	#pragma region getters
 	inline auto GetAddr() const->const SockaddrIn&
 	{
 		return _addr;
@@ -43,6 +46,7 @@ public:
 	{
 		return _serverMode;
 	}
+	#pragma endregion
 
 	bool Load(const int32_t argc, char** args);
 	auto ToTitle() const->std::string;

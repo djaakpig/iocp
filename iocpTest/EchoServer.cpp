@@ -7,9 +7,9 @@ bool EchoServer::_OnPacket(const std::shared_ptr<TcpSession>& sessionPtr, const 
 {
 	LogNormal("received packet! id:", sessionPtr->GetId(), ", len:", buf.len, ", msg:", std::string{buf.buf, buf.len});
 
-	//	{{ECHO_TEST}}
+	#pragma region echo test
 	sessionPtr->Send(std::make_shared<WsaBuf>(buf));
-	//	{{ECHO_TEST}}
+	#pragma endregion
 
 	return true;
 }

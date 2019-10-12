@@ -1,5 +1,6 @@
 #pragma once
 
+#pragma region safe deleters
 template<typename T>
 inline void SafeDelete(T*& pSingle)
 {
@@ -19,3 +20,4 @@ inline void SafeDeleteArray(T*& pArray)
 		pArray = nullptr;
 	}
 }
+#pragma endregion

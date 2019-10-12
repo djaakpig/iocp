@@ -9,14 +9,16 @@ const uint32_t SockaddrLen = sizeof(SOCKADDR_IN) + 16;
 class TcpOperationAccept final : public TcpOperation
 {
 private:
-	std::shared_ptr<TcpListener> _listener{};
+	std::shared_ptr<TcpListener> _listener;
 	char _buf[SockaddrLen * 2];
 
 public:
+	#pragma region setters
 	inline void SetListener(const std::shared_ptr<TcpListener>& listener)
 	{
 		_listener = listener;
 	}
+	#pragma endregion
 
 	void Clear() override;
 	void FillAddrTo(const std::shared_ptr<WinsockExtension>& extension,

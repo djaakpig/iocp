@@ -5,16 +5,16 @@
 #include "EchoServer.h"
 #include "EchoClient.h"
 
-#pragma comment(lib, "ws2_32.lib") 
-#pragma comment(lib, "mswsock.lib") 
-#pragma comment(lib, "iocp.lib") 
+#pragma comment(lib, "iocp.lib")
 
 int main(int argc, char** args)
 {
 	Arguments arguments;
 
 	if(!arguments.Load(argc, args))
+	{
 		return 1;
+	}
 
 	SetConsoleTitleA(arguments.ToTitle().c_str());
 	SetLogLevel(arguments.GetLogLevel());
@@ -27,9 +27,13 @@ int main(int argc, char** args)
 		std::shared_ptr<TcpSessionService> service;
 
 		if(arguments.IsServerMode())
+		{
 			service = std::make_shared<EchoServer>(threadPool);
+		}
 		else
+		{
 			service = std::make_shared<EchoClient>(threadPool);
+		}
 
 		if(service->Start(arguments.GetAddr(), arguments.GetNumSessions()))
 		{

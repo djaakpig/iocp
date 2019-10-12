@@ -6,11 +6,13 @@
 bool EchoClient::_OnConnect(const int32_t e, const std::shared_ptr<TcpSession>& sessionPtr)
 {
 	if(!__super::_OnConnect(e, sessionPtr))
+	{
 		return false;
+	}
 
-	//	{{ECHO_TEST}}
+	#pragma region echo test
 	sessionPtr->Send(std::make_shared<WsaBuf>("1234567890", 10));
-	//	{{ECHO_TEST}}
+	#pragma endregion
 
 	return true;
 }

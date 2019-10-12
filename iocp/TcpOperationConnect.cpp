@@ -9,7 +9,9 @@ void TcpOperationConnect::OnComplete(const int32_t e)
 	const auto r = _Invoke(e, _session);
 
 	if(!r)
+	{
 		_session->Disconnect();
+	}
 
 	Clear();
 }

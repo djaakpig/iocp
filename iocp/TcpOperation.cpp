@@ -11,9 +11,12 @@ void TcpOperation::Clear()
 
 bool TcpOperation::_HandleError()
 {
-	const auto lastError = WSAGetLastError();
+	const auto lastError = ::WSAGetLastError();
+
 	if(WSA_IO_PENDING == lastError)
+	{
 		return true;
+	}
 
 	return _session->PostError(lastError, shared_from_this());
 }

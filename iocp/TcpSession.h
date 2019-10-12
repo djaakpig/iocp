@@ -20,20 +20,21 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>
 private:
 	const SessionId _id = 0;
 	const ThreadPool& _threadPool;
-	std::unique_ptr<Socket> _socket{};
-	SockaddrIn _localSockaddr{};
-	SockaddrIn _remoteSockaddr{};
-	std::shared_ptr<TcpOperationAccept> _acceptOp{};
-	std::shared_ptr<TcpOperationConnect> _connectOp{};
-	std::shared_ptr<TcpOperationDisconnect> _disconnectOp{};
-	std::shared_ptr<TcpOperationRecv> _recvOp{};
-	std::shared_ptr<TcpOperationSend> _sendOp{};
+	std::unique_ptr<Socket> _socket;
+	SockaddrIn _localSockaddr;
+	SockaddrIn _remoteSockaddr;
+	std::shared_ptr<TcpOperationAccept> _acceptOp;
+	std::shared_ptr<TcpOperationConnect> _connectOp;
+	std::shared_ptr<TcpOperationDisconnect> _disconnectOp;
+	std::shared_ptr<TcpOperationRecv> _recvOp;
+	std::shared_ptr<TcpOperationSend> _sendOp;
 
 public:
 	TcpSession(const SessionId id, const ThreadPool& threadPool);
 	~TcpSession() = default;
 
-	HANDLE GetHandle() const;
+	#pragma region getters
+	auto GetHandle() const->HANDLE;
 	inline SessionId GetId() const
 	{
 		return _id;
@@ -50,6 +51,7 @@ public:
 	{
 		return _remoteSockaddr;
 	}
+	#pragma endregion
 
 	void SetOnAccept(TcpOperationCallback&& callback);
 	void SetOnConnect(TcpOperationCallback&& callback);

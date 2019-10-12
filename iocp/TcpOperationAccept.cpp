@@ -28,7 +28,9 @@ void TcpOperationAccept::OnComplete(const int32_t e)
 	const auto r = _OnComplete(e);
 
 	if(!r)
+	{
 		_session->Disconnect();
+	}
 
 	Clear();
 }
@@ -51,10 +53,14 @@ bool TcpOperationAccept::Post(const std::shared_ptr<WinsockExtension>& extension
 bool TcpOperationAccept::_OnComplete(const int32_t e)
 {
 	if(e)
+	{
 		return _Invoke(e, _session);
+	}
 
 	if(!_session->CopyContextFrom(_listener->GetSocket()))
+	{
 		return _Invoke(WSAGetLastError(), _session);
+	}
 
 	_session->FillAddr();
 

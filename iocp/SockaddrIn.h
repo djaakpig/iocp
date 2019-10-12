@@ -6,7 +6,7 @@
 class SockaddrIn final
 {
 private:
-	SOCKADDR_IN _addr{};
+	SOCKADDR_IN _addr;
 
 public:
 	SockaddrIn()
@@ -20,11 +20,15 @@ public:
 		SetPort(port);
 	}
 
-	inline auto operator = (const SOCKADDR& addr)->const SockaddrIn&
+	#pragma region operators
+	inline auto operator =(const SOCKADDR& addr)->const SockaddrIn&
 	{
 		memcpy(&_addr, &addr, sizeof(SOCKADDR));
 		return *this;
 	}
+	#pragma endregion
+
+	#pragma region getters
 	inline auto GetIP() const->std::string
 	{
 		char ipBuffer[15 + 1];
@@ -46,6 +50,9 @@ public:
 	{
 		return reinterpret_cast<const SOCKADDR*>(&_addr);
 	}
+	#pragma endregion
+
+	#pragma region setters
 	inline void SetIP(const std::string& ip)
 	{
 		inet_pton(AF_INET, ip.c_str(), &_addr.sin_addr);
@@ -58,4 +65,5 @@ public:
 	{
 		memset(&_addr, 0, sizeof(SOCKADDR_IN));
 	}
+	#pragma endregion
 };

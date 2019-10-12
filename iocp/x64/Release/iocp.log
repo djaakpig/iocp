@@ -1,0 +1,19 @@
+﻿  CircularBuffer.cpp
+  WinsockExtension.cpp
+  TcpOperation.cpp
+  TcpOperationAccept.cpp
+  TcpOperationConnect.cpp
+  TcpOperationDisconnect.cpp
+  TcpOperationError.cpp
+  TcpOperationRecv.cpp
+  TcpOperationSend.cpp
+  Log.cpp
+  ThreadPool.cpp
+  Socket.cpp
+  TcpClientService.cpp
+  TcpListener.cpp
+  TcpServerService.cpp
+  TcpSession.cpp
+  TcpSessionService.cpp
+  WsaBuf.cpp
+  iocp.vcxproj -> C:\GitRoot\iocp\x64\Release\iocp.lib

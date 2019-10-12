@@ -9,6 +9,7 @@ bool Arguments::Load(const int32_t argc, char** args)
 	if(7 != argc)
 	{
 		LogForce(args[0], " [LogLevel:0,1,2,3] [s or c] [numWorkers:1-4] [ip] [port:30000-40000] [numSessions:1-1000]");
+
 		return false;
 	}
 
@@ -34,6 +35,8 @@ bool Arguments::Load(const int32_t argc, char** args)
 auto Arguments::ToTitle() const->std::string
 {
 	std::stringstream ss;
+
 	ss << "[" << _serviceName << "] IP:" << _ip << ", PORT:" << _port << ", NumSessions:" << _numSessions;
+
 	return ss.str();
 }

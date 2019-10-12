@@ -6,6 +6,7 @@
 void TcpOperationSend::Enqueue(const std::shared_ptr<WsaBuf>& buf)
 {
 	const std::unique_lock<std::mutex> l{_lock};
+
 	_bufs.emplace_back(buf);
 }
 
@@ -26,7 +27,7 @@ bool TcpOperationSend::Post()
 
 	const uint32_t flags = 0;
 	WSABUF wsaBuf{0, nullptr};
-	const auto r = WSASend(_session->GetSocket()->GetValue(), &wsaBuf, 1, nullptr, flags, this, nullptr);
+	const auto r = ::WSASend(_session->GetSocket()->GetValue(), &wsaBuf, 1, nullptr, flags, this, nullptr);
 
 	return SOCKET_ERROR != r ? true : _HandleError();
 }
@@ -47,7 +48,8 @@ bool TcpOperationSend::_OnComplete(const int32_t e)
 	}
 
 	auto numSentBytes = _numSentBytes;
-	BufferPtrList bufs{};
+	BufferPtrList bufs;
+
 	DoExclusive(_lock, [&]
 	{
 		_bufs.swap(bufs);
@@ -68,10 +70,14 @@ bool TcpOperationSend::_OnComplete(const int32_t e)
 		}
 
 		if(0 == r.second)
+		{
 			break;
+		}
 
 		if(numSentBytes < buf.len)
+		{
 			break;
+		}
 
 		_Invoke(ERROR_SUCCESS, _session);
 
@@ -88,6 +94,7 @@ bool TcpOperationSend::_OnComplete(const int32_t e)
 		if(_bufs.empty())
 		{
 			Clear();
+
 			return true;
 		}
 
@@ -106,13 +113,18 @@ auto TcpOperationSend::_Send(char* const pBuf, const int32_t sz) const->std::pai
 		const auto r = ::send(s, pCurrentBuf, remainSize, 0);
 
 		if(0 == r)
-			return{WSAECONNRESET, sz - remainSize};
+		{
+			return {WSAECONNRESET, sz - remainSize};
+		}
 
 		if(SOCKET_ERROR == r)
 		{
-			const auto lastError = WSAGetLastError();
+			const auto lastError = ::WSAGetLastError();
+
 			if(WSAEWOULDBLOCK != lastError)
-				return{lastError, sz - remainSize};
+			{
+				return {lastError, sz - remainSize};
+			}
 
 			break;
 		}
@@ -121,5 +133,5 @@ auto TcpOperationSend::_Send(char* const pBuf, const int32_t sz) const->std::pai
 		remainSize -= r;
 	}
 
-	return{ERROR_SUCCESS, sz - remainSize};
+	return {ERROR_SUCCESS, sz - remainSize};
 }

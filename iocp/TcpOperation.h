@@ -6,17 +6,21 @@
 class TcpOperation abstract : public Operation, public std::enable_shared_from_this<TcpOperation>
 {
 protected:
-	std::shared_ptr<TcpSession> _session{};
+	std::shared_ptr<TcpSession> _session;
 
 private:
 	std::atomic_bool _inProgress{false};
 	TcpOperationCallback _callback{nullptr};
 
 public:
+	#pragma region getters
 	inline bool IsInProgress() const
 	{
 		return _inProgress;
 	}
+	#pragma endregion
+
+	#pragma region setters
 	inline void ResetInProgress()
 	{
 		_inProgress = false;
@@ -33,6 +37,7 @@ public:
 	{
 		_session = session;
 	}
+	#pragma endregion
 
 	virtual void Clear();
 

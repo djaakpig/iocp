@@ -7,33 +7,46 @@ bool WinsockExtension::Load(SOCKET s)
 	{
 		LPVOID ptr = nullptr;
 		DWORD bytesReturned = 0;
-		const auto r = WSAIoctl(s,
-								SIO_GET_EXTENSION_FUNCTION_POINTER,
-								reinterpret_cast<LPVOID>(&id),
-								sizeof(GUID),
-								static_cast<LPVOID>(&ptr),
-								sizeof(LPVOID),
-								&bytesReturned,
-								nullptr,
-								nullptr);
+		const auto r = ::WSAIoctl(s,
+								  SIO_GET_EXTENSION_FUNCTION_POINTER,
+								  reinterpret_cast<LPVOID>(&id),
+								  sizeof(GUID),
+								  static_cast<LPVOID>(&ptr),
+								  sizeof(LPVOID),
+								  &bytesReturned,
+								  nullptr,
+								  nullptr);
+
 		return SOCKET_ERROR == r ? nullptr : ptr;
 	};
 
 	acceptEx = static_cast<LPFN_ACCEPTEX>(getExt(WSAID_ACCEPTEX));
-	if(!acceptEx)
+
+	if(nullptr == acceptEx)
+	{
 		return false;
+	}
 
 	connectEx = static_cast<LPFN_CONNECTEX>(getExt(WSAID_CONNECTEX));
-	if(!connectEx)
+
+	if(nullptr == connectEx)
+	{
 		return false;
+	}
 
 	disconnectEx = static_cast<LPFN_DISCONNECTEX>(getExt(WSAID_DISCONNECTEX));
-	if(!disconnectEx)
+
+	if(nullptr == disconnectEx)
+	{
 		return false;
+	}
 
 	getAcceptExSockaddrs = static_cast<LPFN_GETACCEPTEXSOCKADDRS>(getExt(WSAID_GETACCEPTEXSOCKADDRS));
-	if(!getAcceptExSockaddrs)
+
+	if(nullptr == getAcceptExSockaddrs)
+	{
 		return false;
+	}
 
 	return true;
 }

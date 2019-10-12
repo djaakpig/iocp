@@ -18,7 +18,7 @@ class TcpSessionService abstract : public std::enable_shared_from_this<TcpSessio
 
 protected:
 	const ThreadPool& _threadPool;
-	std::shared_mutex _lock{};
+	std::shared_mutex _lock;
 
 private:
 	std::atomic_bool _inProgress = true;
@@ -28,10 +28,12 @@ public:
 	explicit TcpSessionService(const ThreadPool& threadPool);
 	virtual ~TcpSessionService() = default;
 
+	#pragma region getters
 	inline bool IsInRunning() const
 	{
 		return _inProgress;
 	}
+	#pragma endregion
 
 	void Broadcast(const std::shared_ptr<WsaBuf>& buf);
 	auto Find(const SessionId id)->std::shared_ptr<TcpSession>;
@@ -46,10 +48,10 @@ protected:
 	virtual bool _Start(const SockaddrIn& listenAddr, const uint32_t numReserved) = 0;
 	virtual void _Stop() = 0;
 
-	//	{{CALLBACK}}
+	#pragma region callbacks
 	virtual bool _OnDisconnect(const int32_t e, const std::shared_ptr<TcpSession>& session);
 	virtual bool _OnPacket(const std::shared_ptr<TcpSession>& session, const WSABUF& buf) = 0;
 	bool _OnRecv(const int32_t e, const std::shared_ptr<TcpSession>& session);
 	bool _OnSend(const int32_t e, const std::shared_ptr<TcpSession>& session);
-	//	{{CALLBACK}}
+	#pragma endregion
 };
