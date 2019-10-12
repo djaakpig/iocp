@@ -12,3 +12,6 @@
 /iocpTest/iocpTest.vcxproj.user
 /.vs/iocp/v15
 /.vs
+/iocp/x64
+/iocpTest/x64
+/x64
